@@ -35,7 +35,8 @@
       "@models/*": ["models/*"],
       "@request_schemas/*": ["request_schemas/*"],
       "@lib/*": ["lib/*"],
-      "@exceptions/*": ["exceptions/*"]
+      "@exceptions/*": ["exceptions/*"],
+      "@types/*": ["types/"]
     },                                      /* Specify a set of entries that re-map imports to additional lookup locations. */
     // "rootDirs": [],                                   /* Allow multiple folders to be treated as one when resolving modules. */
     // "typeRoots": [],                                  /* Specify multiple folders that act like './node_modules/@types'. */
