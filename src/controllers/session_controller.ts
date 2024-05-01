@@ -3,6 +3,7 @@ import { InvalidCredentialsException } from "@exceptions/session";
 import User from "@models/User";
 import { HttpStatusCodes } from "@ts/enums";
 import { Request, Response } from "express";
+import TokenStore from "./token_store";
 
 class SessionController {
     public static async login(req: Request, res: Response): Promise<void> {
@@ -15,9 +16,12 @@ class SessionController {
 
             await user.login();
 
-            // const tokenStore = new TokenStore();
-            // const token = tokenStore.sign(user);
-            res.status(HttpStatusCodes.CREATED).send();
+            const tokenStore = new TokenStore();
+            const token = tokenStore.sign(user);
+            res.status(HttpStatusCodes.CREATED).send({
+                token,
+                user
+            });
         } catch (error: any) {
             let statusCode = HttpStatusCodes.INTERNAL_SERVER_ERROR;
             const responseDetails = {
