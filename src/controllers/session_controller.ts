@@ -10,6 +10,7 @@ class SessionController {
         try {
             const { email, password } = req.body;
 
+            res.send()
             const user = new User();
             user.email = email;
             user.password = password;
@@ -18,10 +19,12 @@ class SessionController {
 
             const tokenStore = new TokenStore();
             const token = tokenStore.sign(user);
-            res.status(HttpStatusCodes.CREATED).send({
-                token,
-                user
-            });
+            res.header("Location", `${process.env.HOST_URL}${req.baseUrl}/${user.id}`)
+                .status(HttpStatusCodes.CREATED)
+                .send({
+                    token,
+                    user
+                });
         } catch (error: any) {
             let statusCode = HttpStatusCodes.INTERNAL_SERVER_ERROR;
             const responseDetails = {
