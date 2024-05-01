@@ -1,8 +1,7 @@
-import mysql from "mysql2";
-import { Pool } from "mysql2/typings/mysql/lib/Pool";
+import mysql from "mysql2/promise";
 
 class DataBase {
-    private static POOL_CONNECTION: Pool | null;
+    private static POOL_CONNECTION: mysql.Pool | null;
 
     public static connection() {
         if(DataBase.POOL_CONNECTION == null) {

@@ -2,6 +2,7 @@ import { RowDataPacket } from "mysql2";
 import Model from "./Model";
 import { SQLException } from "@exceptions/services";
 import { InvalidCredentialsException } from "@exceptions/session";
+import DataBase from "@lib/db";
 
 class User extends Model {
     private _avatar: Buffer | null;
@@ -35,15 +36,16 @@ class User extends Model {
     set phoneNumber(phoneNumber: string) { this._phoneNumber = phoneNumber; }
     set role(role: string) { this._role = role; }
 
-    public login(): void {
+    public async login() {
         let results: RowDataPacket[];
+        const db = DataBase.connection();
     
         try {
-            // const dbResults = await connectionPool.execute<RowDataPacket[]>(
-            //     "CALL recover_user_by_email(?)",
-            //     [this._email]
-            // );
-            // results = dbResults[0];
+            const dbResults = await db.execute<RowDataPacket[]>(
+                "CALL recover_user_by_email(?)",
+                [this._email]
+            );
+            results = dbResults[0];
         } catch(error:any) {
             const errorCodeMessage = error.code ? `ErrorCode: ${error.code}` : "";
             throw new SQLException(
@@ -53,10 +55,10 @@ class User extends Model {
             );
         }
 
-        // const loginStatus = results[0][0];
-        // if(!loginStatus) {
-        //     throw new InvalidCredentialsException("Invalid credentials. Check your email and password and try it again");
-        // }
+        const loginStatus = results[0][0];
+        if(!loginStatus) {
+            throw new InvalidCredentialsException("Invalid credentials. Check your email and password and try it again");
+        }
 
         // const securityService = new SecurityService();
         // const isMatchPassword = await securityService.comparePassword(this._password, loginStatus.password);
