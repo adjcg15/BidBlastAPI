@@ -12,7 +12,7 @@ enum UserRoles {
     CUSTOMER = "CUSTOMER",
     AUCTIONEER = "AUCTIONEER",
     MODERATOR = "MODERATOR"
-}
+};
 
 export {
     HttpStatusCodes,
