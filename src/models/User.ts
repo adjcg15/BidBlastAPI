@@ -85,7 +85,7 @@ class User extends Model {
             email: this._email,
             phoneNumber: this._phoneNumber,
             roles: this._roles
-        }
+        };
     };
 }
 
