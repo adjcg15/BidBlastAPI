@@ -55,6 +55,7 @@ class User extends Model {
             );
         }
 
+        //TODO: adapt the validation tu the real result
         const loginStatus = results[0][0];
         if(!loginStatus) {
             throw new InvalidCredentialsException("Invalid credentials. Check your email and password and try it again");
