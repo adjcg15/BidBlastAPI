@@ -14,18 +14,16 @@ class SessionController {
             const user = new User();
             user.email = email;
             user.password = password;
-
             await user.login();
 
             const tokenStore = new TokenStore();
             const token = tokenStore.sign(user);
-            res.header("Location", `${process.env.HOST_URL}${req.baseUrl}/${user.id}`)
-                .status(HttpStatusCodes.CREATED)
+            res.status(HttpStatusCodes.CREATED)
                 .send({
                     token,
-                    user
+                    user: user.parse()
                 });
-        } catch (error: any) {
+        } catch(error: any) {
             let statusCode = HttpStatusCodes.INTERNAL_SERVER_ERROR;
             const responseDetails = {
                 error: true,
@@ -36,7 +34,7 @@ class SessionController {
                 statusCode = HttpStatusCodes.BAD_REQUEST;
                 responseDetails.details = error.message;
             } else if(error instanceof SQLException) {
-                // Logger.error(error.name, error.message);
+                Logger.error(error.name, error.message);
                 responseDetails.details = "It was not possible to login, please try it again later";
             } else {
                 Logger.error(error.name, error.message);

@@ -39,11 +39,11 @@ class User extends Model {
     set addRole(role: UserRoles) { this._roles = [...this._roles, role]; }
 
     public async login() {
-        let results: RowDataPacket[];
+        let results: RowDataPacket[][];
         const db = DataBase.connection();
     
         try {
-            const dbResults = await db.execute<RowDataPacket[]>(
+            const dbResults = await db.execute<RowDataPacket[][]>(
                 "CALL recover_user_by_email(?)",
                 [this._email]
             );
@@ -57,24 +57,24 @@ class User extends Model {
             );
         }
 
-        //TODO: adapt the validation tu the real result
-        const loginStatus = results[0][0];
-        if(!loginStatus) {
+        const userInformation = results[0][0];
+        const userRoles = results[1];
+        
+        if(!userInformation) {
             throw new InvalidCredentialsException("Invalid credentials. Check your email and password and try it again");
         }
 
         const securityService = new SecurityService();
-        const isMatchPassword = await securityService.comparePassword(this._password, loginStatus.password);
-        if(!isMatchPassword) {
+        const isCorrectPassword = await securityService.comparePassword(this._password, userInformation.password);
+        if(!isCorrectPassword) {
             throw new InvalidCredentialsException("Invalid credentials. Check your email and password and try it again");
         }
 
-        //TODO: adapt the validation tu the real result
-        this._id = loginStatus.id_account;
-        this._avatar = loginStatus.avatar;
-        this._fullName = loginStatus.full_name;
-        this._roles = loginStatus.roles;
-        this._phoneNumber = loginStatus.phoneNumber;
+        this._id = userInformation.id_profile;
+        this._avatar = userInformation.avatar;
+        this._fullName = userInformation.full_name;
+        this._roles = userRoles.map(dbRole => dbRole.name as UserRoles);
+        this._phoneNumber = userInformation.phone_number ?? "";
     }
     
     public parse() {
@@ -84,7 +84,7 @@ class User extends Model {
             fullName: this._fullName,
             email: this._email,
             phoneNumber: this._phoneNumber,
-            role: this._roles
+            roles: this._roles
         }
     };
 }
