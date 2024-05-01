@@ -98,3 +98,20 @@ construcción de un endpoint asociado, un nombre recomendable sería:
 Mientras que un nombre no recomendado sería:
 
 ```endpoint_name```
+
+## Base de datos
+
+Los archivos de configuración de la base de datos (scripts) se encuentran adjuntos en la carpeta `db`
+ubicada en la raíz del proyecto. 
+
+El archivo `bidblast_main.sql` es el modelo de base de datos inicial.
+
+El archivo `bidblast_users.sql` incluye un ejemplo de la creación de un usuario para la base de datos. Es
+recomendable no utilizar la contraseña tal como la muestra el ejemplo.
+
+El archivo `bidblast_seed.sql` incluye una lista de sentencias SQL para dotar a la base de datos con 
+información de prueba. Tenga mucho cuidado, pues este script borra todos los registros que se encuentren
+dentro de la base de datos.
+
+La carpeta `stored_procedures` incluye todos los procedimientos almacenados necesarios para
+ejecutar las operaciones de los endpoints de forma exitosa. Se recomienda nombrarlos de la forma `sp_nombre_procedimiento`.
