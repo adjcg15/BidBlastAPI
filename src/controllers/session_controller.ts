@@ -9,8 +9,7 @@ class SessionController {
     public static async login(req: Request, res: Response): Promise<void> {
         try {
             const { email, password } = req.body;
-
-            res.send()
+            
             const user = new User();
             user.email = email;
             user.password = password;
