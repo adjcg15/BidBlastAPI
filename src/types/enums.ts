@@ -8,6 +8,13 @@ enum HttpStatusCodes {
     INTERNAL_SERVER_ERROR = 500
 };
 
+enum UserRoles {
+    CUSTOMER,
+    AUCTIONEER,
+    MODERATOR
+}
+
 export {
-    HttpStatusCodes
+    HttpStatusCodes,
+    UserRoles
 };

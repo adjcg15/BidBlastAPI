@@ -4,6 +4,7 @@ import { SQLException } from "@exceptions/services";
 import { InvalidCredentialsException } from "@exceptions/session";
 import DataBase from "@lib/db";
 import SecurityService from "@lib/security_service";
+import { UserRoles } from "@ts/enums";
 
 class User extends Model {
     private _avatar: Buffer | null;
@@ -11,7 +12,7 @@ class User extends Model {
     private _email: string;
     private _password: string;
     private _phoneNumber: string;
-    private _role: string;
+    private _roles: UserRoles[];
 
     constructor() {
         super();
@@ -20,7 +21,7 @@ class User extends Model {
         this._email = "";
         this._password = "";
         this._phoneNumber = "";
-        this._role = "";
+        this._roles = [];
     }
 
     get avatar(): Buffer | null { return this._avatar; }
@@ -28,14 +29,14 @@ class User extends Model {
     get email() { return this._email; }
     get password() { return this._password; }
     get phoneNumber() { return this._phoneNumber; }
-    get role() { return this._role; }
+    get roles() { return this._roles; }
 
     set avatar(avatar: Buffer) { this._avatar = avatar; }
     set fullName(fullName: string) { this._fullName = fullName; }
     set email(email: string) { this._email = email; }
     set password(password: string) { this._password = password; }
     set phoneNumber(phoneNumber: string) { this._phoneNumber = phoneNumber; }
-    set role(role: string) { this._role = role; }
+    set addRole(role: UserRoles) { this._roles = [...this._roles, role]; }
 
     public async login() {
         let results: RowDataPacket[];
@@ -69,11 +70,11 @@ class User extends Model {
         }
 
         //TODO: adapt the validation tu the real result
-        this.id = loginStatus.id_account;
-        this.avatar = loginStatus.avatar;
-        this.fullName = loginStatus.full_name;
-        this.role = loginStatus.role;
-        this.phoneNumber = loginStatus.phoneNumber;
+        this._id = loginStatus.id_account;
+        this._avatar = loginStatus.avatar;
+        this._fullName = loginStatus.full_name;
+        this._roles = loginStatus.roles;
+        this._phoneNumber = loginStatus.phoneNumber;
     }
     
     public parse() {
@@ -83,7 +84,7 @@ class User extends Model {
             fullName: this._fullName,
             email: this._email,
             phoneNumber: this._phoneNumber,
-            role: this._role
+            role: this._roles
         }
     };
 }
