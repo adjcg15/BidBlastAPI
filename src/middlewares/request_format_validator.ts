@@ -6,7 +6,7 @@ class RequestFormatValidator {
     public static validateRequestFormat(req: Request, res: Response, next: NextFunction) {
         const errors = validationResult(req);
 
-        if (!errors.isEmpty()) {
+        if(!errors.isEmpty()) {
             res.status(HttpStatusCodes.BAD_REQUEST).json({ 
                 error: true,
                 details: errors.array().map(error => error.msg)
