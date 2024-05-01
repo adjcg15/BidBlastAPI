@@ -15,7 +15,7 @@ class SessionRequestValidator {
                 notEmpty: true,
                 errorMessage: "Password is required"
             }
-        }
+        };
     }
 }
 
