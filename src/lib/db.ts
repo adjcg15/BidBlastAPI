@@ -6,7 +6,7 @@ class DataBase {
 
     public static connection() {
         if(DataBase.POOL_CONNECTION == null) {
-            const host = process.env.HOST;
+            const host = process.env.DB_HOST;
             const port = parseInt(process.env.DB_PORT ?? "");
             const database = process.env.DB_NAME;
             const user = process.env.DB_USER;
