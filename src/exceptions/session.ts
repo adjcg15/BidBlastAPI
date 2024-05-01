@@ -9,4 +9,4 @@ class InvalidCredentialsException extends Error {
 
 export {
     InvalidCredentialsException
-}
+};
