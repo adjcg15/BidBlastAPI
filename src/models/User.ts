@@ -1,4 +1,7 @@
+import { RowDataPacket } from "mysql2";
 import Model from "./Model";
+import { SQLException } from "@exceptions/services";
+import { InvalidCredentialsException } from "@exceptions/session";
 
 class User extends Model {
     private _avatar: Buffer | null;
@@ -31,6 +34,39 @@ class User extends Model {
     set password(password: string) { this._password = password; }
     set phoneNumber(phoneNumber: string) { this._phoneNumber = phoneNumber; }
     set role(role: string) { this._role = role; }
+
+    public login(): void {
+        let results: RowDataPacket[];
+    
+        try {
+            // const dbResults = await connectionPool.execute<RowDataPacket[]>(
+            //     "CALL recover_user_by_email(?)",
+            //     [this._email]
+            // );
+            // results = dbResults[0];
+        } catch(error:any) {
+            const errorCodeMessage = error.code ? `ErrorCode: ${error.code}` : "";
+            throw new SQLException(
+                error.message
+                ? `${error.message}. ${errorCodeMessage}`
+                : `It was not possible to access to the database. ${errorCodeMessage}`
+            );
+        }
+
+        // const loginStatus = results[0][0];
+        // if(!loginStatus) {
+        //     throw new InvalidCredentialsException("Invalid credentials. Check your email and password and try it again");
+        // }
+
+        // const securityService = new SecurityService();
+        // const isMatchPassword = await securityService.comparePassword(this._password, loginStatus.password);
+        // if(!isMatchPassword) {
+        //     throw new InvalidCredentialsException("Invalid credentials. Check your email and password and try it again");
+        // }
+
+        // this.id = loginStatus.id_account;
+        // this.fullName = loginStatus.full_name;
+    }
     
     public parse() {
         return {
