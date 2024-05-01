@@ -3,6 +3,7 @@ import Model from "./Model";
 import { SQLException } from "@exceptions/services";
 import { InvalidCredentialsException } from "@exceptions/session";
 import DataBase from "@lib/db";
+import SecurityService from "@lib/security_service";
 
 class User extends Model {
     private _avatar: Buffer | null;
@@ -61,14 +62,18 @@ class User extends Model {
             throw new InvalidCredentialsException("Invalid credentials. Check your email and password and try it again");
         }
 
-        // const securityService = new SecurityService();
-        // const isMatchPassword = await securityService.comparePassword(this._password, loginStatus.password);
-        // if(!isMatchPassword) {
-        //     throw new InvalidCredentialsException("Invalid credentials. Check your email and password and try it again");
-        // }
+        const securityService = new SecurityService();
+        const isMatchPassword = await securityService.comparePassword(this._password, loginStatus.password);
+        if(!isMatchPassword) {
+            throw new InvalidCredentialsException("Invalid credentials. Check your email and password and try it again");
+        }
 
-        // this.id = loginStatus.id_account;
-        // this.fullName = loginStatus.full_name;
+        //TODO: adapt the validation tu the real result
+        this.id = loginStatus.id_account;
+        this.avatar = loginStatus.avatar;
+        this.fullName = loginStatus.full_name;
+        this.role = loginStatus.role;
+        this.phoneNumber = loginStatus.phoneNumber;
     }
     
     public parse() {
@@ -82,3 +87,5 @@ class User extends Model {
         }
     };
 }
+
+export default User;
