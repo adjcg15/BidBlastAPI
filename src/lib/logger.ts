@@ -14,7 +14,7 @@ class Logger {
     private static initializeErrorLogger() {
         const errorFormat = format.printf(({ level, message, label, timestamp }) => {
             return `[${level}] ${timestamp} ${label}: ${message}`;
-        })
+        });
 
         Logger.errorLogger = createLogger({
             format: format.combine(
@@ -22,7 +22,7 @@ class Logger {
                 errorFormat
             ),
             transports: [
-                new transports.File({ filename: 'logs.log' }),
+                new transports.File({ filename: "logs.log" }),
             ],
         });
     }
