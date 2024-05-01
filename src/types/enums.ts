@@ -9,9 +9,9 @@ enum HttpStatusCodes {
 };
 
 enum UserRoles {
-    CUSTOMER,
-    AUCTIONEER,
-    MODERATOR
+    CUSTOMER = "CUSTOMER",
+    AUCTIONEER = "AUCTIONEER",
+    MODERATOR = "MODERATOR"
 }
 
 export {
