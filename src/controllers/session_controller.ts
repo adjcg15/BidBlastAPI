@@ -28,7 +28,7 @@ class SessionController {
             const responseDetails = {
                 error: true,
                 details: "There was an unexpeted error, please try it again later"
-            }
+            };
 
             if(error instanceof InvalidCredentialsException) {
                 statusCode = HttpStatusCodes.BAD_REQUEST;
