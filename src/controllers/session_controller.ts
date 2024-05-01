@@ -3,13 +3,14 @@ import { InvalidCredentialsException } from "@exceptions/session";
 import User from "@models/User";
 import { HttpStatusCodes } from "@ts/enums";
 import { Request, Response } from "express";
-import TokenStore from "./token_store";
+import Logger from "@lib/logger";
+import TokenStore from "@lib/token_store";
 
 class SessionController {
     public static async login(req: Request, res: Response): Promise<void> {
         try {
             const { email, password } = req.body;
-            
+
             const user = new User();
             user.email = email;
             user.password = password;
@@ -38,7 +39,7 @@ class SessionController {
                 // Logger.error(error.name, error.message);
                 responseDetails.details = "It was not possible to login, please try it again later";
             } else {
-                // Logger.error(error.name, error.message);
+                Logger.error(error.name, error.message);
             }
 
             res.status(statusCode).json(responseDetails);
