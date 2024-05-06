@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "build": "npx tsc",
-    "start": "node dist/app.js",
+    "start": "ts-node -r tsconfig-paths/register ./dist/app.js",
     "dev": "ts-node-dev -r tsconfig-paths/register src/app.ts"
   },
   "keywords": [],

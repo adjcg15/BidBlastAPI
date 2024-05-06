@@ -1,3 +1,5 @@
+USE bid_blast_database;
+
 DELIMITER //
 CREATE PROCEDURE recover_user_by_email(
 	IN p_email VARCHAR(320)
