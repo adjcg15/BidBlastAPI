@@ -1,16 +1,30 @@
 import express from "express";
 import dotenv from "dotenv";
 import SessionRouter from "@routes/session_routes";
+import DataBase from "@lib/db";
 
 dotenv.config();
 
-const app = express();
-const APP_PORT = process.env.PORT;
+const database = DataBase.getInstance();
+database.startConnection()
+    .then(() => {
+        const app = express();
+        const APP_PORT = process.env.PORT;
 
-app.use(express.json());
+        app.use(express.json());
+        app.use("/api/sessions", SessionRouter);
 
-app.use("/api/sessions", SessionRouter);
+        app.listen(process.env.PORT, () => {
+            console.log(`Server is running on http://localhost:${APP_PORT}`)
+        });
+    })
+    .catch(error => {
+        throw(error);
+    });
 
-app.listen(process.env.PORT, () => {
-    console.log(`Server is running on http://localhost:${APP_PORT}`)
+process.on("exit", () => {
+    database.finishConnection()
+        .catch(error => {
+            throw(error);
+        });
 });

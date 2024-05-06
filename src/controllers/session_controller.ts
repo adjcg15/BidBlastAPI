@@ -11,18 +11,19 @@ class SessionController {
         try {
             const { email, password } = req.body;
 
-            const user = new User();
-            user.email = email;
-            user.password = password;
-            await user.login();
+            // const user = new User();
+            // user.email = email;
+            // user.password = password;
+            // await user.login();
 
-            const tokenStore = new TokenStore();
-            const token = tokenStore.sign(user);
+            // const tokenStore = new TokenStore();
+            // const token = tokenStore.sign(user);
             res.status(HttpStatusCodes.CREATED)
-                .send({
-                    token,
-                    user: user.parse()
-                });
+                .send()
+                // .send({
+                //     token,
+                //     user: user.parse()
+                // });
         } catch(error: any) {
             let statusCode = HttpStatusCodes.INTERNAL_SERVER_ERROR;
             const responseDetails = {

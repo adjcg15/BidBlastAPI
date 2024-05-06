@@ -33,7 +33,7 @@ class DataBase {
         return this.connection;
     }
 
-    public async start() {
+    public async startConnection() {
         try {
             await this.connection.authenticate();
         } catch (error) {
@@ -41,8 +41,12 @@ class DataBase {
         }
     }
 
-    public async end() {
-        this.connection.close();
+    public async finishConnection() {
+        try {
+            await this.connection.close();
+        } catch (error) {
+            throw new SQLException("It was not possible to close the connection");
+        }
     }
 }
 
