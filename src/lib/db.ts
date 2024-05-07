@@ -1,4 +1,4 @@
-import { SQLException } from "@exceptions/services";
+import { DataContextException } from "@exceptions/services";
 import { Sequelize } from "sequelize";
 
 class DataBase {
@@ -37,7 +37,7 @@ class DataBase {
         try {
             await this.connection.authenticate();
         } catch (error) {
-            throw new SQLException("It was not possible to stablish the connection");
+            throw new DataContextException("It was not possible to stablish the connection");
         }
     }
 
@@ -45,7 +45,7 @@ class DataBase {
         try {
             await this.connection.close();
         } catch (error) {
-            throw new SQLException("It was not possible to close the connection");
+            throw new DataContextException("It was not possible to close the connection");
         }
     }
 }

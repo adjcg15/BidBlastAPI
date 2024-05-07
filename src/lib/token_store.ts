@@ -1,9 +1,9 @@
 import { IJWTPayload } from "@ts/jwt";
-import User from "@models/User";
 import { SignOptions, sign, verify } from "jsonwebtoken";
+import { IUserData } from "@ts/data";
 
 class TokenStore {
-    public sign(user: User): string {
+    public sign(user: IUserData): string {
         var privateKey = process.env.JWT_SECRET;
 
         if(!privateKey) {
@@ -13,7 +13,7 @@ class TokenStore {
         const payload = {
             id: user.id,
             email: user.email,
-            userRoles: user.roles
+            // userRoles: user.roles
         } as IJWTPayload;
         const signOptions: SignOptions = {
             expiresIn: 60 * 60 * 24
