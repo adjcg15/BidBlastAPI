@@ -17,7 +17,8 @@ class DataBase {
             dialect: "mysql",
             dialectOptions: {
                 port
-            }
+            },
+            logging: false
         });
     }
 
