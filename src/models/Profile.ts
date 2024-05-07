@@ -1,6 +1,5 @@
 import DataBase from "@lib/db";
 import { DataTypes, Model } from "sequelize";
-import Account from "./Account";
 
 class Profile extends Model {
     declare id_profile: number;
@@ -35,7 +34,5 @@ Profile.init(
         timestamps: false
     }
 );
-
-Profile.hasOne(Account);
 
 export default Profile;

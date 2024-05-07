@@ -5,13 +5,26 @@ import { HttpStatusCodes } from "@ts/enums";
 import { Request, Response } from "express";
 import Logger from "@lib/logger";
 import TokenStore from "@lib/token_store";
+import Profile from "@models/Profile";
+import Account from "@models/Account";
 
 class SessionController {
     public static async login(req: Request, res: Response): Promise<void> {
         try {
             const { email, password } = req.body;
 
-            // const user = new User();
+            const userProfile = await Profile.findOne({
+                where: {
+                    "$Account.email$": email
+                },
+                include: Account
+            });
+
+            if(userProfile != null) {
+                console.log("================PERFIL================")
+                console.log(userProfile.toJSON());
+            }
+
             // user.email = email;
             // user.password = password;
             // await user.login();
@@ -40,6 +53,7 @@ class SessionController {
             } else {
                 Logger.error(error.name, error.message);
             }
+            console.log(error)
 
             res.status(statusCode).json(responseDetails);
         }

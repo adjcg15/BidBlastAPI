@@ -1,9 +1,9 @@
 import express from "express";
 import dotenv from "dotenv";
+dotenv.config();
+
 import SessionRouter from "@routes/session_routes";
 import DataBase from "@lib/db";
-
-dotenv.config();
 
 const database = DataBase.getInstance();
 database.startConnection()

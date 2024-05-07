@@ -23,7 +23,7 @@ Account.init(
         password: {
             type: DataTypes.CHAR(64),
             allowNull: false
-        },
+        }
     },
     {
         sequelize: DataBase.getInstance().getConnection(),
@@ -32,6 +32,13 @@ Account.init(
     }
 );
 
+Profile.hasOne(Account, {
+    foreignKey: {
+        name: "id_profile",
+        allowNull: false
+    },
+    onDelete: "CASCADE"
+});
 Account.belongsTo(Profile, {
     foreignKey: {
         name: "id_profile",
