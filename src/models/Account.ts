@@ -1,6 +1,5 @@
 import DataBase from "@lib/db";
 import { DataTypes, Model } from "sequelize";
-import Profile from "./Profile";
 
 class Account extends Model {
     declare id_account: number;
@@ -31,20 +30,5 @@ Account.init(
         timestamps: false
     }
 );
-
-Profile.hasOne(Account, {
-    foreignKey: {
-        name: "id_profile",
-        allowNull: false
-    },
-    onDelete: "CASCADE"
-});
-Account.belongsTo(Profile, {
-    foreignKey: {
-        name: "id_profile",
-        allowNull: false
-    },
-    onDelete: "CASCADE"
-});
 
 export default Account;

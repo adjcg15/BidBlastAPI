@@ -4,12 +4,14 @@ dotenv.config();
 
 import SessionRouter from "@routes/session_routes";
 import DataBase from "@lib/db";
+import configureModel from "@models/associations";
 
 const database = DataBase.getInstance();
 database.startConnection()
     .then(() => {
         const app = express();
         const APP_PORT = process.env.PORT;
+        configureModel();
 
         app.use(express.json());
         app.use("/api/sessions", SessionRouter);

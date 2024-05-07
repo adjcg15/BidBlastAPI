@@ -38,13 +38,4 @@ AccountsRoles.init(
     }
 );
 
-Role.belongsToMany(Account, { 
-    through: AccountsRoles, 
-    uniqueKey: "id_account_rol", 
-});
-Account.belongsToMany(Role, { 
-    through: AccountsRoles, 
-    uniqueKey: "id_account_rol", 
-});
-
-export default Role;
+export default AccountsRoles;
