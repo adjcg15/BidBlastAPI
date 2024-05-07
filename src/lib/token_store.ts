@@ -13,7 +13,7 @@ class TokenStore {
         const payload = {
             id: user.id,
             email: user.email,
-            // userRoles: user.roles
+            userRoles: user.roles
         } as IJWTPayload;
         const signOptions: SignOptions = {
             expiresIn: 60 * 60 * 24

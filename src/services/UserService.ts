@@ -1,6 +1,7 @@
 import { DataContextException } from "@exceptions/services";
 import Account from "@models/Account";
 import Profile from "@models/Profile";
+import Role from "@models/Role";
 import { IUserData } from "@ts/data";
 
 class UserService {
@@ -8,23 +9,25 @@ class UserService {
         let user: IUserData | null = null;
 
         try {
-            const profile = await Profile.findOne({
+            const account = await Account.findOne({
                 where: {
-                    "$Account.email$": email
+                    email
                 },
-                include: Account
+                include: [Role, Profile]
             });
 
-            if(profile != null) {
-                const profileInformation = profile.toJSON();
+            if(account != null) {
+                const accountInformation = account.toJSON();
+                const roles = accountInformation.Roles as any[];
 
                 user = {
-                    id: profileInformation.id_profile,
-                    fullName: profileInformation.full_name,
-                    phoneNumber: profileInformation.phone_number,
-                    avatar: profileInformation.avatar,
-                    email: profileInformation.Account.email,
-                    password: profileInformation.Account.password
+                    id: accountInformation.Profile.id_profile,
+                    fullName: accountInformation.Profile.full_name,
+                    phoneNumber: accountInformation.Profile.phone_number,
+                    avatar: accountInformation.Profile.avatar,
+                    email: accountInformation.email,
+                    roles: roles.map(role => role.name),
+                    password: accountInformation.password
                 };
             }
         } catch(error:any) {

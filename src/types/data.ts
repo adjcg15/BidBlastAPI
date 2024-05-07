@@ -1,3 +1,5 @@
+import { UserRoles } from "./enums";
+
 type IUserData = {
     id: number;
     fullName: string;
@@ -5,6 +7,7 @@ type IUserData = {
     avatar: Buffer | null;
     email: string;
     password?: string;
+    roles: UserRoles[];
 }
 
 export type {
