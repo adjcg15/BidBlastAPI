@@ -5,7 +5,7 @@ import Account from "./Account";
 import Role from "./Role";
 
 class AccountsRoles extends Model {
-    declare id_account_role: number;
+    declare id_account_rol: number;
     declare name: UserRoles;
 }
 
@@ -38,7 +38,13 @@ AccountsRoles.init(
     }
 );
 
-Role.belongsToMany(Account, { through: AccountsRoles });
-Account.belongsToMany(Role, { through: AccountsRoles });
+Role.belongsToMany(Account, { 
+    through: AccountsRoles, 
+    uniqueKey: "id_account_rol", 
+});
+Account.belongsToMany(Role, { 
+    through: AccountsRoles, 
+    uniqueKey: "id_account_rol", 
+});
 
 export default Role;
