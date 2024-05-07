@@ -1,4 +1,5 @@
 import { DataContextException } from "@exceptions/services";
+import ImageConverter from "@lib/image_converter";
 import Account from "@models/Account";
 import Profile from "@models/Profile";
 import Role from "@models/Role";
@@ -24,7 +25,7 @@ class UserService {
                     id: accountInformation.Profile.id_profile,
                     fullName: accountInformation.Profile.full_name,
                     phoneNumber: accountInformation.Profile.phone_number,
-                    avatar: accountInformation.Profile.avatar,
+                    avatar: ImageConverter.bufferToBase64(accountInformation.Profile.avatar),
                     email: accountInformation.email,
                     roles: roles.map(role => role.name),
                     password: accountInformation.password

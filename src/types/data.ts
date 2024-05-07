@@ -4,7 +4,7 @@ type IUserData = {
     id: number;
     fullName: string;
     phoneNumber: string | null;
-    avatar: Buffer | null;
+    avatar: string;
     email: string;
     password?: string;
     roles: UserRoles[];
