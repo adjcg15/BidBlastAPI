@@ -3,12 +3,13 @@ import { Request, Response } from "express";
 import Logger from "@lib/logger";
 import AuctionCategoryService from "services/auction_category_service";
 import { DataContextException } from "@exceptions/services";
+import { Console } from "winston/lib/winston/transports";
 
 class AuctionCategoryController{
     public static async getAuctionCategory(req: Request, res: Response): Promise<void> {
         try {
-            const idCategoryString: string = req.params.catid;
-            const idCategory: number = parseInt(idCategoryString, 10);
+            const { catid } = req.params;
+            const idCategory: number = parseInt(catid);
 
             const auctionCategory = await AuctionCategoryService.getAuctionCategoryById(idCategory);
 
@@ -20,6 +21,8 @@ class AuctionCategoryController{
                 });
                 return;
             }
+
+            res.status(HttpStatusCodes.OK).json(auctionCategory);
         } catch (error: any) {
             let statusCode = HttpStatusCodes.INTERNAL_SERVER_ERROR;
             const responseDetails = {
