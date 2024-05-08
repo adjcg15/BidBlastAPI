@@ -2,7 +2,7 @@ import { HttpStatusCodes } from "@ts/enums";
 import { Request, Response } from "express";
 import Logger from "@lib/logger";
 import TokenStore from "@lib/token_store";
-import UserService from "services/UserService";
+import UserService from "services/user_service";
 import SecurityService from "@lib/security_service";
 import { DataContextException } from "@exceptions/services";
 
@@ -46,6 +46,7 @@ class SessionController {
             let statusCode = HttpStatusCodes.INTERNAL_SERVER_ERROR;
             const responseDetails = {
                 error: true,
+                statusCode: HttpStatusCodes.INTERNAL_SERVER_ERROR,
                 details: "There was an unexpeted error, please try it again later"
             };
 

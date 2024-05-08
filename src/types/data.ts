@@ -1,6 +1,6 @@
 import { UserRoles } from "./enums";
 
-type IUserData = {
+interface IUserData {
     id: number;
     fullName: string;
     phoneNumber: string | null;
