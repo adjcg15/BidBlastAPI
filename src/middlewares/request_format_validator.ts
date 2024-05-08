@@ -9,6 +9,7 @@ class RequestFormatValidator {
         if(!errors.isEmpty()) {
             res.status(HttpStatusCodes.BAD_REQUEST).json({ 
                 error: true,
+                statusCode: HttpStatusCodes.BAD_REQUEST,
                 details: errors.array().map(error => error.msg)
             });
         } else {

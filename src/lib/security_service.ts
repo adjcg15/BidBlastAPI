@@ -1,11 +1,11 @@
 import bcrypt from "bcrypt";
 
 class SecurityService {
-    public async hashPassword(plainPassword: string) {
+    public hashPassword(plainPassword: string) {
         const SALT_ROUNDS = 10;
 
-        const salt = await bcrypt.genSalt(SALT_ROUNDS);
-        const hashedPassword = await bcrypt.hash(plainPassword, salt);
+        const salt = bcrypt.genSaltSync(SALT_ROUNDS);
+        const hashedPassword = bcrypt.hashSync(plainPassword, salt);
         
         return hashedPassword;
     }

@@ -1,12 +1,12 @@
-class SQLException extends Error {
+class DataContextException extends Error {
     constructor(message: string) {
         super(message);
 
-        this.name = "SQLException";
-        Object.setPrototypeOf(this, SQLException.prototype);
+        this.name = "DataContextException";
+        Object.setPrototypeOf(this, DataContextException.prototype);
     }
 }
 
 export {
-    SQLException
+    DataContextException
 };

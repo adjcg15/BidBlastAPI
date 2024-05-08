@@ -1,3 +1,4 @@
+import { HttpStatusCodes } from "@ts/enums";
 import { rateLimit } from "express-rate-limit";
 
 class RateLimiter {
@@ -11,6 +12,7 @@ class RateLimiter {
             legacyHeaders: true,
             message: JSON.stringify({
                 error: true,
+                statusCode: HttpStatusCodes.TOO_MANY_REQUESTS,
                 details: `Too many request, try again after ${RateLimiter.PUBLIC_ENDPOINT_WINDOW_MINUTES} minutes.`
             }) 
         });
