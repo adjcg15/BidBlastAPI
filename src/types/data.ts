@@ -10,6 +10,14 @@ interface IUserData {
     roles: UserRoles[];
 }
 
+interface IAuctionCategory {
+    id: number;
+    title: string;
+    description: string;
+    keywords: string;
+}
+
 export type {
-    IUserData
+    IUserData,
+    IAuctionCategory
 }
