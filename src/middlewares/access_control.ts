@@ -1,5 +1,5 @@
 import TokenStore from "@lib/token_store";
-import { HttpStatusCodes } from "@ts/enums";
+import { HttpStatusCodes, UserRoles } from "@ts/enums";
 import { NextFunction, Request, Response } from "express";
 
 class AccessControl {
@@ -21,6 +21,18 @@ class AccessControl {
 
         req.user = payload;
         next();
+    }
+
+    public static allowRoles(allowedRoles: UserRoles[]) {
+        return function(req: Request, res: Response, next: NextFunction) {
+            const { userRoles } = req.user;
+
+            if(Array.isArray(userRoles) && userRoles.some(role => allowedRoles.includes(role))) {
+                next();
+            } else {
+                res.status(HttpStatusCodes.FORBIDDEN).send();
+            }
+        }
     }
 }
 
