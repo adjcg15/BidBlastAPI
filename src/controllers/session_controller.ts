@@ -40,7 +40,7 @@ class SessionController {
             res.status(HttpStatusCodes.CREATED)
                 .json({
                     token,
-                    user
+                    ...user
                 });
         } catch(error: any) {
             let statusCode = HttpStatusCodes.INTERNAL_SERVER_ERROR;
