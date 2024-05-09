@@ -13,4 +13,11 @@ AuctionCategoryRouter.get("/:catid",
     AuctionCategoryController.getAuctionCategory
 );
 
+AuctionCategoryRouter.put("/:catid",
+    //TODO verify token
+    checkSchema(AuctionCategoriesRequestValidator.changeAuctionCategorySchema()),
+    RequestFormatValidator.validateRequestFormat,
+    AuctionCategoryController.updateAuctionCategory
+);
+
 export default AuctionCategoryRouter;
