@@ -1,5 +1,6 @@
 import express from "express";
 import dotenv from "dotenv";
+import cors from "cors";
 dotenv.config();
 
 import SessionRouter from "@routes/session_routes";
@@ -15,6 +16,7 @@ database.startConnection()
         configureModel();
 
         app.use(express.json());
+        app.use(cors());
         app.use("/api/sessions", SessionRouter);
         app.use("/api/auction-categories", AuctionCategoryRouter);
 
