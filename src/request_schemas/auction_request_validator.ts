@@ -24,7 +24,8 @@ class AuctionRequestValidator {
             query: {
                 in: ["query"],
                 trim: true,
-                optional: { options: { nullable: true } }
+                optional: { options: { nullable: true } },
+                toLowerCase: true
             }
         };
     }
