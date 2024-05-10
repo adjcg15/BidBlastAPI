@@ -34,7 +34,7 @@ function configureModel() {
         otherKey: "id_rol",
     });
 
-    Profile.hasOne(Auction, {
+    Profile.hasMany(Auction, {
         foreignKey: {
             name: "id_profile",
             allowNull: false
@@ -49,7 +49,7 @@ function configureModel() {
         onDelete: "CASCADE"
     });
 
-    AuctionCategory.hasOne(Auction, {
+    AuctionCategory.hasMany(Auction, {
         foreignKey: {
             name: "id_auction_category",
             allowNull: false
@@ -64,7 +64,7 @@ function configureModel() {
         onDelete: "CASCADE"
     });
 
-    ItemCondition.hasOne(Auction, {
+    ItemCondition.hasMany(Auction, {
         foreignKey: {
             name: "id_items_condition",
             allowNull: false
