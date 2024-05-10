@@ -251,6 +251,7 @@ CREATE TABLE IF NOT EXISTS `bid_blast_database`.`auctions_states_applications` (
   `id_auction_state_application` INT NOT NULL AUTO_INCREMENT,
   `id_auction` INT NOT NULL,
   `id_auction_state` INT NOT NULL,
+  `application_date` DATETIME NOT NULL,
   PRIMARY KEY (`id_auction_state_application`),
   INDEX `fk_auctions_states_applications_auctions_idx` (`id_auction` ASC) VISIBLE,
   INDEX `fk_auctions_states_applications_action_states_idx` (`id_auction_state` ASC) VISIBLE,
