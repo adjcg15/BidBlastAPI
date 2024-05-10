@@ -66,14 +66,14 @@ function configureModel() {
 
     ItemCondition.hasMany(Auction, {
         foreignKey: {
-            name: "id_items_condition",
+            name: "id_item_condition",
             allowNull: false
         },
         onDelete: "CASCADE"
     });
     Auction.belongsTo(ItemCondition, {
         foreignKey: {
-            name: "id_items_condition",
+            name: "id_item_condition",
             allowNull: false
         },
         onDelete: "CASCADE"
