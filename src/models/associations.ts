@@ -5,6 +5,7 @@ import Role from "./Role";
 import Auction from "./Auction";
 import AuctionCategory from "./AuctionCategory";
 import ItemCondition from "./ItemCondition";
+import HypermediaFile from "./HypermediaFile";
 
 function configureModel() {
     Profile.hasOne(Account, {
@@ -73,6 +74,21 @@ function configureModel() {
     Auction.belongsTo(ItemCondition, {
         foreignKey: {
             name: "id_items_condition",
+            allowNull: false
+        },
+        onDelete: "CASCADE"
+    });
+
+    HypermediaFile.belongsTo(Auction, {
+        foreignKey: {
+            name: "id_auction",
+            allowNull: false
+        },
+        onDelete: "CASCADE"
+    });
+    Auction.hasMany(HypermediaFile, {
+        foreignKey: {
+            name: "id_auction",
             allowNull: false
         },
         onDelete: "CASCADE"
