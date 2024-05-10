@@ -222,12 +222,12 @@ CREATE TABLE IF NOT EXISTS `bid_blast_database`.`hypermedia_files` (
   `mime_type` NVARCHAR(45) NOT NULL,
   `name` NVARCHAR(60) NOT NULL,
   `content` BLOB NOT NULL,
-  `id_auction_category` INT NOT NULL,
+  `id_auction` INT NOT NULL,
   PRIMARY KEY (`id_hypermedia_file`),
-  INDEX `fk_hypermedia_files_auction_categories_idx` (`id_auction_category` ASC) VISIBLE,
-  CONSTRAINT `fk_hypermedia_files_auction_categories`
-    FOREIGN KEY (`id_auction_category`)
-    REFERENCES `bid_blast_database`.`auction_categories` (`id_auction_category`)
+  INDEX `fk_hypermedia_files_auctions_idx` (`id_auction` ASC) VISIBLE,
+  CONSTRAINT `fk_hypermedia_files_auctions`
+    FOREIGN KEY (`id_auction`)
+    REFERENCES `bid_blast_database`.`auctions` (`id_auction`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
 ENGINE = InnoDB;
