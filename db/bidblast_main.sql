@@ -61,10 +61,10 @@ ENGINE = InnoDB;
 -- -----------------------------------------------------
 -- Table `bid_blast_database`.`items_conditions`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `bid_blast_database`.`items_conditions` (
-  `id_items_condition` INT NOT NULL AUTO_INCREMENT,
+CREATE TABLE IF NOT EXISTS `bid_blast_database`.`item_conditions` (
+  `id_item_condition` INT NOT NULL AUTO_INCREMENT,
   `name` NVARCHAR(60) NOT NULL,
-  PRIMARY KEY (`id_items_condition`),
+  PRIMARY KEY (`id_item_condition`),
   UNIQUE INDEX `name_UNIQUE` (`name` ASC) VISIBLE)
 ENGINE = InnoDB;
 
@@ -93,20 +93,20 @@ CREATE TABLE IF NOT EXISTS `bid_blast_database`.`auctions` (
   `title` NVARCHAR(60) NOT NULL,
   `days_available` SMALLINT NOT NULL,
   `id_profile` INT NOT NULL,
-  `id_items_condition` INT NOT NULL,
+  `id_item_condition` INT NOT NULL,
   `id_auction_category` INT NOT NULL,
   PRIMARY KEY (`id_auction`),
   INDEX `fk_auctions_profiles_idx` (`id_profile` ASC) VISIBLE,
-  INDEX `fk_auctions_items_conditions_idx` (`id_items_condition` ASC) VISIBLE,
+  INDEX `fk_auctions_item_conditions_idx` (`id_item_condition` ASC) VISIBLE,
   INDEX `fk_auctions_auction_categories_idx` (`id_auction_category` ASC) VISIBLE,
   CONSTRAINT `fk_auctions_profiles`
     FOREIGN KEY (`id_profile`)
     REFERENCES `bid_blast_database`.`profiles` (`id_profile`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION,
-  CONSTRAINT `fk_auctions_items_conditions`
-    FOREIGN KEY (`id_items_condition`)
-    REFERENCES `bid_blast_database`.`items_conditions` (`id_items_condition`)
+  CONSTRAINT `fk_auctions_item_conditions`
+    FOREIGN KEY (`id_item_condition`)
+    REFERENCES `bid_blast_database`.`item_conditions` (`id_item_condition`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION,
   CONSTRAINT `fk_auctions_auction_categories1`
