@@ -99,8 +99,7 @@ class AuctionService {
             );
         }
 
-        console.log(result);
-        return result.auctions;
+        return result;
     }
 }
 
