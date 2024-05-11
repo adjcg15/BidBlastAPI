@@ -6,6 +6,7 @@ import Auction from "./Auction";
 import AuctionCategory from "./AuctionCategory";
 import ItemCondition from "./ItemCondition";
 import HypermediaFile from "./HypermediaFile";
+import Offer from "./Offer";
 
 function configureModel() {
     Profile.hasOne(Account, {
@@ -89,6 +90,47 @@ function configureModel() {
     Auction.hasMany(HypermediaFile, {
         foreignKey: {
             name: "id_auction",
+            allowNull: false
+        },
+        onDelete: "CASCADE"
+    });
+
+    Auction.belongsToMany(Profile, { 
+        through: Offer, 
+        foreignKey: "id_auction",
+        otherKey: "id_profile",
+        as: "Customer"
+    });
+    Profile.belongsToMany(Auction, { 
+        through: Offer,
+        foreignKey: "id_profile",
+        otherKey: "id_auction",
+        as: "Customer"
+    });
+    Auction.hasMany(Offer, {
+        foreignKey: {
+            name: "id_auction",
+            allowNull: false
+        },
+        onDelete: "CASCADE"
+    });
+    Offer.belongsTo(Auction, {
+        foreignKey: {
+            name: "id_auction",
+            allowNull: false
+        },
+        onDelete: "CASCADE"
+    });
+    Profile.hasMany(Offer, {
+        foreignKey: {
+            name: "id_profile",
+            allowNull: false
+        },
+        onDelete: "CASCADE"
+    });
+    Offer.belongsTo(Profile, {
+        foreignKey: {
+            name: "id_profile",
             allowNull: false
         },
         onDelete: "CASCADE"

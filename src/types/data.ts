@@ -24,6 +24,13 @@ interface IHypermediaFileData {
     name?: string;
 }
 
+interface IOfferData {
+    id: number;
+    amount: number;
+    creationDate: Date;
+    customer?: IUserData;
+}
+
 interface IAuctionData {
     id: number;
     title: string;
@@ -36,6 +43,7 @@ interface IAuctionData {
     category?: IAuctionCategory;
     auctioneer?: IUserData;
     mediaFiles?: IHypermediaFileData[];
+    lastOffer?: IOfferData;
 }
 
 export type {
