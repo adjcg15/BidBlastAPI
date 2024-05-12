@@ -15,7 +15,17 @@ enum UserRoles {
     MODERATOR = "MODERATOR"
 };
 
+enum AuctionStatus {
+    PROPOSED = "PROPUESTA",
+    PUBLISHED = "PUBLICADA",
+    REJECTED = "RECHAZADA",
+    CLOSED = "CERRADA",
+    CONCRETIZED = "CONCRETADA",
+    FINISHED = "FINALIZADA"
+}
+
 export {
     HttpStatusCodes,
-    UserRoles
+    UserRoles,
+    AuctionStatus
 };
