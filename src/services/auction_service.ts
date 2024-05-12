@@ -9,7 +9,7 @@ import { IAuctionData } from "@ts/data";
 import { AuctionStatus } from "@ts/enums";
 
 class AuctionService {
-    public static async getAuctionsList(query: string, offset: number, limit: number) {
+    public static async getAuctionsList(requesterId: number, query: string, offset: number, limit: number) {
         let auctions: IAuctionData[] = [];
 
         try {
@@ -17,7 +17,14 @@ class AuctionService {
                 limit,
                 offset,
                 include: [
-                    { model: Profile },
+                    { 
+                        model: Profile,
+                        where: {
+                            id_profile: {
+                                [Op.ne]: requesterId
+                            } 
+                        }
+                    },
                     { 
                         model: HypermediaFile,
                         where: { 

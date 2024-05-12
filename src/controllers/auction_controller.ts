@@ -8,8 +8,9 @@ class AuctionController {
     public static async searchAuction(req: Request, res: Response) {
         try {
             const { query, limit, offset } = req.query as { query?: string, limit?: number, offset?: number };
+            const requesterId = req.user.id;
 
-            const response = await AuctionService.getAuctionsList(query!, offset!, limit!);
+            const response = await AuctionService.getAuctionsList(requesterId, query!, offset!, limit!);
             res.status(HttpStatusCodes.OK).json(response);
         } catch(error: any) {
             let statusCode = HttpStatusCodes.INTERNAL_SERVER_ERROR;
