@@ -68,7 +68,8 @@ class AuctionService {
                     approval_date, 
                     days_available, 
                     Profile: auctioneer, 
-                    Offers 
+                    Offers,
+                    HypermediaFiles
                 } = auction;
                 const closesAt = new Date(approval_date);
                 closesAt.setDate(approval_date.getDate() + days_available);
@@ -80,7 +81,8 @@ class AuctionService {
                     auctioneer: {
                         id: auctioneer.id_profile,
                         fullName: auctioneer.full_name,
-                        avatar: ImageConverter.bufferToBase64(auctioneer.avatar)
+                        //TODO: stablish avatar default mime type or save it in hypermedia_files
+                        avatar: ImageConverter.bufferToBase64(auctioneer.avatar, "image/png")
                     }
                 }
 
@@ -92,6 +94,18 @@ class AuctionService {
                         amount: parseFloat(amount),
                         creationDate: creation_date
                     }
+                }
+
+                if(Array.isArray(HypermediaFiles) && HypermediaFiles.length > 0) {
+                    const { id_hypermedia_file, content, name, mime_type } = HypermediaFiles[0];
+
+                    auctionData.mediaFiles = [
+                        {
+                            id: id_hypermedia_file,
+                            name,
+                            content: ImageConverter.bufferToBase64(content, mime_type)
+                        }
+                    ]
                 }
 
                 auctions.push(auctionData);
