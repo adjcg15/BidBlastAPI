@@ -26,7 +26,7 @@ Auction.init(
             type: DataTypes.DECIMAL,
             allowNull: false
         },
-        minimun_bid: {
+        minimum_bid: {
             type: DataTypes.DECIMAL,
             allowNull: false
         },

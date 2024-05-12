@@ -1,12 +1,10 @@
 import DataBase from "@lib/db";
 import { DataTypes, Model } from "sequelize";
-import { UserRoles } from "@ts/enums";
 import Account from "./Account";
 import Role from "./Role";
 
 class AccountsRoles extends Model {
     declare id_account_rol: number;
-    declare name: UserRoles;
 }
 
 AccountsRoles.init(

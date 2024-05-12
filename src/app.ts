@@ -7,6 +7,7 @@ import SessionRouter from "@routes/session_routes";
 import AuctionCategoryRouter from "@routes/auction_category_routes";
 import DataBase from "@lib/db";
 import configureModel from "@models/associations";
+import AuctionRouter from "@routes/auction_routes";
 
 const database = DataBase.getInstance();
 database.startConnection()
@@ -19,6 +20,7 @@ database.startConnection()
         app.use(cors());
         app.use("/api/sessions", SessionRouter);
         app.use("/api/auction-categories", AuctionCategoryRouter);
+        app.use("/api/auctions", AuctionRouter);
 
         app.listen(process.env.PORT, () => {
             console.log(`Server is running on http://localhost:${APP_PORT}`)
