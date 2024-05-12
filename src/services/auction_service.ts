@@ -1,4 +1,4 @@
-import { Op } from "sequelize";
+import { Op, literal } from "sequelize";
 import { DataContextException } from "@exceptions/services";
 import ImageConverter from "@lib/image_converter";
 import Auction from "@models/Auction";
@@ -6,31 +6,16 @@ import HypermediaFile from "@models/HypermediaFile";
 import Offer from "@models/Offer";
 import Profile from "@models/Profile";
 import { IAuctionData } from "@ts/data";
+import { AuctionStatus } from "@ts/enums";
 
 class AuctionService {
     public static async getAuctionsList(query: string, offset: number, limit: number) {
-        let result = {
-            total: 0,
-            auctions: [] as IAuctionData[]
-        };
+        let auctions: IAuctionData[] = [];
 
         try {
-            const consultResult = await Auction.findAndCountAll({
+            const dbAuctions = await Auction.findAll({
                 limit,
                 offset,
-                where: query ? {
-                    [Op.or]: {
-                        title: {
-                            [Op.substring]: query
-                        },
-                        description: {
-                            [Op.substring]: query
-                        }
-                    }
-                } : {},
-                order: [
-                    ["approval_date", "DESC"]
-                ],
                 include: [
                     { model: Profile },
                     { 
@@ -45,15 +30,37 @@ class AuctionService {
                     {
                         model: Offer,
                         order: [["creation_date", "DESC"]],
+                        separate: true,
                         limit: 1
                     }
+                ],
+                attributes: {
+                    include: [
+                        [
+                            literal(`(SELECT IF(S.name = "${AuctionStatus.PUBLISHED}", 1, 0) FROM auctions_states_applications AS 
+                            H INNER JOIN auction_states AS S ON H.id_auction_state = S.id_auction_state WHERE H.id_auction = 
+                            Auction.id_auction ORDER BY H.application_date DESC LIMIT 1)`),
+                            "is_public"
+                        ]
+                    ],
+                },
+                having:{ ["is_public"]: {[Op.eq]:1}},
+                where: query ? {
+                    [Op.or]: {
+                        title: {
+                            [Op.substring]: query
+                        },
+                        description: {
+                            [Op.substring]: query
+                        }
+                    },
+                } : {},
+                order: [
+                    ["approval_date", "DESC"]
                 ]
             });
 
-            const { count, rows } = consultResult;
-            const auctionsInformation = rows.map(row => row.toJSON());
-
-            result.total = count;
+            const auctionsInformation = dbAuctions.map(auction => auction.toJSON());
             auctionsInformation.forEach(auction => {
                 const { 
                     id_auction, 
@@ -87,11 +94,10 @@ class AuctionService {
                     }
                 }
 
-                result.auctions.push(auctionData);
+                auctions.push(auctionData);
             });
         } catch(error:any) {
             const errorCodeMessage = error.code ? `ErrorCode: ${error.code}` : "";
-
             throw new DataContextException(
                 error.message
                 ? `${error.message}. ${errorCodeMessage}`
@@ -99,7 +105,7 @@ class AuctionService {
             );
         }
 
-        return result;
+        return auctions;
     }
 }
 
