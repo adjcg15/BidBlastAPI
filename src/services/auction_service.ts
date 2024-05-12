@@ -81,8 +81,7 @@ class AuctionService {
                     auctioneer: {
                         id: auctioneer.id_profile,
                         fullName: auctioneer.full_name,
-                        //TODO: stablish avatar default mime type or save it in hypermedia_files
-                        avatar: ImageConverter.bufferToBase64(auctioneer.avatar, "image/png")
+                        avatar: ImageConverter.bufferToBase64(auctioneer.avatar)
                     }
                 }
 
@@ -103,7 +102,7 @@ class AuctionService {
                         {
                             id: id_hypermedia_file,
                             name,
-                            content: ImageConverter.bufferToBase64(content, mime_type)
+                            content: ImageConverter.bufferToBase64(content)
                         }
                     ]
                 }
