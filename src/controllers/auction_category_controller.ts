@@ -83,7 +83,26 @@ class AuctionCategoryController{
     }
 
     public static async getAuctionCategoriesList(req: Request, res: Response): Promise<void> {
-        
+        try {
+            const auctionCategories = await AuctionCategoryService.getManyAuctionCategories();
+            res.status(HttpStatusCodes.OK).json(auctionCategories);
+        } catch (error: any) {
+            let statusCode = HttpStatusCodes.INTERNAL_SERVER_ERROR;
+            const responseDetails = {
+                error: true,
+                statusCode: HttpStatusCodes.INTERNAL_SERVER_ERROR,
+                details: "There was an unexpeted error, please try it again later"
+            };
+
+            if(error instanceof DataContextException) {
+                Logger.error(error.name, error.message);
+                responseDetails.details = "It was not possible to recover auction categories, please try it again later";
+            } else {
+                Logger.error(error.name, error.message);
+            }
+
+            res.status(statusCode).json(responseDetails);
+        }
     }
 }
 
