@@ -76,6 +76,7 @@ CREATE TABLE IF NOT EXISTS `bid_blast_database`.`auction_categories` (
   `id_auction_category` INT NOT NULL AUTO_INCREMENT,
   `title` NVARCHAR(60) NOT NULL,
   `keywords` TEXT NOT NULL,
+  `description` TEXT NOT NULL,
   PRIMARY KEY (`id_auction_category`),
   UNIQUE INDEX `title_UNIQUE` (`title` ASC) VISIBLE)
 ENGINE = InnoDB;
