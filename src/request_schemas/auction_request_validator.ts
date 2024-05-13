@@ -15,8 +15,8 @@ class AuctionRequestValidator {
             offset: {
                 in: ["query"],
                 isInt: {
-                    options: { min: 1 },
-                    errorMessage: "The query parameter 'offset' must be an INTEGER value grater or equal 1"
+                    options: { min: 0 },
+                    errorMessage: "The query parameter 'offset' must be an INTEGER value grater or equal 0"
                 },
                 optional: { options: { nullable: true } },
                 toInt: true
