@@ -9,7 +9,7 @@ import { IAuctionData } from "@ts/data";
 import { AuctionStatus } from "@ts/enums";
 
 class AuctionService {
-    public static async getAuctionsList(requesterId: number, query: string, offset: number, limit: number) {
+    public static async getManyAuctions(requesterId: number, query: string, offset: number, limit: number) {
         let auctions: IAuctionData[] = [];
 
         try {
