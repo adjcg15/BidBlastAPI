@@ -67,6 +67,35 @@ class AuctionCategoryService{
 
         return isUpdated;
     }
+
+    public static async getManyAuctionCategories(): Promise<IAuctionCategory[]> {
+        let auctionCategories: IAuctionCategory[] = [];
+
+        try {
+            const dbCategories = await AuctionCategory.findAll();
+            const categoriesData = dbCategories.map(category => category.toJSON());
+
+            categoriesData.forEach(category => {
+                const { id_auction_category, title, description, keywords } = category;
+
+                auctionCategories.push({
+                    id: id_auction_category,
+                    title,
+                    description,
+                    keywords
+                });
+            });
+        } catch(error:any) {
+            const errorCodeMessage = error.code ? `ErrorCode: ${error.code}` : "";
+            throw new DataContextException(
+                error.message
+                ? `${error.message}. ${errorCodeMessage}`
+                : `It was not possible to recover the auction categories. ${errorCodeMessage}`
+            );
+        }
+
+        return auctionCategories;
+    }
 }
 
 export default AuctionCategoryService;
