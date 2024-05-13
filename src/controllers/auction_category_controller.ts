@@ -3,7 +3,6 @@ import { Request, Response } from "express";
 import Logger from "@lib/logger";
 import AuctionCategoryService from "services/auction_category_service";
 import { DataContextException } from "@exceptions/services";
-import { error } from "winston";
 
 class AuctionCategoryController{
     public static async getAuctionCategory(req: Request, res: Response): Promise<void> {
@@ -81,6 +80,10 @@ class AuctionCategoryController{
 
             res.status(statusCode).json(responseDetails);
         }
+    }
+
+    public static async getAuctionCategoriesList(req: Request, res: Response): Promise<void> {
+        
     }
 }
 
