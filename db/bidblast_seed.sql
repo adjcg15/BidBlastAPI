@@ -78,13 +78,13 @@ INSERT INTO accounts_roles(id_account, id_rol) VALUES
 -- -----------------------------------------------------
 -- Fill table `bid_blast_database`.`auction_categories`
 -- -----------------------------------------------------
-INSERT INTO auction_categories(title, keywords) VALUES ("Videojuegos", "pc, xbox, playstation, discos");
+INSERT INTO auction_categories(title, keywords, `description`) VALUES ("Videojuegos", "pc, xbox, playstation, discos", "En esta categoría de subastas podrás encontrar todo tipo de juegos de video, sin importar su tipo o plataforma.");
 SET @videogames_category_id := LAST_INSERT_ID(); 
 
-INSERT INTO auction_categories(title, keywords) VALUES ("Libros", "impresos, usador, hojas, pasta blanda, pasta dura");
+INSERT INTO auction_categories(title, keywords, `description`) VALUES ("Libros", "impresos, usador, hojas, pasta blanda, pasta dura", "Libros impresos usados y nuevos, de editoriales famosas y menos conocidas.");
 SET @books_category_id := LAST_INSERT_ID(); 
 
-INSERT INTO auction_categories(title, keywords) VALUES ("Electrónicos", "televisiones, celulares, electrodomésticos");
+INSERT INTO auction_categories(title, keywords, `description`) VALUES ("Electrónicos", "televisiones, celulares, electrodomésticos", "Encuentra todo tipo de electrónicos: televisiones, estufas, refrigeradores, consolas de videojuego, hornos de microondas, etc.");
 SET @electronics_category_id := LAST_INSERT_ID(); 
 
 -- -----------------------------------------------------
