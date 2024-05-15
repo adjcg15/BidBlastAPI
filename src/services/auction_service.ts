@@ -7,6 +7,7 @@ import Offer from "@models/Offer";
 import Profile from "@models/Profile";
 import { IAuctionData } from "@ts/data";
 import { AuctionStatus } from "@ts/enums";
+import AuctionCategory from "@models/AuctionCategory";
 
 class AuctionService {
     public static async getManyAuctions(requesterId: number, query: string, offset: number, limit: number) {
@@ -117,6 +118,93 @@ class AuctionService {
                 auctions.push(auctionData);
             });
         } catch(error:any) {
+            const errorCodeMessage = error.code ? `ErrorCode: ${error.code}` : "";
+            throw new DataContextException(
+                error.message
+                ? `${error.message}. ${errorCodeMessage}`
+                : `It was not possible to recover the auctions. ${errorCodeMessage}`
+            );
+        }
+
+        return auctions;
+    }
+
+    public static async getUserSalesAuctionsList(userid: number, startDate: string, endDate: string) {
+        let auctions: IAuctionData[] = [];
+        console.log(userid);
+        try {
+            const dbAuctions = await Auction.findAll({
+                include:[
+                    {
+                        model: Profile,
+                        attributes: ['id_profile'],
+                        where:{
+                            id_profile: userid
+                        }
+                    },
+                    {
+                        model: Offer,
+                        where: {
+                            creation_date: {
+                                [Op.eq]: literal(`(
+                                    SELECT MAX(o.creation_date)
+                                    FROM offers o
+                                    WHERE o.id_auction = Auction.id_auction
+                                )`)
+                            }
+                        }
+                    },
+                    {
+                        model: AuctionCategory,
+                        required: true
+                    }
+                ],
+                attributes: {
+                    include: [
+                        [
+                            literal(`(SELECT IF(S.name = "${AuctionStatus.CONCRETIZED}", 1, 0) FROM auctions_states_applications AS 
+                            H INNER JOIN auction_states AS S ON H.id_auction_state = S.id_auction_state WHERE H.id_auction = 
+                            Auction.id_auction ORDER BY H.application_date DESC LIMIT 1)`),
+                            "is_concretized"
+                        ]
+                    ],
+                },
+                having:{ ["is_concretized"]: {[Op.eq]:1}}
+            });
+
+            const auctionsInformation = dbAuctions.map(auction => auction.toJSON());
+
+            auctionsInformation.forEach(auction => {
+                const {
+                    id_auction,
+                    title,
+                    Offers,
+                    AuctionCategory: category
+                } = auction;
+
+                const auctionData: IAuctionData = {
+                    id: id_auction,
+                    title,
+                    category: {
+                        id: category.id_auction_category,
+                        title: category.title
+                    }
+                }
+
+                if(Array.isArray(Offers) && Offers.length > 0) {
+                    const { id_offer, amount, creation_date } = Offers[0];
+
+                    auctionData.lastOffer = {
+                        id: id_offer,
+                        amount: parseFloat(amount),
+                        creationDate: creation_date
+                    }
+                }
+
+                auctions.push(auctionData);
+            });
+        } catch (error: any) {
+            console.log("Di error");
             const errorCodeMessage = error.code ? `ErrorCode: ${error.code}` : "";
             throw new DataContextException(
                 error.message

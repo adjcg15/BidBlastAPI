@@ -30,6 +30,36 @@ class AuctionController {
             res.status(statusCode).json(responseDetails);
         }
     }
+
+    public static async getUserSalesAuctionsList(req: Request, res: Response): Promise<void> {
+        try {
+            const { startDate, endDate } = req.query as { startDate?: string, endDate?: string };
+            const { usid } = req.params;
+            console.log(usid);
+            const id_profile: number = parseInt(usid);
+            console.log("No la hice");
+            const response = await AuctionService.getUserSalesAuctionsList(id_profile, startDate!, endDate!);
+            console.log("Si hice la consulta");
+
+            res.status(HttpStatusCodes.OK).json(response);
+        } catch (error: any) {
+            let statusCode = HttpStatusCodes.INTERNAL_SERVER_ERROR;
+            const responseDetails = {
+                error: true,
+                statusCode: HttpStatusCodes.INTERNAL_SERVER_ERROR,
+                details: "There was an unexpeted error, please try it again later"
+            };
+
+            if(error instanceof DataContextException) {
+                Logger.error(error.name, error.message);
+                responseDetails.details = "It was not possible to recover sales auctions, please try it again later";
+            } else {
+                Logger.error(error.name, error.message);
+            }
+
+            res.status(statusCode).json(responseDetails);
+        }
+    }
 }
 
 export default AuctionController;
