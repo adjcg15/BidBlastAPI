@@ -7,10 +7,32 @@ import Offer from "@models/Offer";
 import Profile from "@models/Profile";
 import { IAuctionData } from "@ts/data";
 import { AuctionStatus } from "@ts/enums";
+import AuctionCategory from "@models/AuctionCategory";
+import { GetManyAuctionsConfigParamType } from "@ts/services";
 
 class AuctionService {
-    public static async getManyAuctions(requesterId: number, query: string, offset: number, limit: number) {
+    public static async getManyAuctions({ 
+        requesterId, query, offset, limit, 
+        categoriesAllowed, maximumPrice, minimumPrice }: GetManyAuctionsConfigParamType
+    ) {
         let auctions: IAuctionData[] = [];
+        const categoryWhereClause = categoriesAllowed.length !== 0
+            ? { id_auction_category: { [Op.in]: categoriesAllowed } }
+            : {};
+
+        const mainWhereClause = query ? {
+            [Op.and]: {
+                [Op.or]: {
+                    title: {
+                        [Op.substring]: query
+                    },
+                    description: {
+                        [Op.substring]: query
+                    }
+                },
+                base_price: { [Op.between]: [minimumPrice, maximumPrice] }
+            },
+        } : { base_price: { [Op.between]: [minimumPrice, maximumPrice] } };
 
         try {
             const dbAuctions = await Auction.findAll({
@@ -39,6 +61,11 @@ class AuctionService {
                         order: [["creation_date", "DESC"]],
                         separate: true,
                         limit: 1
+                    },
+                    {
+                        model: AuctionCategory,
+                        attributes: ["id_auction_category"],
+                        where: categoryWhereClause
                     }
                 ],
                 attributes: {
@@ -52,16 +79,7 @@ class AuctionService {
                     ],
                 },
                 having:{ ["is_public"]: {[Op.eq]:1}},
-                where: query ? {
-                    [Op.or]: {
-                        title: {
-                            [Op.substring]: query
-                        },
-                        description: {
-                            [Op.substring]: query
-                        }
-                    },
-                } : {},
+                where: mainWhereClause,
                 order: [
                     ["approval_date", "DESC"]
                 ]
@@ -103,7 +121,7 @@ class AuctionService {
                 }
 
                 if(Array.isArray(HypermediaFiles) && HypermediaFiles.length > 0) {
-                    const { id_hypermedia_file, content, name, mime_type } = HypermediaFiles[0];
+                    const { id_hypermedia_file, content, name } = HypermediaFiles[0];
 
                     auctionData.mediaFiles = [
                         {
