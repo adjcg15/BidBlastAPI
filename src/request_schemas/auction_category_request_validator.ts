@@ -5,7 +5,7 @@ class AuctionCategoriesRequestValidator {
         return {
             catid: {
                 in: ["params"],
-                isNumeric: true,
+                isInt: true,
                 errorMessage: "Invalid category id"
             },
         };
@@ -15,7 +15,7 @@ class AuctionCategoriesRequestValidator {
         return {
             catid: {
                 in: ["params"],
-                isNumeric: true,
+                isInt: true,
                 errorMessage: "Invalid category id"
             },
             title: {

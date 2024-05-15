@@ -13,14 +13,14 @@ AuctionCategoryRouter.get("/",
 );
 
 AuctionCategoryRouter.get("/:catid",
-    //TODO verify token
+    AccessControl.checkTokenValidity,
     checkSchema(AuctionCategoriesRequestValidator.auctionCategorySchema()),
     RequestFormatValidator.validateRequestFormat,
     AuctionCategoryController.getAuctionCategory
 );
 
 AuctionCategoryRouter.put("/:catid",
-    //TODO verify token
+    AccessControl.checkTokenValidity,
     checkSchema(AuctionCategoriesRequestValidator.changeAuctionCategorySchema()),
     RequestFormatValidator.validateRequestFormat,
     AuctionCategoryController.updateAuctionCategory
