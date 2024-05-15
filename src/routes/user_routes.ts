@@ -10,7 +10,8 @@ const UserRouter = Router();
 UserRouter.get("/:usid/auctions", 
     AccessControl.checkTokenValidity,
     checkSchema(UserRequestValidator.userAuctionsListSchema()),
-    RequestFormatValidator.validateRequestFormat
+    RequestFormatValidator.validateRequestFormat,
+    DefaultValuesInjector.setGetUserAuctionsDefaultParams,
 );
 
 export default UserRouter;

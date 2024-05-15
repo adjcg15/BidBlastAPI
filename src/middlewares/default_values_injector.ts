@@ -21,6 +21,22 @@ class DefaultValuesInjector {
 
         next();
     }
+
+    public static setGetUserAuctionsDefaultParams(req: Request, res: Response, next: NextFunction) {
+        const DEFAULT_START_DATE = "";
+        const DEFAULT_END_DATE = "";
+        const query = req.query as {startDate?: string, endDate?: string};
+
+        if(!query.startDate){
+            query.startDate = DEFAULT_START_DATE;
+        }
+
+        if(!query.endDate){
+            query.endDate = DEFAULT_END_DATE;
+        }
+
+        next();
+    }
 }
 
 export default DefaultValuesInjector;
