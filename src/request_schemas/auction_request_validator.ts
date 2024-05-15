@@ -26,6 +26,42 @@ class AuctionRequestValidator {
                 trim: true,
                 optional: { options: { nullable: true } },
                 toLowerCase: true
+            },
+            categories: {
+                in: ["query"],
+                optional: { options: { nullable: true } },
+                custom: {
+                    options: (value) => {
+                        console.log(typeof value);
+                        if (!/^\d+(,\d+)*$/.test(value) && value !== "") {
+                            throw new Error("The query parameter 'categories' must be a comma-separated list of integers");
+                        }
+                        return true;
+                    }
+                },
+                customSanitizer: {
+                    options: (value) => {
+                        return value ? value.split(',').map(Number) : [];
+                    }
+                }
+            },
+            minimumPrice: {
+                in: ["query"],
+                isFloat: {
+                    options: { min: 0 },
+                    errorMessage: "The query parameter 'minimumPrice' must be a FLOAT value grater or equal 0"
+                },
+                optional: { options: { nullable: true } },
+                toFloat: true
+            },
+            maximumPrice: {
+                in: ["query"],
+                isFloat: {
+                    options: { min: 0 },
+                    errorMessage: "The query parameter 'maximumPrice' must be a FLOAT value grater or equal 0"
+                },
+                optional: { options: { nullable: true } },
+                toFloat: true
             }
         };
     }
