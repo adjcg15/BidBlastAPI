@@ -32,7 +32,6 @@ class AuctionRequestValidator {
                 optional: { options: { nullable: true } },
                 custom: {
                     options: (value) => {
-                        console.log(typeof value);
                         if (!/^\d+(,\d+)*$/.test(value) && value !== "") {
                             throw new Error("The query parameter 'categories' must be a comma-separated list of integers");
                         }
