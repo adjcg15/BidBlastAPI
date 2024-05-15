@@ -7,11 +7,12 @@ import DefaultValuesInjector from "@middlewares/default_values_injector";
 
 const UserRouter = Router();
 
-UserRouter.get("/:usid/auctions", 
+UserRouter.get("/:usid/sales-auctions", 
     AccessControl.checkTokenValidity,
     checkSchema(UserRequestValidator.userAuctionsListSchema()),
     RequestFormatValidator.validateRequestFormat,
-    DefaultValuesInjector.setGetUserAuctionsDefaultParams,
+    //DefaultValuesInjector.setGetUserAuctionsDefaultParams,
+    
 );
 
 export default UserRouter;
