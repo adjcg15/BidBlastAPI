@@ -206,14 +206,14 @@ class AuctionService {
                 attributes: {
                     include: [
                         [
-                            literal(`(SELECT IF(S.name = "${AuctionStatus.CONCRETIZED}", 1, 0) FROM auctions_states_applications AS 
-                            H INNER JOIN auction_states AS S ON H.id_auction_state = S.id_auction_state WHERE H.id_auction = 
-                            Auction.id_auction ORDER BY H.application_date DESC LIMIT 1)`),
-                            "is_concretized"
+                            literal(`(SELECT IF(S.name = "${AuctionStatus.CONCRETIZED}" OR S.name = "${AuctionStatus.FINISHED}", 1, 0)
+                            FROM auctions_states_applications AS H INNER JOIN auction_states AS S ON H.id_auction_state = 
+                            S.id_auction_state WHERE H.id_auction = Auction.id_auction ORDER BY H.application_date DESC LIMIT 1)`),
+                            "is_sold"
                         ]
                     ],
                 },
-                having:{ ["is_concretized"]: {[Op.eq]:1}}
+                having:{ ["is_sold"]: {[Op.eq]:1}}
             });
 
             const auctionsInformation = dbAuctions.map(auction => auction.toJSON());
