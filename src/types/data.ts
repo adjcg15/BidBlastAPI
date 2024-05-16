@@ -49,7 +49,7 @@ interface IAuctionData {
     auctioneer?: IUserData;
     mediaFiles?: IHypermediaFileData[];
     lastOffer?: IOfferData;
-    lastApplicationState?: IAuctionApplicationState;
+    updatedDate?: Date;
 }
 
 export type {

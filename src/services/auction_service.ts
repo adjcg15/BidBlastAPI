@@ -247,12 +247,9 @@ class AuctionService {
                 }
 
                 if(Array.isArray(States) && States.length > 0) {
-                    const { id_auction_state_application, application_date } = States[0];
+                    const { application_date } = States[0];
                     
-                    auctionData.lastApplicationState = {
-                        id: id_auction_state_application,
-                        applicationDate: application_date
-                    }
+                    auctionData.updatedDate = application_date
                 }
 
                 auctions.push(auctionData);
