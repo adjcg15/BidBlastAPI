@@ -35,11 +35,8 @@ class AuctionController {
         try {
             const { startDate, endDate } = req.query as { startDate?: string, endDate?: string };
             const { usid } = req.params;
-            console.log(usid);
             const id_profile: number = parseInt(usid);
-            console.log("No la hice");
             const response = await AuctionService.getUserSalesAuctionsList(id_profile, startDate!, endDate!);
-            console.log("Si hice la consulta");
 
             res.status(HttpStatusCodes.OK).json(response);
         } catch (error: any) {

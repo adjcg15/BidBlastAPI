@@ -31,6 +31,11 @@ interface IOfferData {
     customer?: IUserData;
 }
 
+interface IAuctionApplicationState {
+    id: number;
+    applicationDate: Date;
+}
+
 interface IAuctionData {
     id: number;
     title: string;
@@ -44,6 +49,7 @@ interface IAuctionData {
     auctioneer?: IUserData;
     mediaFiles?: IHypermediaFileData[];
     lastOffer?: IOfferData;
+    lastApplicationState?: IAuctionApplicationState;
 }
 
 export type {

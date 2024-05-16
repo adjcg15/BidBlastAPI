@@ -8,6 +8,7 @@ import Profile from "@models/Profile";
 import { IAuctionData } from "@ts/data";
 import { AuctionStatus } from "@ts/enums";
 import AuctionCategory from "@models/AuctionCategory";
+import AuctionStatesApplications from "@models/AuctionsStatesApplications";
 
 class AuctionService {
     public static async getManyAuctions(requesterId: number, query: string, offset: number, limit: number) {
@@ -131,8 +132,30 @@ class AuctionService {
 
     public static async getUserSalesAuctionsList(userid: number, startDate: string, endDate: string) {
         let auctions: IAuctionData[] = [];
-        console.log(userid);
+        
         try {
+            let whereClause: { [key: string]: any } = {};
+            const maxApplicationDateSubquery = literal(`(
+                SELECT MAX(s.application_date)
+                FROM auctions_states_applications s
+                WHERE s.id_auction = Auction.id_auction
+            )`);
+
+            if (startDate !== undefined && endDate !== undefined) {
+                whereClause = {
+                    application_date: {
+                        [Op.between]: [startDate, endDate],
+                        [Op.eq]: maxApplicationDateSubquery
+                    }
+                };
+            }else{
+                whereClause = {
+                    application_date: {
+                        [Op.eq]: maxApplicationDateSubquery
+                    }
+                };
+            }
+
             const dbAuctions = await Auction.findAll({
                 include:[
                     {
@@ -153,6 +176,10 @@ class AuctionService {
                                 )`)
                             }
                         }
+                    },
+                    {
+                        model: AuctionStatesApplications,
+                        where: whereClause
                     },
                     {
                         model: AuctionCategory,
@@ -179,6 +206,7 @@ class AuctionService {
                     id_auction,
                     title,
                     Offers,
+                    AuctionStatesApplications: States,
                     AuctionCategory: category
                 } = auction;
 
@@ -201,10 +229,18 @@ class AuctionService {
                     }
                 }
 
+                if(Array.isArray(States) && States.length > 0) {
+                    const { id_auction_state_application, application_date } = States[0];
+                    
+                    auctionData.lastApplicationState = {
+                        id: id_auction_state_application,
+                        applicationDate: application_date
+                    }
+                }
+
                 auctions.push(auctionData);
             });
         } catch (error: any) {
-            console.log("Di error");
             const errorCodeMessage = error.code ? `ErrorCode: ${error.code}` : "";
             throw new DataContextException(
                 error.message
