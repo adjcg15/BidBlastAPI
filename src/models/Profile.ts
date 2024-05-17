@@ -44,8 +44,6 @@ Profile.init(
         timestamps: false
     }
 );
-
-// Definir la relación entre Account y Profile
 Account.hasOne(Profile, { foreignKey: 'id_account' });
 Profile.belongsTo(Account, { foreignKey: 'id_account' });
 

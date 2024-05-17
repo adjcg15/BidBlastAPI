@@ -1,5 +1,6 @@
 import Account from "@models/Account";
 import Profile from "@models/Profile";
+import AccountsRoles from "@models/AccountsRoles";
 import { DataContextException } from "@exceptions/services";
 import { Transaction } from "sequelize";
 
@@ -27,11 +28,16 @@ class AccountService {
                 { full_name: fullName, phone_number: phoneNumber, avatar: avatar, id_account: account.id_account },
                 { transaction }
             );
+
+            await AccountsRoles.create(
+                { id_account: account.id_account, id_rol: 1 },
+                { transaction }
+            );
+
             await transaction.commit();
 
             return account;
         } catch (error: any) {
-
             if (transaction) await transaction.rollback();
 
             if (error.message === "Email already exists") {
@@ -41,4 +47,5 @@ class AccountService {
         }
     }
 }
+
 export default AccountService;
