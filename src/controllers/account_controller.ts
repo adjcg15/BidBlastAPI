@@ -27,7 +27,8 @@ class AccountController {
                 responseDetails.details = "It was not possible to create the account, please try again later";
             } else if (error.message === "Email already exists") {
                 statusCode = HttpStatusCodes.BAD_REQUEST;
-                responseDetails.details = "Email already exists";
+                responseDetails.statusCode = statusCode;
+                responseDetails.details = "The email address is already in use. Please use a different email address.";
             }
 
             res.status(statusCode).json(responseDetails);
