@@ -9,6 +9,7 @@ import DataBase from "@lib/db";
 import configureModel from "@models/associations";
 import AuctionRouter from "@routes/auction_routes";
 import AccountRouter from "@routes/account_routes";
+import UserRouter from "@routes/user_routes";
 
 const database = DataBase.getInstance();
 database.startConnection()
@@ -23,6 +24,7 @@ database.startConnection()
         app.use("/api/auction-categories", AuctionCategoryRouter);
         app.use("/api/auctions", AuctionRouter);
         app.use("/api/accounts", AccountRouter);
+        app.use("/api/users", UserRouter);
 
         app.listen(process.env.PORT, () => {
             console.log(`Server is running on http://localhost:${APP_PORT}`)

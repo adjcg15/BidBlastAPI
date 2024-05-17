@@ -58,9 +58,9 @@ class AuctionCategoryController{
                 return;
             }
 
-            res.status(HttpStatusCodes.CREATED).json({
+            res.status(HttpStatusCodes.OK).json({
                 error: false,
-                statusCode: HttpStatusCodes.CREATED,
+                statusCode: HttpStatusCodes.OK,
                 details: "Auction category is updated"
             });
         } catch (error: any) {
