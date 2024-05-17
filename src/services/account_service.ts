@@ -9,25 +9,23 @@ class AccountService {
         let transaction: Transaction | null = null;
 
         try {
-            const existingAccount = await Account.findOne({ where: { email } });
-            if (existingAccount) {
-                throw new Error("Email already exists");
-            }
             if (!Account.sequelize) {
                 throw new DataContextException("Sequelize instance is not available");
             }
 
             transaction = await Account.sequelize.transaction();
 
-            const account = await Account.create(
-                { email, password },
+            const profile = await Profile.create(
+                { full_name: fullName, phone_number: phoneNumber, avatar, id_account: null },
                 { transaction }
             );
 
-            await Profile.create(
-                { full_name: fullName, phone_number: phoneNumber, avatar: avatar, id_account: account.id_account },
+            const account = await Account.create(
+                { email, password, id_profile: profile.id_profile },
                 { transaction }
             );
+
+            await profile.update({ id_account: account.id_account }, { transaction });
 
             await AccountsRoles.create(
                 { id_account: account.id_account, id_rol: 1 },
@@ -40,12 +38,16 @@ class AccountService {
         } catch (error: any) {
             if (transaction) await transaction.rollback();
 
-            if (error.message === "Email already exists") {
+            console.error("Error creating account:", error);
+
+            if (error.name === 'SequelizeUniqueConstraintError' || error.code === 'ER_DUP_ENTRY') {
                 throw new Error("Email already exists");
             }
-            throw new DataContextException("Error while creating account");
+
+            throw new DataContextException("Error while creating account: " + error.message);
         }
     }
 }
 
 export default AccountService;
+
