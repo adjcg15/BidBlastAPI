@@ -44,7 +44,5 @@ Profile.init(
         timestamps: false
     }
 );
-Account.hasOne(Profile, { foreignKey: 'id_account' });
-Profile.belongsTo(Account, { foreignKey: 'id_account' });
 
 export default Profile;
