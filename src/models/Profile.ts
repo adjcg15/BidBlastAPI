@@ -1,13 +1,11 @@
 import DataBase from "@lib/db";
 import { DataTypes, Model } from "sequelize";
-import Account from "@models/Account";
 
 class Profile extends Model {
     declare id_profile: number;
     declare full_name: string;
-    declare phone_number: string | null;
-    declare avatar: Buffer | null;
-    declare id_account: number;
+    declare phone_number: string;
+    declare avatar: Buffer;
 }
 
 Profile.init(
@@ -28,14 +26,6 @@ Profile.init(
         avatar: {
             type: DataTypes.BLOB,
             allowNull: true
-        },
-        id_account: {
-            type: DataTypes.INTEGER,
-            allowNull: false,
-            references: {
-                model: Account,
-                key: 'id_account'
-            }
         }
     },
     {
