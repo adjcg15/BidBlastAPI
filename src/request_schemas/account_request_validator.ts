@@ -3,7 +3,7 @@ import { Schema } from "express-validator";
 class AccountRequestValidator {
     public static registerSchema(): Schema {
         return {
-            full_name: {
+            fullName: {
                 in: ["body"],
                 trim: true,
                 notEmpty: true,
