@@ -10,6 +10,7 @@ import { AuctionStatus } from "@ts/enums";
 import AuctionCategory from "@models/AuctionCategory";
 import AuctionStatesApplications from "@models/AuctionsStatesApplications";
 import { GetManyAuctionsConfigParamType } from "@ts/services";
+import Account from "@models/Account";
 
 class AuctionService {
     public static async getManyAuctions({ 
@@ -266,8 +267,150 @@ class AuctionService {
         return auctions;
     }
 
-    public static async getCompletedAuctions(userId: number, query: string, offset: number, limit:number) {
+    public static async getCompletedAuctions(userId: number, query: string, offset: number, limit: number) {
+        let auctions: IAuctionData[] = [];
+        try {
+            const mainWhereClause = {
+                [Op.and]: {
+                    [Op.or]: {
+                        title: {
+                            [Op.substring]: query
+                        },
+                        description: {
+                            [Op.substring]: query
+                        }
+                    }
+                },
+            };
+            const dbAuctions = await Auction.findAll({
+                limit,
+                offset,
+                include: [
+                    { 
+                        model: Profile
+                    },
+                    {
+                        model: Account
+                    },
+                    { 
+                        model: HypermediaFile,
+                        where: { 
+                            mime_type: {
+                                [Op.startsWith]: "image/"
+                            }
+                        },
+                        limit: 1
+                    },
+                    {
+                        model: Offer,
+                        where: {
+                            creation_date: {
+                                [Op.eq]: literal(`(
+                                    SELECT MAX(o.creation_date)
+                                    FROM offers o
+                                    WHERE o.id_auction = Auction.id_auction
+                                )`)
+                            },
+                            id_profile: {
+                                [Op.eq]: userId
+                            }
+                        }
+                    },
+                    {
+                        model: AuctionStatesApplications,
+                        where: {
+                            application_date: {
+                                [Op.eq]: literal(`(
+                                    SELECT MAX(s.application_date)
+                                    FROM auctions_states_applications s
+                                    WHERE s.id_auction = Auction.id_auction
+                                )`)
+                            }
+                        }
+                    }
+                ],
+                attributes: {
+                    include: [
+                        [
+                            literal(`(SELECT IF(S.name = "${AuctionStatus.CONCRETIZED}" OR S.name = "${AuctionStatus.FINISHED}", 1, 0)
+                            FROM auctions_states_applications AS H INNER JOIN auction_states AS S ON H.id_auction_state = 
+                            S.id_auction_state WHERE H.id_auction = Auction.id_auction ORDER BY H.application_date DESC LIMIT 1)`),
+                            "is_sold"
+                        ]
+                    ],
+                },
+                having:{ ["is_sold"]: {[Op.eq]:1}},
+                where: mainWhereClause,
+                order: [
+                    [AuctionStatesApplications, "application_date", "DESC"]
+                ]
+            });
 
+            const auctionsInformation = dbAuctions.map(auction => auction.toJSON());
+            auctionsInformation.forEach(auction => {
+                const { 
+                    id_auction, 
+                    title,
+                    Profile: auctioneer,
+                    Account: account,
+                    AuctionStatesApplications: States, 
+                    Offers,
+                    HypermediaFiles
+                } = auction;
+
+                const auctionData: IAuctionData = {
+                    id: id_auction,
+                    title,
+                    auctioneer: {
+                        id: auctioneer.id_profile,
+                        fullName: auctioneer.full_name,
+                        phoneNumber: auctioneer.phone_number,
+                        email: account.email,
+                        avatar: ImageConverter.bufferToBase64(auctioneer.avatar)
+                    }
+                }
+
+                if(Array.isArray(Offers) && Offers.length > 0) {
+                    const { id_offer, amount, creation_date } = Offers[0];
+
+                    auctionData.lastOffer = {
+                        id: id_offer,
+                        amount: parseFloat(amount),
+                        creationDate: creation_date
+                    }
+                }
+
+                if(Array.isArray(HypermediaFiles) && HypermediaFiles.length > 0) {
+                    const { id_hypermedia_file, content, name } = HypermediaFiles[0];
+
+                    auctionData.mediaFiles = [
+                        {
+                            id: id_hypermedia_file,
+                            name,
+                            content: ImageConverter.bufferToBase64(content)
+                        }
+                    ]
+                }
+
+                if(Array.isArray(States) && States.length > 0) {
+                    const { application_date } = States[0];
+                    
+                    auctionData.updatedDate = application_date
+                }
+
+                auctions.push(auctionData);
+            });
+            
+        } catch (error: any) {
+            const errorCodeMessage = error.code ? `ErrorCode: ${error.code}` : "";
+            throw new DataContextException(
+                error.message
+                ? `${error.message}. ${errorCodeMessage}`
+                : `It was not possible to recover the auctions. ${errorCodeMessage}`
+            );
+        }
+
+        return auctions;
     }
 }
 

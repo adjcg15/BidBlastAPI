@@ -76,6 +76,7 @@ class AuctionController {
             const idProfile: number = parseInt(usid);
 
             const response = await AuctionService.getCompletedAuctions(idProfile, query!, offset!, limit!);
+
             res.status(HttpStatusCodes.OK).json(response);
         } catch(error: any) {
             let statusCode = HttpStatusCodes.INTERNAL_SERVER_ERROR;

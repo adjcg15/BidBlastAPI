@@ -54,6 +54,8 @@ class DefaultValuesInjector {
         if(!query.offset) {
             query.offset = DEFAULT_OFFSET;
         }
+
+        next();
     }
 }
 
