@@ -287,10 +287,12 @@ class AuctionService {
                 offset,
                 include: [
                     { 
-                        model: Profile
-                    },
-                    {
-                        model: Account
+                        model: Profile,
+                        include: [
+                            {
+                                model: Account
+                            }
+                        ]
                     },
                     { 
                         model: HypermediaFile,
@@ -299,7 +301,8 @@ class AuctionService {
                                 [Op.startsWith]: "image/"
                             }
                         },
-                        limit: 1
+                        limit: 1,
+                        required: false
                     },
                     {
                         model: Offer,
@@ -345,14 +348,18 @@ class AuctionService {
                     [AuctionStatesApplications, "application_date", "DESC"]
                 ]
             });
-
             const auctionsInformation = dbAuctions.map(auction => auction.toJSON());
             auctionsInformation.forEach(auction => {
                 const { 
                     id_auction, 
                     title,
-                    Profile: auctioneer,
-                    Account: account,
+                    Profile: { 
+                        id_profile,
+                        full_name,
+                        phone_number,
+                        avatar, 
+                        Account: account 
+                      },
                     AuctionStatesApplications: States, 
                     Offers,
                     HypermediaFiles
@@ -362,11 +369,11 @@ class AuctionService {
                     id: id_auction,
                     title,
                     auctioneer: {
-                        id: auctioneer.id_profile,
-                        fullName: auctioneer.full_name,
-                        phoneNumber: auctioneer.phone_number,
+                        id: id_profile,
+                        fullName: full_name,
+                        phoneNumber: phone_number,
                         email: account.email,
-                        avatar: ImageConverter.bufferToBase64(auctioneer.avatar)
+                        avatar: ImageConverter.bufferToBase64(avatar)
                     }
                 }
 
