@@ -37,20 +37,23 @@ class DefaultValuesInjector {
         next();
     }
 
-    public static setGetUserAuctionsDefaultParams(req: Request, res: Response, next: NextFunction) {
-        const DEFAULT_START_DATE = "";
-        const DEFAULT_END_DATE = "";
-        const query = req.query as {startDate?: string, endDate?: string};
+    public static setSearchCompletedAuctionsDefaultParams(req: Request, res: Response, next: NextFunction) {
+        const DEFAULT_QUERY_SEARCH = "";
+        const DEFAULT_LIMIT = 5;
+        const DEFAULT_OFFSET = 0;
+        const query = req.query as SearchActionQueryType;
 
-        if(!query.startDate){
-            query.startDate = DEFAULT_START_DATE;
+        if(!query.query) {
+            query.query = DEFAULT_QUERY_SEARCH;
         }
 
-        if(!query.endDate){
-            query.endDate = DEFAULT_END_DATE;
+        if(!query.limit) {
+            query.limit = DEFAULT_LIMIT;
         }
 
-        next();
+        if(!query.offset) {
+            query.offset = DEFAULT_OFFSET;
+        }
     }
 }
 

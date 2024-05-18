@@ -147,7 +147,7 @@ class AuctionService {
         return auctions;
     }
 
-    public static async getUserSalesAuctionsList(userid: number, startDate: string, endDate: string) {
+    public static async getUserSalesAuctionsList(userId: number, startDate: string, endDate: string) {
         let auctions: IAuctionData[] = [];
         
         try {
@@ -179,7 +179,7 @@ class AuctionService {
                         model: Profile,
                         attributes: ['id_profile'],
                         where:{
-                            id_profile: userid
+                            id_profile: userId
                         }
                     },
                     {
@@ -264,6 +264,10 @@ class AuctionService {
         }
 
         return auctions;
+    }
+
+    public static async getCompletedAuctions(userId: number, query: string, offset: number, limit:number) {
+
     }
 }
 
