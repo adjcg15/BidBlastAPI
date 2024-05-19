@@ -16,9 +16,9 @@ AuctionRouter.get("/",
     AuctionController.searchAuction
 );
 
-AuctionRouter.get("/:auctionId",
+AuctionRouter.get("/:idAuction",
     AccessControl.checkTokenValidity,
-    checkSchema(AuctionRequestValidator.auctionByIDSchema()),
+    checkSchema(AuctionRequestValidator.auctionByIdSchema()),
     RequestFormatValidator.validateRequestFormat,
     AuctionController.getAuctionById
 );

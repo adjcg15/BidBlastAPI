@@ -65,9 +65,9 @@ class AuctionRequestValidator {
         };
     }
 
-    public static auctionByIDSchema(): Schema {
+    public static auctionByIdSchema(): Schema {
         return {
-            auctionId: {
+            idAuction: {
                 in: ["params"],
                 isInt: {
                     options: { min: 1 },

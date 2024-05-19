@@ -99,7 +99,18 @@ class AuctionController {
 
     public static async getAuctionById(req: Request, res: Response): Promise<void> {
         try {
-            res.send();
+            const { idAuction } = req.params;
+
+            const auction = await AuctionService.getAuctionById(Number(idAuction));
+            if(auction === null) {
+                res.status(HttpStatusCodes.NOT_FOUND).send({
+                    error: true,
+                    statusCode: HttpStatusCodes.BAD_REQUEST,
+                    details: "It was not possible to find the auction with the ID " + idAuction
+                });
+            } else {
+                res.status(HttpStatusCodes.OK).json(auction);
+            }
         } catch(error: any) {
             let statusCode = HttpStatusCodes.INTERNAL_SERVER_ERROR;
             const responseDetails = {
