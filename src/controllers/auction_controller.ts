@@ -96,6 +96,28 @@ class AuctionController {
             res.status(statusCode).json(responseDetails);
         }
     }
+
+    public static async getAuctionById(req: Request, res: Response): Promise<void> {
+        try {
+            res.send();
+        } catch(error: any) {
+            let statusCode = HttpStatusCodes.INTERNAL_SERVER_ERROR;
+            const responseDetails = {
+                error: true,
+                statusCode: HttpStatusCodes.INTERNAL_SERVER_ERROR,
+                details: "There was an unexpeted error, please try it again later"
+            };
+
+            if(error instanceof DataContextException) {
+                Logger.error(error.name, error.message);
+                responseDetails.details = "It was not possible to get the information of the auction, please try it again later";
+            } else {
+                Logger.error(error.name, error.message);
+            }
+
+            res.status(statusCode).json(responseDetails);
+        }
+    }
 }
 
 export default AuctionController;
