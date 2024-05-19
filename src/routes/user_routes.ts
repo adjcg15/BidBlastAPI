@@ -10,9 +10,17 @@ const UserRouter = Router();
 
 UserRouter.get("/:usid/sales-auctions", 
     AccessControl.checkTokenValidity,
-    checkSchema(UserRequestValidator.userAuctionsListSchema()),
+    checkSchema(UserRequestValidator.userSalesAuctionsListSchema()),
     RequestFormatValidator.validateRequestFormat,
     AuctionController.getUserSalesAuctionsList
+);
+
+UserRouter.get("/:usid/completed-auctions",
+    AccessControl.checkTokenValidity,
+    checkSchema(UserRequestValidator.userCompletedAuctionsListSchema()),
+    RequestFormatValidator.validateRequestFormat,
+    DefaultValuesInjector.setSearchCompletedAuctionsDefaultParams,
+    AuctionController.searchCompletedAuction
 );
 
 export default UserRouter;

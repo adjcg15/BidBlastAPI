@@ -46,8 +46,8 @@ class AuctionController {
         try {
             const { startDate, endDate } = req.query as { startDate?: string, endDate?: string };
             const { usid } = req.params;
-            const id_profile: number = parseInt(usid);
-            const response = await AuctionService.getUserSalesAuctionsList(id_profile, startDate!, endDate!);
+            const idProfile: number = parseInt(usid);
+            const response = await AuctionService.getUserSalesAuctionsList(idProfile, startDate!, endDate!);
 
             res.status(HttpStatusCodes.OK).json(response);
         } catch (error: any) {
@@ -104,6 +104,33 @@ class AuctionController {
                 error: true,
                 message: "There was an unexpected error, please try again later"
             });
+        }
+    }
+    public static async searchCompletedAuction(req: Request, res: Response) {
+        try {
+            const { query, limit, offset } = req.query as SearchActionQueryType;
+            const { usid } = req.params;
+            const idProfile: number = parseInt(usid);
+
+            const response = await AuctionService.getCompletedAuctions(idProfile, query!, offset!, limit!);
+
+            res.status(HttpStatusCodes.OK).json(response);
+        } catch(error: any) {
+            let statusCode = HttpStatusCodes.INTERNAL_SERVER_ERROR;
+            const responseDetails = {
+                error: true,
+                statusCode: HttpStatusCodes.INTERNAL_SERVER_ERROR,
+                details: "There was an unexpeted error, please try it again later"
+            };
+
+            if(error instanceof DataContextException) {
+                Logger.error(error.name, error.message);
+                responseDetails.details = "It was not possible to recover the completed auctions, please try it again later";
+            } else {
+                Logger.error(error.name, error.message);
+            }
+
+            res.status(statusCode).json(responseDetails);
         }
     }
 }
