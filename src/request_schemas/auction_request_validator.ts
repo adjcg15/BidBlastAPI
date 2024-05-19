@@ -64,6 +64,19 @@ class AuctionRequestValidator {
             }
         };
     }
+
+    public static auctionByIDSchema(): Schema {
+        return {
+            auctionId: {
+                in: ["params"],
+                isInt: {
+                    options: { min: 1 },
+                    errorMessage: "Invalid auction ID"
+                },
+                toInt: true
+            }
+        }
+    }
 }
 
 export default AuctionRequestValidator;
