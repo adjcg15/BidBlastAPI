@@ -266,6 +266,7 @@ class AuctionService {
 
         return auctions;
     }
+
     public static async createAuction(
         auctionData: any,
         mediaFiles: any[],
@@ -300,7 +301,7 @@ class AuctionService {
                     {
                         mime_type: file.mimeType,
                         name: file.name,
-                        content: Buffer.from(file.content, 'base64'),
+                        content: ImageConverter.bufferToBase64(file.content),
                         id_auction: auction.id_auction
                     },
                     { transaction }
