@@ -5,11 +5,12 @@ import Auction from "@models/Auction";
 import HypermediaFile from "@models/HypermediaFile";
 import Offer from "@models/Offer";
 import Profile from "@models/Profile";
-import { IAuctionData } from "@ts/data";
+import { IAuctionData, IHypermediaFileData } from "@ts/data";
 import { AuctionStatus } from "@ts/enums";
 import AuctionCategory from "@models/AuctionCategory";
 import AuctionStatesApplications from "@models/AuctionsStatesApplications";
 import { GetManyAuctionsConfigParamType } from "@ts/services";
+import { Transaction } from "sequelize";
 import Account from "@models/Account";
 
 class AuctionService {
@@ -267,6 +268,57 @@ class AuctionService {
         return auctions;
     }
 
+    public static async createAuction(
+        auctionData: any,
+        mediaFiles: any[],
+        userProfileId: number
+    ): Promise<Auction> {
+        let transaction: Transaction | null = null;
+
+        try {
+            if (!Auction.sequelize) {
+                throw new DataContextException("Sequelize instance is not available");
+            }
+
+            transaction = await Auction.sequelize.transaction();
+
+            const auction = await Auction.create(
+                {
+                    title: auctionData.title,
+                    description: auctionData.description,
+                    base_price: auctionData.basePrice,
+                    minimum_bid: auctionData.minimumBid,
+                    approval_date: auctionData.approvalDate,
+                    days_available: auctionData.daysAvailable,
+                    id_item_condition: auctionData.idItemCondition,
+                    id_auction_category: auctionData.idAuctionCategory,
+                    id_profile: userProfileId
+                },
+                { transaction }
+            );
+
+            for (const file of mediaFiles) {
+                await HypermediaFile.create(
+                    {
+                        mime_type: file.mimeType,
+                        name: file.name,
+                        content: ImageConverter.bufferToBase64(file.content),
+                        id_auction: auction.id_auction
+                    },
+                    { transaction }
+                );
+            }
+
+            await transaction.commit();
+
+            return auction;
+        } catch (error: any) {
+            if (transaction) await transaction.rollback();
+
+            console.error("Error creating auction:", error);
+            throw new DataContextException("Error while creating auction: " + error.message);
+        }
+    }
     public static async getCompletedAuctions(userId: number, query: string, offset: number, limit: number) {
         let auctions: IAuctionData[] = [];
         try {
