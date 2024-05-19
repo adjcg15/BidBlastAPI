@@ -5,7 +5,7 @@ import Auction from "@models/Auction";
 import HypermediaFile from "@models/HypermediaFile";
 import Offer from "@models/Offer";
 import Profile from "@models/Profile";
-import { IAuctionData } from "@ts/data";
+import { IAuctionData, IHypermediaFileData } from "@ts/data";
 import { AuctionStatus } from "@ts/enums";
 import AuctionCategory from "@models/AuctionCategory";
 import AuctionStatesApplications from "@models/AuctionsStatesApplications";
@@ -429,6 +429,15 @@ class AuctionService {
                 include: [
                     {
                         model: ItemCondition
+                    },
+                    {
+                        model: HypermediaFile,
+                        where: { 
+                            mime_type: {
+                                [Op.startsWith]: "image/"
+                            }
+                        },
+                        attributes: ["id_hypermedia_file", "mime_type", "name", "content"]
                     }
                 ],
                 attributes: {
@@ -453,9 +462,40 @@ class AuctionService {
                     base_price,
                     minimum_bid,
                     ItemCondition: { id_item_condition, name: itemConditionName },
+                    HypermediaFiles: auctionImages
                 } = dbAuction.toJSON();
                 const closesAt = new Date(approval_date);
                 closesAt.setDate(approval_date.getDate() + days_available);
+
+                const dbAuctionVideos = await HypermediaFile.findAll({
+                    where: {
+                        [Op.and]: {
+                            mime_type: {
+                                [Op.startsWith]: "video/"
+                            },
+                            id_auction: idAuction
+                        }
+                    },
+                    attributes: ["id_hypermedia_file", "mime_type", "name"]
+                });
+                const auctionVideos = dbAuctionVideos.map(video => video.toJSON());
+
+                const auctionMediaFiles = [...auctionImages, ...auctionVideos]
+                    .sort((file1, file2) => file1.id_hypermedia_file - file2.id_hypermedia_file)
+                    .map(({id_hypermedia_file, mime_type, name, content}) => {
+                        const fileData = {
+                            id: id_hypermedia_file,
+                            mimeType: mime_type,
+                            name,
+                            content: ""
+                        } as IHypermediaFileData;
+
+                        if(mime_type.startsWith("image")) {
+                            fileData.content = ImageConverter.bufferToBase64(content);
+                        }
+
+                        return fileData;
+                    });
 
                 auction = {
                     id: idAuction,
@@ -467,7 +507,8 @@ class AuctionService {
                     itemCondition: {
                         id: id_item_condition,
                         name: itemConditionName
-                    }
+                    },
+                    mediaFiles: auctionMediaFiles
                 };
             }
         } catch(error: any) {
