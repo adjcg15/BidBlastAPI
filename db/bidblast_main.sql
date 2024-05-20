@@ -222,7 +222,7 @@ CREATE TABLE IF NOT EXISTS `bid_blast_database`.`hypermedia_files` (
   `id_hypermedia_file` INT NOT NULL AUTO_INCREMENT,
   `mime_type` NVARCHAR(45) NOT NULL,
   `name` NVARCHAR(60) NOT NULL,
-  `content` BLOB NOT NULL,
+  `content` MEDIUMBLOB NOT NULL,
   `id_auction` INT NOT NULL,
   PRIMARY KEY (`id_hypermedia_file`),
   INDEX `fk_hypermedia_files_auctions_idx` (`id_auction` ASC) VISIBLE,

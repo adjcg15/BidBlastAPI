@@ -12,6 +12,7 @@ import AuctionStatesApplications from "@models/AuctionsStatesApplications";
 import { GetManyAuctionsConfigParamType } from "@ts/services";
 import { Transaction } from "sequelize";
 import Account from "@models/Account";
+import ItemCondition from "@models/ItemCondition";
 
 class AuctionService {
     public static async getManyAuctions({ 
@@ -470,6 +471,108 @@ class AuctionService {
         }
 
         return auctions;
+    }
+
+    public static async getAuctionById(idAuction: number): Promise<IAuctionData | null> {
+        let auction: IAuctionData | null = null;
+
+        try {
+            const dbAuction = await Auction.findByPk(idAuction, {
+                include: [
+                    {
+                        model: ItemCondition
+                    },
+                    {
+                        model: HypermediaFile,
+                        where: { 
+                            mime_type: {
+                                [Op.startsWith]: "image/"
+                            }
+                        },
+                        attributes: ["id_hypermedia_file", "mime_type", "name", "content"]
+                    }
+                ],
+                attributes: {
+                    include: [
+                        [
+                            literal(`(SELECT IF(S.name = "${AuctionStatus.PUBLISHED}", 1, 0) FROM auctions_states_applications AS 
+                            H INNER JOIN auction_states AS S ON H.id_auction_state = S.id_auction_state WHERE H.id_auction = 
+                            Auction.id_auction ORDER BY H.application_date DESC LIMIT 1)`),
+                            "is_public"
+                        ]
+                    ],
+                },
+                having:{ ["is_public"]: {[Op.eq]:1}},
+            });
+
+            if(dbAuction !== null) {
+                const { 
+                    title, 
+                    approval_date, 
+                    days_available,
+                    description,
+                    base_price,
+                    minimum_bid,
+                    ItemCondition: { id_item_condition, name: itemConditionName },
+                    HypermediaFiles: auctionImages
+                } = dbAuction.toJSON();
+                const closesAt = new Date(approval_date);
+                closesAt.setDate(approval_date.getDate() + days_available);
+
+                const dbAuctionVideos = await HypermediaFile.findAll({
+                    where: {
+                        [Op.and]: {
+                            mime_type: {
+                                [Op.startsWith]: "video/"
+                            },
+                            id_auction: idAuction
+                        }
+                    },
+                    attributes: ["id_hypermedia_file", "mime_type", "name"]
+                });
+                const auctionVideos = dbAuctionVideos.map(video => video.toJSON());
+
+                const auctionMediaFiles = [...auctionImages, ...auctionVideos]
+                    .sort((file1, file2) => file1.id_hypermedia_file - file2.id_hypermedia_file)
+                    .map(({id_hypermedia_file, mime_type, name, content}) => {
+                        const fileData = {
+                            id: id_hypermedia_file,
+                            mimeType: mime_type,
+                            name,
+                            content: ""
+                        } as IHypermediaFileData;
+
+                        if(mime_type.startsWith("image")) {
+                            fileData.content = ImageConverter.bufferToBase64(content);
+                        }
+
+                        return fileData;
+                    });
+
+                auction = {
+                    id: idAuction,
+                    title,
+                    closesAt,
+                    description,
+                    basePrice: Number(base_price) || 0,
+                    minimumBid: Number(minimum_bid) || 0,
+                    itemCondition: {
+                        id: id_item_condition,
+                        name: itemConditionName
+                    },
+                    mediaFiles: auctionMediaFiles
+                };
+            }
+        } catch(error: any) {
+            const errorCodeMessage = error.code ? `ErrorCode: ${error.code}` : "";
+            throw new DataContextException(
+                error.message
+                ? `${error.message}. ${errorCodeMessage}`
+                : `It was not possible to recover the auction by its ID. ${errorCodeMessage}`
+            );
+        }
+
+        return auction;
     }
 }
 

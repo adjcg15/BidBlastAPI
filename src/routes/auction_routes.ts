@@ -15,6 +15,14 @@ AuctionRouter.get("/",
     DefaultValuesInjector.setSearchAuctionDefaultParams,
     AuctionController.searchAuction
 );
+
+AuctionRouter.get("/:idAuction",
+    AccessControl.checkTokenValidity,
+    checkSchema(AuctionRequestValidator.auctionByIdSchema()),
+    RequestFormatValidator.validateRequestFormat,
+    AuctionController.getAuctionById
+);
+
 AuctionRouter.post("/",
     AccessControl.checkTokenValidity,
     checkSchema(AuctionRequestValidator.createAuctionSchema()), 
