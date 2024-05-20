@@ -8,7 +8,6 @@ const doc = {
         version: "1.0.0"
     },
     host: `${process.env.HOST_URL}:${process.env.PORT}`,
-    basePath: "/api",
     schemes: ["http", "https"],
     consumes: ["application/json"],
     produces: ["application/json"],
@@ -73,7 +72,7 @@ const doc = {
     }
 };
 
-const outputFile = "./swagger-output.json";
+const outputFile = "./src/swagger-output.json";
 const routes = [
     "./src/routes/index.ts"
 ];
