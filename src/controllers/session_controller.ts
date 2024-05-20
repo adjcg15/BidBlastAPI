@@ -8,6 +8,27 @@ import { DataContextException } from "@exceptions/services";
 
 class SessionController {
     public static async login(req: Request, res: Response): Promise<void> {
+        /*  
+            #swagger.tags = ['Authentication']
+            #swagger.summary = 'Start a session for a particular user (log in)...'
+            #swagger.parameters['body'] = {
+                in: 'body',
+                required: true,
+                schema: { $ref: '#/definitions/UserCredentials' }
+            } 
+            #swagger.responses[201] = {
+                description: 'Successful login',
+                schema: { $ref: '#/definitions/UserSession' }
+            }
+            #swagger.responses[400] = {
+                description: 'Bad request',
+                schema:{ $ref: "#/definitions/ValidationError" }
+            }
+            #swagger.responses[500] = {
+                description: 'Server error',
+                schema: { $ref: '#/definitions/ServerError' }
+            }
+        */
         try {
             const { email, password } = req.body;
 

@@ -11,6 +11,7 @@ SessionRouter.post("/",
     RateLimiter.limitPublicEndpointUse(),
     checkSchema(SessionRequestValidator.loginSchema()),
     RequestFormatValidator.validateRequestFormat,
-    SessionController.login);
+    SessionController.login
+);
 
 export default SessionRouter;
