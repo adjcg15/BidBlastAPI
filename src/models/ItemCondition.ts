@@ -20,7 +20,7 @@ ItemCondition.init(
     },
     {
         sequelize: DataBase.getInstance().getConnection(),
-        tableName: "items_conditions",
+        tableName: "item_conditions",
         timestamps: false
     }
 );

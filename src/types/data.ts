@@ -31,9 +31,9 @@ interface IOfferData {
     customer?: IUserData;
 }
 
-interface IAuctionApplicationState {
+interface IItemConditionData {
     id: number;
-    applicationDate: Date;
+    name: string;
 }
 
 interface IAuctionData {
@@ -49,6 +49,7 @@ interface IAuctionData {
     auctioneer?: IUserData;
     mediaFiles?: IHypermediaFileData[];
     lastOffer?: IOfferData;
+    itemCondition?: IItemConditionData;
     updatedDate?: Date;
 }
 
