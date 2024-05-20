@@ -115,3 +115,17 @@ dentro de la base de datos.
 
 La carpeta `stored_procedures` incluye todos los procedimientos almacenados necesarios para
 ejecutar las operaciones de los endpoints de forma exitosa. Se recomienda nombrarlos de la forma `sp_nombre_procedimiento`.
+
+## Swagger
+
+La API está documentada utilizando Swagger. Para que la API pueda correr de forma correcta,
+previo a la ejecución de cualquir comando que levanta el servidor, como `npm run dev`, se debe generar el archivo `swagger-output.json`.
+Para ello, se debe ejecutar el comando `npm run swagger`.
+
+Una vez que se haya generado el archivo previamente mencionado dentro de la carpeta `src` tras ejecutar el comando, no será necesario
+ejecutarlo nuevamente cada vez que se desee levantar el servidor con `npm run dev` o cualquier comando similar.
+El único escenario en el que se deberá ejecutar nuevamente será si se quiere actualizar la documentación de Swagger. Esto usualmente pasará
+cuando se cambie el archivo `swagger-build.js` o cuando se agreguen comentarios de Swagger en algún controlador o ruta.
+
+Es importante mencionar que para esta implementación se utilizó la bibloteca `swagger-autogen`, por lo que el uso
+de Swagger en este proyecto está regido por la [documentación de dicha biblioteca](https://swagger-autogen.github.io/docs/).
