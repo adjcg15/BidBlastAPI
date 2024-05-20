@@ -177,6 +177,22 @@ class AuctionRequestValidator {
             }
         }
     }
+
+    public static userOnBlackListSchema() : Schema{
+        return {
+            auid: {
+                in: ["params"],
+                isInt: true,
+                errorMessage: "Invalid auction ID"
+            },
+            id_profile: {
+                in: ["body"],
+                notEmpty: true,
+                isInt: true,
+                errorMessage: "Invalid profile id"
+            }
+        }
+    }
 }
 
 export default AuctionRequestValidator;

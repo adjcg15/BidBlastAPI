@@ -14,6 +14,8 @@ import { Transaction } from "sequelize";
 import Account from "@models/Account";
 import AuctionState from "@models/AuctionState";
 import ItemCondition from "@models/ItemCondition";
+import BlackLists from "@models/BlackLists";
+import CurrentDateService from "@lib/current_date_service";
 import AuctionReviews from "@models/AuctionReviews";
 
 class AuctionService {
@@ -736,6 +738,24 @@ class AuctionService {
         }
 
         return auction;
+    }
+
+    public static async blockUserInAnAuction(id_profile: number, id_auction: number){
+        try {
+            const creation_date = CurrentDateService.getCurrentDateTime();
+            await BlackLists.create(
+                {
+                    creation_date, id_profile, id_auction
+                }
+            );
+        } catch (error: any) {
+            const errorCodeMessage = error.code ? `ErrorCode: ${error.code}` : "";
+            throw new DataContextException(
+                error.message
+                ? `${error.message}. ${errorCodeMessage}`
+                : `It was not possible to recover the auction by its ID. ${errorCodeMessage}`
+            );
+        }
     }
 }
 

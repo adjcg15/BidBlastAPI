@@ -6,37 +6,34 @@ import RequestFormatValidator from "@middlewares/request_format_validator";
 import DefaultValuesInjector from "@middlewares/default_values_injector";
 import AuctionController from "@controllers/auction_controller";
 import UserController from "@controllers/user_controller";
+import { UserRoles } from "@ts/enums";
 
 const UserRouter = Router();
 
-UserRouter.get("/:usid/sales-auctions", 
+UserRouter.get("/sold-auctions", 
     AccessControl.checkTokenValidity,
+    AccessControl.allowRoles([UserRoles.AUCTIONEER]),
     checkSchema(UserRequestValidator.userSalesAuctionsListSchema()),
     RequestFormatValidator.validateRequestFormat,
     AuctionController.getUserSalesAuctionsList
 );
 
-UserRouter.get("/:usid/completed-auctions",
+UserRouter.get("/completed-auctions",
     AccessControl.checkTokenValidity,
+    AccessControl.allowRoles([UserRoles.CUSTOMER]),
     checkSchema(UserRequestValidator.userAuctionsListSchema()),
     RequestFormatValidator.validateRequestFormat,
     DefaultValuesInjector.setSearchUserAuctionsDefaultParams,
     AuctionController.searchCompletedAuction
 );
 
-UserRouter.get("/:usid/created-auctions",
+UserRouter.get("/auctions",
     AccessControl.checkTokenValidity,
+    AccessControl.allowRoles([UserRoles.AUCTIONEER]),
     checkSchema(UserRequestValidator.userAuctionsListSchema()),
     RequestFormatValidator.validateRequestFormat,
     DefaultValuesInjector.setSearchUserAuctionsDefaultParams,
     AuctionController.searchCreatedAuction
-);
-
-UserRouter.post("/black-list",
-    AccessControl.checkTokenValidity,
-    checkSchema(UserRequestValidator.userOnBlackListSchema()), 
-    RequestFormatValidator.validateRequestFormat, 
-    UserController.blockUserInAnAuction
 );
 
 export default UserRouter;

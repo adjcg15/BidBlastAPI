@@ -45,8 +45,7 @@ class AuctionController {
     public static async getUserSalesAuctionsList(req: Request, res: Response): Promise<void> {
         try {
             const { startDate, endDate } = req.query as { startDate?: string, endDate?: string };
-            const { usid } = req.params;
-            const idProfile: number = parseInt(usid);
+            const idProfile = req.user.id;
             const response = await AuctionService.getUserSalesAuctionsList(idProfile, startDate!, endDate!);
 
             res.status(HttpStatusCodes.OK).json(response);
@@ -109,8 +108,7 @@ class AuctionController {
     public static async searchCompletedAuction(req: Request, res: Response) {
         try {
             const { query, limit, offset } = req.query as SearchActionQueryType;
-            const { usid } = req.params;
-            const idProfile: number = parseInt(usid);
+            const idProfile = req.user.id;
 
             const response = await AuctionService.getCompletedAuctions(idProfile, query!, offset!, limit!);
 
@@ -137,8 +135,7 @@ class AuctionController {
     public static async searchCreatedAuction(req: Request, res: Response) {
         try {
             const { query, limit, offset } = req.query as SearchActionQueryType;
-            const { usid } = req.params;
-            const idProfile: number = parseInt(usid);
+            const idProfile = req.user.id;
 
             const response = await AuctionService.getCreatedAuctions(idProfile, query!, offset!, limit!);
 
@@ -187,6 +184,38 @@ class AuctionController {
             if(error instanceof DataContextException) {
                 Logger.error(error.name, error.message);
                 responseDetails.details = "It was not possible to get the information of the auction, please try it again later";
+            } else {
+                Logger.error(error.name, error.message);
+            }
+
+            res.status(statusCode).json(responseDetails);
+        }
+    }
+
+    public static async blockUserInAnAuction(req: Request, res: Response): Promise<void> {
+        try {
+            const { auid } = req.params;
+            const id_auction = parseInt(auid);
+            const { id_profile } = req.body;
+
+            await AuctionService.blockUserInAnAuction(id_profile, id_auction);
+
+            res.status(HttpStatusCodes.OK).json({
+                error: false,
+                statusCode: HttpStatusCodes.OK,
+                details: "User was blocked for the auction"
+            });
+        } catch (error: any) {
+            let statusCode = HttpStatusCodes.INTERNAL_SERVER_ERROR;
+            const responseDetails = {
+                error: true,
+                statusCode: HttpStatusCodes.INTERNAL_SERVER_ERROR,
+                details: "There was an unexpeted error, please try it again later"
+            };
+
+            if(error instanceof DataContextException) {
+                Logger.error(error.name, error.message);
+                responseDetails.details = "It was not possible to block user, please try it again later";
             } else {
                 Logger.error(error.name, error.message);
             }
