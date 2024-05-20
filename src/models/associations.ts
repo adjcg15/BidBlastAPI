@@ -9,6 +9,7 @@ import HypermediaFile from "./HypermediaFile";
 import Offer from "./Offer";
 import AuctionStatesApplications from "./AuctionsStatesApplications";
 import AuctionState from "./AuctionState";
+import AuctionReviews from "./AuctionReviews";
 
 function configureModel() {
     Profile.hasOne(Account, {
@@ -161,6 +162,34 @@ function configureModel() {
     AuctionStatesApplications.belongsTo(AuctionState, {
         foreignKey: {
             name: "id_auction_state",
+            allowNull: false
+        },
+        onDelete: "CASCADE"
+    });
+    Auction.hasMany(AuctionReviews, {
+        foreignKey: {
+            name: "id_auction",
+            allowNull: false
+        },
+        onDelete: "CASCADE"
+    });
+    AuctionReviews.belongsTo(Auction, {
+        foreignKey: {
+            name: "id_auction",
+            allowNull: false
+        },
+        onDelete: "CASCADE"
+    });
+    Profile.hasMany(AuctionReviews, {
+        foreignKey: {
+            name: "id_profile",
+            allowNull: false
+        },
+        onDelete: "CASCADE"
+    });
+    AuctionReviews.belongsTo(Profile, {
+        foreignKey: {
+            name: "id_profile",
             allowNull: false
         },
         onDelete: "CASCADE"
