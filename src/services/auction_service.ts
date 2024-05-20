@@ -12,7 +12,9 @@ import AuctionStatesApplications from "@models/AuctionsStatesApplications";
 import { GetManyAuctionsConfigParamType } from "@ts/services";
 import { Transaction } from "sequelize";
 import Account from "@models/Account";
+import AuctionState from "@models/AuctionState";
 import ItemCondition from "@models/ItemCondition";
+import AuctionReviews from "@models/AuctionReviews";
 
 class AuctionService {
     public static async getManyAuctions({ 
@@ -366,9 +368,6 @@ class AuctionService {
                                     FROM offers o
                                     WHERE o.id_auction = Auction.id_auction
                                 )`)
-                            },
-                            id_profile: {
-                                [Op.eq]: userId
                             }
                         }
                     },
@@ -456,6 +455,170 @@ class AuctionService {
                     const { application_date } = States[0];
                     
                     auctionData.updatedDate = application_date
+                }
+
+                auctions.push(auctionData);
+            });
+            
+        } catch (error: any) {
+            const errorCodeMessage = error.code ? `ErrorCode: ${error.code}` : "";
+            throw new DataContextException(
+                error.message
+                ? `${error.message}. ${errorCodeMessage}`
+                : `It was not possible to recover the auctions. ${errorCodeMessage}`
+            );
+        }
+
+        return auctions;
+    }
+
+    public static async getCreatedAuctions(userId: number, query: string, offset: number, limit: number) {
+        let auctions: IAuctionData[] = [];
+        try {
+            const mainWhereClause = {
+                [Op.and]: {
+                    [Op.or]: {
+                        title: {
+                            [Op.substring]: query
+                        },
+                        description: {
+                            [Op.substring]: query
+                        }
+                    }
+                },
+            };
+            const dbAuctions = await Auction.findAll({
+                limit,
+                offset,
+                include: [
+                    { 
+                        model: Profile,
+                        attributes: ['id_profile'],
+                        where:{
+                            id_profile: userId
+                        }
+                    },
+                    { 
+                        model: HypermediaFile,
+                        where: { 
+                            mime_type: {
+                                [Op.startsWith]: "image/"
+                            }
+                        },
+                        limit: 1,
+                        required: false
+                    },
+                    {
+                        model: Offer,
+                        include: [
+                            {
+                            model: Profile,
+                                include: [
+                                    {
+                                        model: Account
+                                    }
+                                ]
+                            }
+                        ],
+                        order: [["creation_date", "DESC"]],
+                        separate: true,
+                        limit: 1
+                    },
+                    {
+                        model: AuctionStatesApplications,
+                        include: [
+                            {
+                                model: AuctionState
+                            }
+                        ],
+                        where: {
+                            application_date: {
+                                [Op.eq]: literal(`(
+                                    SELECT MAX(s.application_date)
+                                    FROM auctions_states_applications s
+                                    WHERE s.id_auction = Auction.id_auction
+                                )`)
+                            }
+                        }
+                    },
+                    {
+                        model: AuctionReviews
+                    }
+                ],
+                where: mainWhereClause,
+                order: [
+                    [AuctionStatesApplications, "application_date", "DESC"]
+                ]
+            });
+
+            const auctionsInformation = dbAuctions.map(auction => auction.toJSON());
+            auctionsInformation.forEach(auction => {
+                const { 
+                    id_auction, 
+                    title,
+                    approval_date, 
+                    days_available,
+                    minimum_bid,
+                    AuctionStatesApplications: States,
+                    AuctionReviews: Review, 
+                    Offers,
+                    HypermediaFiles
+                } = auction;
+                const closesAt = new Date(approval_date);
+                closesAt.setDate(approval_date.getDate() + days_available);
+
+                const auctionData: IAuctionData = {
+                    id: id_auction,
+                    title,
+                    closesAt,
+                    minimumBid: minimum_bid,
+                    daysAvailable: days_available
+                }
+
+                if(Array.isArray(Offers) && Offers.length > 0) {
+                    const { id_offer, amount, creation_date, Profile } = Offers[0];
+
+                    auctionData.lastOffer = {
+                        id: id_offer,
+                        amount: parseFloat(amount),
+                        creationDate: creation_date,
+                        customer: {
+                            id: Profile.id_profile,
+                            fullName: Profile.full_name,
+                            phoneNumber: Profile.phone_number,
+                            avatar: Profile.avatar,
+                            email: Profile.Account.email
+                        }
+                    }
+                }
+
+                if(Array.isArray(HypermediaFiles) && HypermediaFiles.length > 0) {
+                    const { id_hypermedia_file, content, name } = HypermediaFiles[0];
+
+                    auctionData.mediaFiles = [
+                        {
+                            id: id_hypermedia_file,
+                            name,
+                            content: ImageConverter.bufferToBase64(content)
+                        }
+                    ]
+                }
+
+                if(Array.isArray(States) && States.length > 0) {
+                    const { application_date, AuctionState } = States[0];
+                    
+                    auctionData.updatedDate = application_date;
+                    auctionData.auctionState = AuctionState.name;
+                }
+
+                if(Array.isArray(Review) && Review.length > 0) {
+                    const { id_auction_review, creation_date, comments } = Review[0];
+                    
+                    auctionData.review = {
+                        id: id_auction_review,
+                        creationDate: creation_date,
+                        comments
+                    }
                 }
 
                 auctions.push(auctionData);

@@ -25,7 +25,7 @@ class UserRequestValidator {
         };
     }
 
-    public static userCompletedAuctionsListSchema() : Schema{
+    public static userAuctionsListSchema() : Schema{
         return {
             usid: {
                 in: ["params"],

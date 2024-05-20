@@ -17,10 +17,18 @@ UserRouter.get("/:usid/sales-auctions",
 
 UserRouter.get("/:usid/completed-auctions",
     AccessControl.checkTokenValidity,
-    checkSchema(UserRequestValidator.userCompletedAuctionsListSchema()),
+    checkSchema(UserRequestValidator.userAuctionsListSchema()),
     RequestFormatValidator.validateRequestFormat,
-    DefaultValuesInjector.setSearchCompletedAuctionsDefaultParams,
+    DefaultValuesInjector.setSearchUserAuctionsDefaultParams,
     AuctionController.searchCompletedAuction
+);
+
+UserRouter.get("/:usid/created-auctions",
+    AccessControl.checkTokenValidity,
+    checkSchema(UserRequestValidator.userAuctionsListSchema()),
+    RequestFormatValidator.validateRequestFormat,
+    DefaultValuesInjector.setSearchUserAuctionsDefaultParams,
+    AuctionController.searchCreatedAuction
 );
 
 export default UserRouter;
