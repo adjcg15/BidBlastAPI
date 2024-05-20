@@ -37,6 +37,34 @@ class AuctionCategoryService{
         return category;
     }
 
+    public static async registerAuctionCategory(title: string, description: string, keywords: string){
+        let isRegistered: boolean = false;
+        
+        try {
+            await AuctionCategory.create(
+                {
+                    title, description, keywords
+                }
+            );
+
+            isRegistered = true;
+        } catch (error: any) {
+            const errorCodeMessage = error.code ? `ErrorCode: ${error.code}` : "";
+
+            if (error instanceof UniqueConstraintError) {
+                isRegistered = false;
+            } else {
+                throw new DataContextException(
+                    error.message
+                    ? `${error.message}. ${errorCodeMessage}`
+                    : `It was not possible to register the information of the auction category. ${errorCodeMessage}`
+                );
+            }
+        }
+
+        return isRegistered;
+    }
+
     public static async updateAuctionCategory(idAuctionCategory: number, title: string, description: string, keywords: string){
         let isUpdated: boolean = false;
         
