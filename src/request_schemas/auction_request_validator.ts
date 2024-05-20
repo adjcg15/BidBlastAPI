@@ -64,6 +64,106 @@ class AuctionRequestValidator {
             }
         };
     }
+    public static createAuctionSchema(): Schema {
+        return {
+            title: {
+                in: ["body"],
+                isString: true,
+                trim: true,
+                notEmpty: {
+                    errorMessage: "Title is required"
+                },
+                isLength: {
+                    options: { max: 60 },
+                    errorMessage: "Title cannot be longer than 60 characters"
+                }
+            },
+            description: {
+                in: ["body"],
+                isString: true,
+                notEmpty: {
+                    errorMessage: "Description is required"
+                },
+                isLength: {
+                    options: { max: 255 },
+                    errorMessage: "Description cannot be longer than 255 characters"
+                }
+            },
+            basePrice: {
+                in: ["body"],
+                isFloat: {
+                    options: { min: 0 },
+                    errorMessage: "Base price must be a positive number"
+                },
+                toFloat: true
+            },
+            minimumBid: {
+                in: ["body"],
+                isFloat: {
+                    options: { min: 0 },
+                    errorMessage: "Minimum bid must be a positive number"
+                },
+                optional: { options: { nullable: true } },
+                toFloat: true
+            },
+            approvalDate: {
+                in: ["body"],
+                isISO8601: {
+                    errorMessage: "Approval date must be a valid date"
+                },
+                optional: { options: { nullable: true } },
+                toDate: true
+            },
+            daysAvailable: {
+                in: ["body"],
+                isInt: {
+                    options: { min: 1 },
+                    errorMessage: "Days available must be at least 1"
+                },
+                toInt: true
+            },
+            idItemCondition: {
+                in: ["body"],
+                isInt: {
+                    errorMessage: "Item condition ID must be an integer"
+                },
+                toInt: true
+            },
+            idAuctionCategory: {
+                in: ["body"],
+                isInt: {
+                    errorMessage: "Auction category ID must be an integer"
+                },
+                toInt: true
+            },
+            mediaFiles: {
+                in: ["body"],
+                isArray: {
+                    errorMessage: "Media files must be an array"
+                },
+                optional: { options: { nullable: true } }
+            },
+            "mediaFiles.*.mimeType": {
+                in: ["body"],
+                isString: true,
+                notEmpty: {
+                    errorMessage: "Each media file must have a mimeType"
+                }
+            },
+            "mediaFiles.*.content": {
+                in: ["body"],
+                isString: true,
+                notEmpty: {
+                    errorMessage: "Each media file must have content"
+                }
+            },
+            "mediaFiles.*.name": {
+                in: ["body"],
+                isString: true,
+                optional: { options: { nullable: true } }
+            }
+        };
+    }
 
     public static auctionByIdSchema(): Schema {
         return {

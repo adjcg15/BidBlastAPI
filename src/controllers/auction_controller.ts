@@ -68,7 +68,44 @@ class AuctionController {
             res.status(statusCode).json(responseDetails);
         }
     }
+    public static async createAuction(req: Request, res: Response): Promise<void> {
+        const auctionData = {
+            title: req.body.title,
+            description: req.body.description,
+            basePrice: req.body.basePrice,
+            minimumBid: req.body.minimumBid,
+            approvalDate: req.body.approvalDate,
+            daysAvailable: req.body.daysAvailable,
+            idItemCondition: req.body.idItemCondition,
+            idAuctionCategory: req.body.idAuctionCategory
+        };
+        const mediaFiles = req.body.mediaFiles;
+        const userProfileId: number = req.user.id;
 
+        if (!auctionData || !mediaFiles) {
+            res.status(HttpStatusCodes.BAD_REQUEST).json({
+                error: true,
+                message: "Invalid request data"
+            });
+            return;
+        }
+
+        console.log("Received auction data:", auctionData);
+        console.log("Received media files:", mediaFiles);
+
+        try {
+            const auction = await AuctionService.createAuction(auctionData, mediaFiles, userProfileId);
+            res.status(HttpStatusCodes.CREATED).json({ message: "Auction created successfully", auction });
+        } catch (error: any) {
+            console.error("Error type:", error.constructor.name);
+            console.error("Error message:", error.message);
+
+            res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).json({
+                error: true,
+                message: "There was an unexpected error, please try again later"
+            });
+        }
+    }
     public static async searchCompletedAuction(req: Request, res: Response) {
         try {
             const { query, limit, offset } = req.query as SearchActionQueryType;

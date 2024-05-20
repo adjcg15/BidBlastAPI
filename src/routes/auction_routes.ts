@@ -23,4 +23,11 @@ AuctionRouter.get("/:idAuction",
     AuctionController.getAuctionById
 );
 
+AuctionRouter.post("/",
+    AccessControl.checkTokenValidity,
+    checkSchema(AuctionRequestValidator.createAuctionSchema()), 
+    RequestFormatValidator.validateRequestFormat, 
+    AuctionController.createAuction
+);
+
 export default AuctionRouter;
