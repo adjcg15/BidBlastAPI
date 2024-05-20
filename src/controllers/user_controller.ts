@@ -14,7 +14,7 @@ class UserController {
             res.status(HttpStatusCodes.OK).json({
                 error: false,
                 statusCode: HttpStatusCodes.OK,
-                details: "Auction category is registered"
+                details: "User was blocked for the auction"
             });
         } catch (error: any) {
             let statusCode = HttpStatusCodes.INTERNAL_SERVER_ERROR;
@@ -26,7 +26,7 @@ class UserController {
 
             if(error instanceof DataContextException) {
                 Logger.error(error.name, error.message);
-                responseDetails.details = "It was not possible to update category, please try it again later";
+                responseDetails.details = "It was not possible to block user, please try it again later";
             } else {
                 Logger.error(error.name, error.message);
             }

@@ -5,6 +5,7 @@ import BlackLists from "@models/BlackLists";
 import Profile from "@models/Profile";
 import Role from "@models/Role";
 import { IUserData } from "@ts/data";
+import CurrentDateService from "@lib/current_date_service";
 
 class UserService {
     public static async getUserByEmail(email: string) {
@@ -47,9 +48,10 @@ class UserService {
 
     public static async blockUserInAnAuction(id_profile: number, id_auction: number){
         try {
+            const creation_date = CurrentDateService.getCurrentDateTime();
             await BlackLists.create(
                 {
-                    id_profile, id_auction
+                    creation_date, id_profile, id_auction
                 }
             );
         } catch (error: any) {

@@ -1,5 +1,5 @@
 class CurrentDateService{
-    public getCurrentDateTime(): string {
+    public static getCurrentDateTime(): string {
         const now = new Date();
       
         const year = now.getFullYear();
