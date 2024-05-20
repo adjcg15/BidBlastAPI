@@ -37,7 +37,7 @@ class DefaultValuesInjector {
         next();
     }
 
-    public static setSearchCompletedAuctionsDefaultParams(req: Request, res: Response, next: NextFunction) {
+    public static setSearchUserAuctionsDefaultParams(req: Request, res: Response, next: NextFunction) {
         const DEFAULT_QUERY_SEARCH = "";
         const DEFAULT_LIMIT = 5;
         const DEFAULT_OFFSET = 0;

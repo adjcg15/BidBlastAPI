@@ -51,6 +51,7 @@ interface IAuctionData {
     lastOffer?: IOfferData;
     itemCondition?: IItemConditionData;
     updatedDate?: Date;
+    auctionState?: string;
 }
 
 export type {
