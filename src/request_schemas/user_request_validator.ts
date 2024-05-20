@@ -58,6 +58,23 @@ class UserRequestValidator {
             }
         };
     }
+
+    public static userOnBlackListSchema() : Schema{
+        return {
+            id_profile: {
+                in: ["body"],
+                notEmpty: true,
+                isInt: true,
+                errorMessage: "Invalid profile id"
+            },
+            id_pauction: {
+                in: ["body"],
+                notEmpty: true,
+                isInt: true,
+                errorMessage: "Invalid auction id"
+            }
+        }
+    }
 }
 
 export default UserRequestValidator;
