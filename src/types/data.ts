@@ -36,6 +36,12 @@ interface IItemConditionData {
     name: string;
 }
 
+interface IAuctionReview {
+    id: number;
+    creationDate: Date;
+    comments: string
+}
+
 interface IAuctionData {
     id: number;
     title: string;
@@ -50,6 +56,7 @@ interface IAuctionData {
     mediaFiles?: IHypermediaFileData[];
     lastOffer?: IOfferData;
     itemCondition?: IItemConditionData;
+    review?: IAuctionReview;
     updatedDate?: Date;
     auctionState?: string;
 }

@@ -14,6 +14,7 @@ import { Transaction } from "sequelize";
 import Account from "@models/Account";
 import AuctionState from "@models/AuctionState";
 import ItemCondition from "@models/ItemCondition";
+import AuctionReviews from "@models/AuctionReviews";
 
 class AuctionService {
     public static async getManyAuctions({ 
@@ -539,6 +540,9 @@ class AuctionService {
                                 )`)
                             }
                         }
+                    },
+                    {
+                        model: AuctionReviews
                     }
                 ],
                 where: mainWhereClause,
@@ -555,7 +559,8 @@ class AuctionService {
                     approval_date, 
                     days_available,
                     minimum_bid,
-                    AuctionStatesApplications: States, 
+                    AuctionStatesApplications: States,
+                    AuctionReviews: Review, 
                     Offers,
                     HypermediaFiles
                 } = auction;
@@ -604,6 +609,16 @@ class AuctionService {
                     
                     auctionData.updatedDate = application_date;
                     auctionData.auctionState = AuctionState.name;
+                }
+
+                if(Array.isArray(Review) && Review.length > 0) {
+                    const { id_auction_review, creation_date, comments } = Review[0];
+                    
+                    auctionData.review = {
+                        id: id_auction_review,
+                        creationDate: creation_date,
+                        comments
+                    }
                 }
 
                 auctions.push(auctionData);
