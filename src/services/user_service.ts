@@ -1,6 +1,7 @@
 import { DataContextException } from "@exceptions/services";
 import ImageConverter from "@lib/image_converter";
 import Account from "@models/Account";
+import BlackLists from "@models/BlackLists";
 import Profile from "@models/Profile";
 import Role from "@models/Role";
 import { IUserData } from "@ts/data";
@@ -42,6 +43,23 @@ class UserService {
         }
 
         return user;
+    }
+
+    public static async blockUserInAnAuction(id_profile: number, id_auction: number){
+        try {
+            await BlackLists.create(
+                {
+                    id_profile, id_auction
+                }
+            );
+        } catch (error: any) {
+            const errorCodeMessage = error.code ? `ErrorCode: ${error.code}` : "";
+            throw new DataContextException(
+                error.message
+                ? `${error.message}. ${errorCodeMessage}`
+                : `It was not possible to recover the auction by its ID. ${errorCodeMessage}`
+            );
+        }
     }
 }
 

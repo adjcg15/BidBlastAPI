@@ -67,7 +67,7 @@ class UserRequestValidator {
                 isInt: true,
                 errorMessage: "Invalid profile id"
             },
-            id_pauction: {
+            id_auction: {
                 in: ["body"],
                 notEmpty: true,
                 isInt: true,

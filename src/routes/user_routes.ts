@@ -36,7 +36,7 @@ UserRouter.post("/black-list",
     AccessControl.checkTokenValidity,
     checkSchema(UserRequestValidator.userOnBlackListSchema()), 
     RequestFormatValidator.validateRequestFormat, 
-    AuctionController.createAuction
+    UserController.blockUserInAnAuction
 );
 
 export default UserRouter;
