@@ -21,7 +21,14 @@ AuctionCategoryRouter.get("/:catid",
 
 AuctionCategoryRouter.put("/:catid",
     AccessControl.checkTokenValidity,
-    checkSchema(AuctionCategoriesRequestValidator.changeAuctionCategorySchema()),
+    checkSchema(AuctionCategoriesRequestValidator.auctionCategoryModificationSchema()),
+    RequestFormatValidator.validateRequestFormat,
+    AuctionCategoryController.updateAuctionCategory
+);
+
+AuctionCategoryRouter.post("/:catid",
+    AccessControl.checkTokenValidity,
+    checkSchema(AuctionCategoriesRequestValidator.auctionCategoryRegistrartionSchema()),
     RequestFormatValidator.validateRequestFormat,
     AuctionCategoryController.updateAuctionCategory
 );
