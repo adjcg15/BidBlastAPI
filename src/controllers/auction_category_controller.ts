@@ -41,6 +41,44 @@ class AuctionCategoryController{
         }
     }
 
+    public static async registerAuctionCategory(req: Request, res: Response): Promise<void> {
+        try {
+            const { title, description, keywords } = req.body;
+
+            const isRegistered = await AuctionCategoryService.registerAuctionCategory(title, description, keywords);
+            if(!isRegistered){
+                res.status(HttpStatusCodes.BAD_REQUEST).json({
+                    error: true,
+                    statusCode: HttpStatusCodes.BAD_REQUEST,
+                    details: "The title exists in another auction category"
+                });
+                return;
+            }
+
+            res.status(HttpStatusCodes.OK).json({
+                error: false,
+                statusCode: HttpStatusCodes.OK,
+                details: "Auction category is registered"
+            });
+        } catch (error: any) {
+            let statusCode = HttpStatusCodes.INTERNAL_SERVER_ERROR;
+            const responseDetails = {
+                error: true,
+                statusCode: HttpStatusCodes.INTERNAL_SERVER_ERROR,
+                details: "There was an unexpeted error, please try it again later"
+            };
+
+            if(error instanceof DataContextException) {
+                Logger.error(error.name, error.message);
+                responseDetails.details = "It was not possible to update category, please try it again later";
+            } else {
+                Logger.error(error.name, error.message);
+            }
+
+            res.status(statusCode).json(responseDetails);
+        }
+    }
+
     public static async updateAuctionCategory(req: Request, res: Response): Promise<void> {
         try {
             const { catid } = req.params;

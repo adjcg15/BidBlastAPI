@@ -26,11 +26,11 @@ AuctionCategoryRouter.put("/:catid",
     AuctionCategoryController.updateAuctionCategory
 );
 
-AuctionCategoryRouter.post("/:catid",
+AuctionCategoryRouter.post("/",
     AccessControl.checkTokenValidity,
     checkSchema(AuctionCategoriesRequestValidator.auctionCategoryRegistrartionSchema()),
     RequestFormatValidator.validateRequestFormat,
-    AuctionCategoryController.updateAuctionCategory
+    AuctionCategoryController.registerAuctionCategory
 );
 
 export default AuctionCategoryRouter;
