@@ -5,6 +5,7 @@ import UserRequestValidator from "@request_schemas/user_request_validator";
 import RequestFormatValidator from "@middlewares/request_format_validator";
 import DefaultValuesInjector from "@middlewares/default_values_injector";
 import AuctionController from "@controllers/auction_controller";
+import UserController from "@controllers/user_controller";
 
 const UserRouter = Router();
 
@@ -29,6 +30,13 @@ UserRouter.get("/:usid/created-auctions",
     RequestFormatValidator.validateRequestFormat,
     DefaultValuesInjector.setSearchUserAuctionsDefaultParams,
     AuctionController.searchCreatedAuction
+);
+
+UserRouter.post("/black-list",
+    AccessControl.checkTokenValidity,
+    checkSchema(UserRequestValidator.userOnBlackListSchema()), 
+    RequestFormatValidator.validateRequestFormat, 
+    UserController.blockUserInAnAuction
 );
 
 export default UserRouter;
