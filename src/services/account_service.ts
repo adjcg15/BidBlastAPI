@@ -3,6 +3,7 @@ import Profile from "@models/Profile";
 import AccountsRoles from "@models/AccountsRoles";
 import { DataContextException } from "@exceptions/services";
 import { Transaction } from "sequelize";
+import SecurityService from "@lib/security_service";
 
 class AccountService {
     public static async createAccount(fullName: string, email: string, phoneNumber: string | null, avatar: Buffer | null, password: string): Promise<Account> {
@@ -12,6 +13,8 @@ class AccountService {
             if (!Account.sequelize) {
                 throw new DataContextException("Sequelize instance is not available");
             }
+            const securityService = new SecurityService();
+            const hashedPassword = securityService.hashPassword(password);
 
             transaction = await Account.sequelize.transaction();
 
@@ -21,7 +24,7 @@ class AccountService {
             );
 
             const account = await Account.create(
-                { email, password, id_profile: profile.id_profile },
+                { email, password: hashedPassword, id_profile: profile.id_profile },
                 { transaction }
             );
 
