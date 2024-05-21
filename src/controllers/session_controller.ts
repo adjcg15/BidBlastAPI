@@ -55,7 +55,11 @@ class SessionController {
             }
 
             const tokenStore = new TokenStore();
-            const token = tokenStore.sign(user);
+            const token = tokenStore.sign({
+                id: user.id,
+                email: user.email!,
+                userRoles: user.roles!
+            });
             
             delete user.password;
             res.status(HttpStatusCodes.CREATED)
