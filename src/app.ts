@@ -7,6 +7,7 @@ import DataBase from "@lib/db";
 import configureModel from "@models/associations";
 import { swaggerDocs } from "swagger";
 import MainRouter from "./routes";
+import ErrorHandler from "@middlewares/error_handler";
 
 const database = DataBase.getInstance();
 database.startConnection()
@@ -18,6 +19,8 @@ database.startConnection()
         app.use(express.json());
         app.use(cors());
         app.use(MainRouter);
+
+        app.use(ErrorHandler.handleError);
 
         app.listen(process.env.PORT, () => {
             console.log(`Server is running on ${process.env.HOST_URL}:${APP_PORT}`);
