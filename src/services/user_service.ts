@@ -45,24 +45,6 @@ class UserService {
 
         return user;
     }
-
-    public static async blockUserInAnAuction(id_profile: number, id_auction: number){
-        try {
-            const creation_date = CurrentDateService.getCurrentDateTime();
-            await BlackLists.create(
-                {
-                    creation_date, id_profile, id_auction
-                }
-            );
-        } catch (error: any) {
-            const errorCodeMessage = error.code ? `ErrorCode: ${error.code}` : "";
-            throw new DataContextException(
-                error.message
-                ? `${error.message}. ${errorCodeMessage}`
-                : `It was not possible to recover the auction by its ID. ${errorCodeMessage}`
-            );
-        }
-    }
 }
 
 export default UserService;

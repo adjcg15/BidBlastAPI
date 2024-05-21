@@ -5,6 +5,7 @@ import AccessControl from "@middlewares/access_control";
 import AuctionRequestValidator from "@request_schemas/auction_request_validator";
 import RequestFormatValidator from "@middlewares/request_format_validator";
 import DefaultValuesInjector from "@middlewares/default_values_injector";
+import { UserRoles } from "@ts/enums";
 
 const AuctionRouter = Router();
 
@@ -28,6 +29,14 @@ AuctionRouter.post("/",
     checkSchema(AuctionRequestValidator.createAuctionSchema()), 
     RequestFormatValidator.validateRequestFormat, 
     AuctionController.createAuction
+);
+
+AuctionRouter.post("/:auid/user-blocking",
+    AccessControl.checkTokenValidity,
+    AccessControl.allowRoles([UserRoles.AUCTIONEER]),
+    checkSchema(AuctionRequestValidator.userOnBlackListSchema()), 
+    RequestFormatValidator.validateRequestFormat, 
+    AuctionController.blockUserInAnAuction
 );
 
 export default AuctionRouter;

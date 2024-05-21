@@ -3,11 +3,6 @@ import { Schema } from "express-validator";
 class UserRequestValidator {
     public static userSalesAuctionsListSchema() : Schema{
         return {
-            usid: {
-                in: ["params"],
-                isInt: true,
-                errorMessage: "Invalid user id"
-            },
             startDate: {
                 in: ["query"],
                 isISO8601: {
@@ -27,11 +22,6 @@ class UserRequestValidator {
 
     public static userAuctionsListSchema() : Schema{
         return {
-            usid: {
-                in: ["params"],
-                isInt: true,
-                errorMessage: "Invalid user id"
-            },
             limit: {
                 in: ["query"],
                 isInt: {
@@ -57,23 +47,6 @@ class UserRequestValidator {
                 toLowerCase: true
             }
         };
-    }
-
-    public static userOnBlackListSchema() : Schema{
-        return {
-            id_profile: {
-                in: ["body"],
-                notEmpty: true,
-                isInt: true,
-                errorMessage: "Invalid profile id"
-            },
-            id_auction: {
-                in: ["body"],
-                notEmpty: true,
-                isInt: true,
-                errorMessage: "Invalid auction id"
-            }
-        }
     }
 }
 
