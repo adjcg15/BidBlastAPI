@@ -10,7 +10,7 @@ enum HttpStatusCodes {
     INTERNAL_SERVER_ERROR = 500
 };
 
-enum EndpointsContext {
+enum EndpointContexts {
     LOGIN = "LOGN",
     GET_ALL_CATEGORIES = "GACT",
     GET_CATEGORY_BY_ID = "GCBI",
@@ -24,7 +24,8 @@ enum EndpointsContext {
     GET_COMPLETED_AUCTIONS = "GCOA",
     GET_USER_AUCTIONS = "GUAU",
     CREATE_BLOCK_USER = "CRBU",
-}
+    CREATE_OFFER = "COFR"
+};
 
 enum UserRoles {
     CUSTOMER = "CUSTOMER",
@@ -39,10 +40,11 @@ enum AuctionStatus {
     CLOSED = "CERRADA",
     CONCRETIZED = "CONCRETADA",
     FINISHED = "FINALIZADA"
-}
+};
 
 export {
     HttpStatusCodes,
     UserRoles,
-    AuctionStatus
+    AuctionStatus,
+    EndpointContexts
 };
