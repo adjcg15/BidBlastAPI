@@ -2,11 +2,78 @@ import { DataContextException } from "@exceptions/services";
 import Logger from "@lib/logger";
 import { SearchActionQueryType } from "@ts/controllers";
 import { HttpStatusCodes } from "@ts/enums";
-import { Request, Response } from "express";
+import { NextFunction, Request, Response } from "express";
 import AuctionService from "services/auction_service";
 
 class AuctionController {
-    public static async searchAuction(req: Request, res: Response) {
+    public static async searchAuction(req: Request, res: Response, next: NextFunction) {
+        /*  
+            #swagger.auto = false
+
+            #swagger.path = '/api/auctions'
+            #swagger.method = 'get'
+            #swagger.produces = ['application/json']
+            #swagger.consumes = ['application/json']
+            #swagger.tags = ['Auctions']
+            #swagger.summary = 'Recovers all auctions given particular filters'
+            #swagger.parameters['limit'] = {
+                in: 'query',
+                description: 'Limit of auctions to recover',
+                required: false,
+                type: 'integer',
+                example: '10'
+            }
+            #swagger.parameters['offset'] = {
+                in: 'query',
+                description: 'Number of actions to skip',
+                required: false,
+                type: 'integer',
+                example: '15'
+            }
+            #swagger.parameters['query'] = {
+                in: 'query',
+                description: 'Search query to match auction title or description',
+                required: false,
+                type: 'string',
+                example: 'car'
+            }
+            #swagger.parameters['categories'] = {
+                in: 'query',
+                description: 'Comma-separated list of categories ID to filter auctions',
+                required: false,
+                type: 'string',
+                example: '1,2,8'
+            }
+            #swagger.parameters['minimumPrice'] = {
+                in: 'query',
+                description: 'Minimum price to apply in search over auction base price',
+                required: false,
+                type: 'float',
+                example: '300'
+            }
+            #swagger.parameters['maximumPrice'] = {
+                in: 'query',
+                description: 'Maximum price to apply in search over auction base price',
+                required: false,
+                type: 'float',
+                example: '1000'
+            }
+            #swagger.security = [{
+                BearerAuth: []
+            }]
+            #swagger.responses[200] = {
+                description: 'List of auctions',
+                schema: { $ref: '#/definitions/AuctionsListInSearch' }
+            }
+            #swagger.responses[400] = {
+                description: 'Query values validation error',
+                schema: { $ref: "#/definitions/ValidationError" }
+            }
+            #swagger.responses[500] = {
+                description: 'Server error',
+                schema: { $ref: '#/definitions/ServerError' }
+            }
+        */
         try {
             const { 
                 query, limit, offset, 
@@ -24,21 +91,7 @@ class AuctionController {
             });
             res.status(HttpStatusCodes.OK).json(response);
         } catch(error: any) {
-            let statusCode = HttpStatusCodes.INTERNAL_SERVER_ERROR;
-            const responseDetails = {
-                error: true,
-                statusCode: HttpStatusCodes.INTERNAL_SERVER_ERROR,
-                details: "There was an unexpeted error, please try it again later"
-            };
-
-            if(error instanceof DataContextException) {
-                Logger.error(error.name, error.message);
-                responseDetails.details = "It was not possible to recover the auctions, please try it again later";
-            } else {
-                Logger.error(error.name, error.message);
-            }
-
-            res.status(statusCode).json(responseDetails);
+            next(error);
         }
     }
 

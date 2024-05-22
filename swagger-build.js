@@ -19,27 +19,6 @@ const doc = {
             in: "header",
         },
     },
-    "@definitions": {
-        ValidationError: {
-            type: "object",
-            properties: {
-                error: { type: "boolean", example: true },
-                statusCode: { type: "integer", example: 400 },
-                details: {
-                    oneOf: [
-                        { type: "string", example: "Bad reques error explanation" },
-                        {
-                            type: "array",
-                            items: {
-                                type: "string",
-                                example: ["Validation error 1", "Validation error 2", "Validation error 3"]
-                            },
-                        },
-                    ],
-                },
-            },
-        }
-    },
     definitions: {
         UserCredentials: {
             email: "John Doe",
@@ -57,6 +36,26 @@ const doc = {
         NewOffer: {
             auctionId: 2,
 	        amount: 550.5
+        },
+        AuctionsListInSearch: [
+            {
+                id: 1,
+                title: "MIKEL'S Soporte para Motor 500 kg",
+                closesAt: "2024-06-11T13:55:08.000Z",
+                auctioneer: {
+                    id: 15,
+                    fullName: "Penélope Camacho Castro",
+                    avatar: "/9j/4AAQSkZJRgABAQAAAQABAAD/2wCEAAwMDQsNCxAODBANEA4QExYRDRASGR..."
+                },
+                mediaFiles: [
+                    { $ref: '#/definitions/MediaFile' }
+                ]
+            }
+        ],
+        MediaFile: {
+            id: 2,
+            name: "tool2",
+            content: "/9j/4AAQSkZJRgABAQAAAQABAAD/2wCEAAwMDQsNCxAODBANEA4QExYRDRASGR..."
         },
         ServerError: {
             error: true,
