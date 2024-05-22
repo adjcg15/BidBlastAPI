@@ -54,6 +54,10 @@ const doc = {
             email: "johndoe@mail.com",
             roles: ["AUCTIONEER", "CUSTOMER", "MODERATOR"]
         },
+        NewOffer: {
+            auctionId: 2,
+	        amount: 550.5
+        },
         ServerError: {
             error: true,
             statusCode: 500,
@@ -63,6 +67,12 @@ const doc = {
             error: true,
             statusCode: 400,
             details: "Explanation about bad request failure"
+        },
+        BadRequestErrorWithApiError: {
+            error: true,
+            statusCode: 400,
+            details: "Explanation about bad request failure",
+            apiErrorCode: "COFR-400004"
         },
         ValidationError: {
             error: true,

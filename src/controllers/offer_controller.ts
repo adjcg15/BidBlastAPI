@@ -4,6 +4,29 @@ import OfferService from "services/offer_service";
 
 class OfferController {
     public static async createOffer(req: Request, res: Response, next: NextFunction): Promise<void> {
+        /*  
+            #swagger.tags = ['Offers']
+            #swagger.summary = 'Makes an offer for a particular auction...'
+            #swagger.parameters['body'] = {
+                in: 'body',
+                required: true,
+                schema: { $ref: '#/definitions/NewOffer' }
+            } 
+            #swagger.security = [{
+                BearerAuth: []
+            }]
+            #swagger.responses[201] = {
+                description: 'Successful offer creation'
+            }
+            #swagger.responses[400] = {
+                description: 'Bad request',
+                schema:{ $ref: "#/definitions/BadRequestErrorWithApiError" }
+            }
+            #swagger.responses[500] = {
+                description: 'Server error',
+                schema: { $ref: '#/definitions/ServerError' }
+            }
+        */
         try {
             const { auctionId, amount } = req.body as { auctionId: number, amount: number };
             const { id: userId } = req.user;
