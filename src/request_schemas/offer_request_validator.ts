@@ -14,7 +14,7 @@ class OfferRequestValidator {
             amount: {
                 in: "body",
                 isFloat: {
-                    options: { min: 0 },
+                    options: { gt: 0 },
                     errorMessage: "Invalid 'amount' value"
                 },
                 toFloat: true
