@@ -16,8 +16,7 @@ class OfferService {
                 attributes: {
                     include: [
                         [
-                            literal(`(SELECT IF(S.name = "${AuctionStatus.CLOSED}" 
-                            OR S.name = "${AuctionStatus.FINISHED}" OR S.name = "${AuctionStatus.CONCRETIZED}", 1, 0) 
+                            literal(`(SELECT IF(S.name != "${AuctionStatus.PUBLISHED}", 1, 0) 
                             FROM auctions_states_applications AS 
                             H INNER JOIN auction_states AS S ON H.id_auction_state = S.id_auction_state WHERE H.id_auction = 
                             Auction.id_auction ORDER BY H.application_date DESC LIMIT 1)`),
