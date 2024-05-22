@@ -5,6 +5,7 @@ import AuctionRouter from "./auction_routes";
 import AccountRouter from "./account_routes";
 import UserRouter from "./user_routes";
 import OfferRouter from "./offer_routes";
+import AuctionClosingRouter from "./auction_closing_routes";
 
 const MainRouter = Router();
 
@@ -14,5 +15,6 @@ MainRouter.use("/api/auctions", AuctionRouter);
 MainRouter.use("/api/accounts", AccountRouter);
 MainRouter.use("/api/users", UserRouter);
 MainRouter.use("/api/offers", OfferRouter);
+MainRouter.use("/api/auction-closings", AuctionClosingRouter);
 
 export default MainRouter;
