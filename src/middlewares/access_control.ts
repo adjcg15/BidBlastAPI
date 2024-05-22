@@ -45,6 +45,15 @@ class AccessControl {
             }
         }
     }
+
+    public static verifyStaticToken(req: Request, res: Response, next: NextFunction) {
+        const { staticToken } = req.query;
+        if(staticToken !== process.env.STATIC_TOKEN) {
+            res.status(HttpStatusCodes.UNAUTHORIZED).send();
+        } else {
+            next();
+        }
+    }
 }
 
 export default AccessControl;
