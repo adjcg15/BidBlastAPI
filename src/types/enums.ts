@@ -42,9 +42,20 @@ enum AuctionStatus {
     FINISHED = "FINALIZADA"
 };
 
+enum CreateOfferCodes {
+    OFFER_OVERCOMED = EndpointContexts.CREATE_OFFER + "-400001", //ya
+    AUCTION_NOT_FOUND = EndpointContexts.CREATE_OFFER + "-400002", //ya
+    AUCTION_FINISHED = EndpointContexts.CREATE_OFFER + "-400003", //ya
+    AUCTION_BLOCKED = EndpointContexts.CREATE_OFFER + "-400004", //ya
+    EARLY_OFFER = EndpointContexts.CREATE_OFFER + "-400005", //ya
+    MINIMUM_BID_NOT_FULFILLED = EndpointContexts.CREATE_OFFER + "-400006",
+    BASE_PRICE_NOT_FULLFILLED = EndpointContexts.CREATE_OFFER + "-400007",
+};
+
 export {
     HttpStatusCodes,
     UserRoles,
     AuctionStatus,
-    EndpointContexts
+    EndpointContexts,
+    CreateOfferCodes
 };
