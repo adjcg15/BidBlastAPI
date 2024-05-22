@@ -43,11 +43,11 @@ enum AuctionStatus {
 };
 
 enum CreateOfferCodes {
-    OFFER_OVERCOMED = EndpointContexts.CREATE_OFFER + "-400001", //ya
-    AUCTION_NOT_FOUND = EndpointContexts.CREATE_OFFER + "-400002", //ya
-    AUCTION_FINISHED = EndpointContexts.CREATE_OFFER + "-400003", //ya
-    AUCTION_BLOCKED = EndpointContexts.CREATE_OFFER + "-400004", //ya
-    EARLY_OFFER = EndpointContexts.CREATE_OFFER + "-400005", //ya
+    OFFER_OVERCOMED = EndpointContexts.CREATE_OFFER + "-400001",
+    AUCTION_NOT_FOUND = EndpointContexts.CREATE_OFFER + "-400002",
+    AUCTION_FINISHED = EndpointContexts.CREATE_OFFER + "-400003",
+    AUCTION_BLOCKED = EndpointContexts.CREATE_OFFER + "-400004",
+    EARLY_OFFER = EndpointContexts.CREATE_OFFER + "-400005",
     MINIMUM_BID_NOT_FULFILLED = EndpointContexts.CREATE_OFFER + "-400006",
     BASE_PRICE_NOT_FULLFILLED = EndpointContexts.CREATE_OFFER + "-400007",
 };
