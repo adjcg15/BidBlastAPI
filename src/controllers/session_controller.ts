@@ -1,13 +1,11 @@
 import { HttpStatusCodes } from "@ts/enums";
-import { Request, Response } from "express";
-import Logger from "@lib/logger";
+import { NextFunction, Request, Response } from "express";
 import TokenStore from "@lib/token_store";
 import UserService from "services/user_service";
 import SecurityService from "@lib/security_service";
-import { DataContextException } from "@exceptions/services";
 
 class SessionController {
-    public static async login(req: Request, res: Response): Promise<void> {
+    public static async login(req: Request, res: Response, next: NextFunction): Promise<void> {
         /*  
             #swagger.tags = ['Authentication']
             #swagger.summary = 'Start a session for a particular user (log in)...'
@@ -29,7 +27,7 @@ class SessionController {
                 schema: { $ref: '#/definitions/ServerError' }
             }
         */
-        try {
+       try {
             const { email, password } = req.body;
 
             const user = await UserService.getUserByEmail(email);
@@ -68,21 +66,7 @@ class SessionController {
                     ...user
                 });
         } catch(error: any) {
-            let statusCode = HttpStatusCodes.INTERNAL_SERVER_ERROR;
-            const responseDetails = {
-                error: true,
-                statusCode: HttpStatusCodes.INTERNAL_SERVER_ERROR,
-                details: "There was an unexpeted error, please try it again later"
-            };
-
-            if(error instanceof DataContextException) {
-                Logger.error(error.name, error.message);
-                responseDetails.details = "It was not possible to login, please try it again later";
-            } else {
-                Logger.error(error.name, error.message);
-            }
-
-            res.status(statusCode).json(responseDetails);
+            next(error);
         }
     }
 }
