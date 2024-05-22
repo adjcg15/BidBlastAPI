@@ -2,6 +2,7 @@ USE bid_blast_database;
 
 DELETE FROM offers WHERE id_offer >= 1;
 
+DELETE FROM black_lists WHERE id_black_list >= 1;
 DELETE FROM auctions_states_applications WHERE id_auction_state_application >= 1;
 DELETE FROM hypermedia_files WHERE id_hypermedia_file >= 1;
 DELETE FROM auctions WHERE id_auction >= 1;
@@ -61,7 +62,7 @@ VALUES ('Karla Cuellar Cano', "2281141574", null);
 SET @customer_two_profile_id := LAST_INSERT_ID();
 
 INSERT INTO accounts(email, password, id_profile) 
-VALUES('customer2gmail.com', 
+VALUES('customer2@gmail.com', 
 	'$2b$10$cyP9ZIPiwVyT09zrDblZy.EEUQjIb8rdm6cPMPvBaJO4qXRcjHojm', @customer_two_profile_id);
 SET @customer_two_account_id := LAST_INSERT_ID();
 
@@ -196,8 +197,8 @@ INSERT INTO auctions_states_applications(id_auction, id_auction_state, applicati
 	(@tool_auction_id, @published_auction_state, "2024-05-17 14:01:45"),
 	(@tool_two_auction_id, @proposed_auction_state, "2024-05-17 13:55:08"),
 	(@tool_two_auction_id, @published_auction_state, "2024-05-17 14:05:24"),
-	(@slippers_auction_id, @proposed_auction_state, "2024-05-17 13:59:24"),
-	(@slippers_auction_id, @published_auction_state, "2024-05-17 14:10:15");
+	(@slippers_auction_id, @proposed_auction_state, "2024-05-17 13:59:24");
+	-- (@slippers_auction_id, @published_auction_state, "2024-05-17 14:10:15");
     
 -- -----------------------------------------------------
 -- Fill table `bid_blast_database`.`offers`
@@ -205,3 +206,9 @@ INSERT INTO auctions_states_applications(id_auction, id_auction_state, applicati
 INSERT INTO offers(amount, creation_date, id_profile, id_auction) VALUES
 (55, "2024-05-11 17:28:11", @customer_one_profile_id, @book_auction_id),
 (70, "2024-05-12 12:01:00", @customer_two_profile_id, @book_auction_id);
+
+-- -----------------------------------------------------
+-- Fill table `bid_blast_database`.`black_lists`
+-- -----------------------------------------------------
+INSERT INTO black_lists(creation_date, id_profile, id_auction) VALUES
+(NOW(), @customer_two_profile_id, @tool_two_auction_id);
