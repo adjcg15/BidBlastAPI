@@ -6,7 +6,7 @@ class OfferController {
     public static async createOffer(req: Request, res: Response, next: NextFunction): Promise<void> {
         /*  
             #swagger.tags = ['Offers']
-            #swagger.summary = 'Makes an offer for a particular auction...'
+            #swagger.summary = 'Makes an offer for a particular auction'
             #swagger.parameters['body'] = {
                 in: 'body',
                 required: true,
