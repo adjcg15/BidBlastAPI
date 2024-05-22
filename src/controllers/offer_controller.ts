@@ -12,7 +12,7 @@ class OfferController {
             if(offerCreationResult !== null) {
                 const errorMessages = {
                     [CreateOfferCodes.AUCTION_BLOCKED]: "You are not able to make offers to this auction. The auctioneer has blocked you",
-                    [CreateOfferCodes.AUCTION_FINISHED]: "This auction is closed, it can't receive more offers",
+                    [CreateOfferCodes.AUCTION_FINISHED]: "This auction is not public anymore, it can't receive more offers",
                     [CreateOfferCodes.AUCTION_NOT_FOUND]: `The auction with ID ${auctionId} does not exists`,
                     [CreateOfferCodes.BASE_PRICE_NOT_FULLFILLED]: "Your offer is lower than the base auction price",
                     [CreateOfferCodes.EARLY_OFFER]: "You must wait before making an offer again",
