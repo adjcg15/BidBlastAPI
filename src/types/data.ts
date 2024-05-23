@@ -65,5 +65,6 @@ export type {
     IUserData,
     IAuctionCategory,
     IAuctionData,
-    IHypermediaFileData
+    IHypermediaFileData,
+    IOfferData
 }

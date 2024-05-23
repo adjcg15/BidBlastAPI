@@ -5,7 +5,7 @@ import Auction from "@models/Auction";
 import HypermediaFile from "@models/HypermediaFile";
 import Offer from "@models/Offer";
 import Profile from "@models/Profile";
-import { IAuctionData, IHypermediaFileData } from "@ts/data";
+import { IAuctionData, IHypermediaFileData, IOfferData } from "@ts/data";
 import { AuctionStatus } from "@ts/enums";
 import AuctionCategory from "@models/AuctionCategory";
 import AuctionStatesApplications from "@models/AuctionsStatesApplications";
@@ -754,6 +754,174 @@ class AuctionService {
                 error.message
                 ? `${error.message}. ${errorCodeMessage}`
                 : `It was not possible to recover the auction by its ID. ${errorCodeMessage}`
+            );
+        }
+    }
+
+    public static async getExpiredAuctions(): Promise<IAuctionData[]> {
+        const expiredAuctions: IAuctionData[] = [];
+
+        try {
+            const dbExpiredAuctions = await Auction.findAll({
+                attributes: {
+                    include: [
+                        [
+                            literal(`(SELECT IF(S.name = "${AuctionStatus.PUBLISHED}", 1, 0) FROM auctions_states_applications AS 
+                            H INNER JOIN auction_states AS S ON H.id_auction_state = S.id_auction_state WHERE H.id_auction = 
+                            Auction.id_auction ORDER BY H.application_date DESC LIMIT 1)`),
+                            "is_public"
+                        ],
+                        [
+                            literal(`(SELECT DATE_ADD(approval_date, INTERVAL days_available DAY) 
+                            FROM auctions WHERE id_auction = Auction.id_auction)`),
+                            "expiration_date"
+                        ]
+                    ]
+                },
+                having: { 
+                    [Op.and]: {
+                        ["is_public"]: {[Op.eq]:1},
+                        ["expiration_date"]: {[Op.lte]:CurrentDateService.getCurrentDateTime()}
+                    }
+                },
+                include: [
+                    {
+                        model: Profile,
+                        include: [
+                            { model: Account }
+                        ]
+                    },
+                    {
+                        model: Offer,
+                        order: [["amount", "DESC"]],
+                        limit: 1,
+                        include: [
+                            {
+                                model: Profile,
+                                include: [
+                                    { model: Account }
+                                ]
+                            }
+                        ]
+                    }
+                ]
+            });
+
+            dbExpiredAuctions.map(dbAuction => {
+                const { 
+                    id_auction, 
+                    description, 
+                    base_price: basePrice, 
+                    minimum_bid: minimumBid, 
+                    approval_date, 
+                    title,
+                    days_available,
+                    Profile: auctioneer,
+                    Offers: offers
+                } = dbAuction.toJSON();
+                const closesAt = new Date(approval_date);
+                closesAt.setDate(approval_date.getDate() + days_available);
+                
+                const lastOfferData = offers[0];
+                let lastOffer: IOfferData | undefined = undefined;
+                if(lastOfferData !== undefined) {
+                    lastOffer = {
+                        id: lastOfferData.id_offer,
+                        creationDate: new Date(lastOfferData.creation_date),
+                        amount: parseFloat(lastOfferData.amount) || 0,
+                        customer: {
+                            id: lastOfferData.Profile.id_profile,
+                            fullName: lastOfferData.Profile.full_name || "",
+                            phoneNumber: lastOfferData.Profile.phone_number || "",
+                            email: lastOfferData.Profile.Account.email
+                        }
+                    }
+                }
+
+                expiredAuctions.push({
+                    id: id_auction,
+                    title,
+                    description,
+                    basePrice: parseFloat(basePrice),
+                    minimumBid: parseFloat(minimumBid) || 0,
+                    closesAt,
+                    auctioneer: {
+                        id: auctioneer.id_profile,
+                        fullName: auctioneer.full_name || "",
+                        phoneNumber: auctioneer.phone_number || "",
+                        email: auctioneer.Account.email
+                    },
+                    lastOffer
+                });
+            });
+        } catch(error:any) {
+            const errorCodeMessage = error.code ? `ErrorCode: ${error.code}` : "";
+            throw new DataContextException(
+                error.message
+                ? `${error.message}. ${errorCodeMessage}`
+                : `It was not possible to recover the expired auctions. ${errorCodeMessage}`
+            );
+        }
+
+        return expiredAuctions;
+    }
+
+    public static async closeAuction(idAuction: number) {
+        try {
+            const dbAuction = await Auction.findByPk(idAuction);
+            if(dbAuction !== null) {
+                const dbClosedState = await AuctionState.findOne({
+                    where: {
+                        name: AuctionStatus.CLOSED
+                    }
+                });
+
+                if(dbClosedState !== null) {
+                    const { id_auction_state } = dbClosedState.toJSON();
+
+                    await AuctionStatesApplications.create({
+                        id_auction: idAuction,
+                        id_auction_state,
+                        application_date: CurrentDateService.getCurrentDateTime()
+                    });
+                }
+            }
+        } catch(error: any) {
+            const errorCodeMessage = error.code ? `ErrorCode: ${error.code}` : "";
+            throw new DataContextException(
+                error.message
+                ? `${error.message}. ${errorCodeMessage}`
+                : `It was not possible to close the auction. ${errorCodeMessage}`
+            );
+        }
+    }
+
+    public static async concretizeAuction(idAuction: number) {
+        try {
+            const dbAuction = await Auction.findByPk(idAuction);
+            if(dbAuction !== null) {
+                const dbConcretizedState = await AuctionState.findOne({
+                    where: {
+                        name: AuctionStatus.CONCRETIZED
+                    }
+                });
+
+                if(dbConcretizedState !== null) {
+                    const { id_auction_state } = dbConcretizedState.toJSON();
+
+                    await AuctionStatesApplications.create({
+                        id_auction: idAuction,
+                        id_auction_state,
+                        application_date: CurrentDateService.getCurrentDateTime()
+                    });
+                }
+            }
+        } catch(error: any) {
+            const errorCodeMessage = error.code ? `ErrorCode: ${error.code}` : "";
+            throw new DataContextException(
+                error.message
+                ? `${error.message}. ${errorCodeMessage}`
+                : `It was not possible to concretize the auction. ${errorCodeMessage}`
             );
         }
     }

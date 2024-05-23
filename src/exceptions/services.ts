@@ -7,6 +7,16 @@ class DataContextException extends Error {
     }
 }
 
+class SMTPException extends Error {
+    constructor(message: string) {
+        super(message);
+
+        this.name = "SMTPException";
+        Object.setPrototypeOf(this, SMTPException.prototype);
+    }   
+}
+
 export {
-    DataContextException
+    DataContextException,
+    SMTPException
 };
