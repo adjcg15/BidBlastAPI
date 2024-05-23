@@ -50,6 +50,7 @@ enum CreateOfferCodes {
     EARLY_OFFER = EndpointContexts.CREATE_OFFER + "-400005",
     MINIMUM_BID_NOT_FULFILLED = EndpointContexts.CREATE_OFFER + "-400006",
     BASE_PRICE_NOT_FULLFILLED = EndpointContexts.CREATE_OFFER + "-400007",
+    AUCTION_OWNER = EndpointContexts.CREATE_OFFER + "-400008",
 };
 
 export {

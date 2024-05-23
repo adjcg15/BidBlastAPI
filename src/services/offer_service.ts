@@ -31,6 +31,11 @@ class OfferService {
             }
 
             const associatedAuctionData = dbAssociatedAuction.toJSON();
+            if(associatedAuctionData.id_profile === idUser) {
+                resultCode = CreateOfferCodes.AUCTION_OWNER;
+                return resultCode;
+            }
+
             if(associatedAuctionData.is_closed) {
                 resultCode = CreateOfferCodes.AUCTION_FINISHED;
                 return resultCode;
