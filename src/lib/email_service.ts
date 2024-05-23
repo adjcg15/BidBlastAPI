@@ -20,7 +20,7 @@ class EmailService {
     public async notifySaleToAuctioneer(auctionInfo: IAuctionData) {
         const mailOptions = {
             from: "support@bidblast.com",
-            to: "adjcg15@gmail.com",
+            to: auctionInfo.auctioneer?.email,
             subject: "Producto en subasta vendido",
             html: 
                 "<html><body style='font-family: sans-serif, arial;'>"
@@ -51,7 +51,7 @@ class EmailService {
                     reject(new SMTPException(
                         error.message
                         ? `${error.message}. ${errorCodeMessage}`
-                        : `It was not possible to send the notification to auctioneer about sale. ${errorCodeMessage}`
+                        : `It was not possible to send the notification to auctioneer about the sale. ${errorCodeMessage}`
                     ));
                     return;
                 }
@@ -62,7 +62,46 @@ class EmailService {
     }
 
     public async notifySaleToCustomer(auctionInfo: IAuctionData) {
+        const mailOptions = {
+            from: "support@bidblast.com",
+            to: auctionInfo.lastOffer?.customer?.email,
+            subject: "Has ganado una subasta",
+            html: 
+                "<html><body style='font-family: sans-serif, arial;'>"
+                + "<h1 style='background-color: #00086A; padding: 24px 32px; color: white;'>¡Has ganado una subasta!</h1>"
+                + "<div style='padding: 32px; line-height: 160%; max-width: 400px; margin: 0 auto;'>" 
+                    + "<p>"
+                        + `Tu oferta de <strong style='color: #FF5C00;'>\$${auctionInfo.lastOffer?.amount}</strong> `
+                        + `por el artículo <strong>${auctionInfo.title}</strong> ha resultado la ganadora. `
+                        + "Ponte en contacto con el subastador para concretar la compra."
+                    + "</p>"
+                    + "<h2 style='margin-top: 24px; margin-bottom: 8px'>Información del subastador</h2>"
+                    + `<p><strong>Nombre: </strong> ${auctionInfo.auctioneer?.fullName}</p>`
+                    + `<p><strong>Correo electrónico: </strong> ${auctionInfo.auctioneer?.email}</p>`
+                    + (
+                        auctionInfo.auctioneer?.phoneNumber 
+                        ? `<p><strong>Teléfono: </strong> ${auctionInfo.auctioneer?.phoneNumber}</p>`
+                        : ""
+                    )
+                + "</div>"
+                + "</body></html>"
+        };
 
+        return new Promise((resolve, reject) => {
+            this.transporter.sendMail(mailOptions, function(error:any, info) {
+                if(error) {
+                    const errorCodeMessage = error.code ? `ErrorCode: ${error.code}` : "";
+                    reject(new SMTPException(
+                        error.message
+                        ? `${error.message}. ${errorCodeMessage}`
+                        : `It was not possible to send the notification to customer about the sale. ${errorCodeMessage}`
+                    ));
+                    return;
+                }
+                
+                resolve(info);
+            });
+        });
     }
 }
 
