@@ -16,8 +16,10 @@ class OfferService {
                 attributes: {
                     include: [
                         [
-                            literal(`(SELECT IF(S.name != "${AuctionStatus.PUBLISHED}", 1, 0) 
-                            FROM auctions_states_applications AS 
+                            literal(`(SELECT IF(S.name != "${AuctionStatus.PUBLISHED}" OR 
+                            (S.name = "${AuctionStatus.PUBLISHED}" AND 
+                            DATE_ADD(Auction.approval_date, INTERVAL Auction.days_available DAY) <= NOW())
+                            , 1, 0) FROM auctions_states_applications AS 
                             H INNER JOIN auction_states AS S ON H.id_auction_state = S.id_auction_state WHERE H.id_auction = 
                             Auction.id_auction ORDER BY H.application_date DESC LIMIT 1)`),
                             "is_closed"
@@ -31,6 +33,11 @@ class OfferService {
             }
 
             const associatedAuctionData = dbAssociatedAuction.toJSON();
+            if(associatedAuctionData.id_profile === idUser) {
+                resultCode = CreateOfferCodes.AUCTION_OWNER;
+                return resultCode;
+            }
+
             if(associatedAuctionData.is_closed) {
                 resultCode = CreateOfferCodes.AUCTION_FINISHED;
                 return resultCode;
@@ -113,6 +120,7 @@ class OfferService {
                 id_auction: idAuction
             });
         } catch(error: any) {
+            console.log(error)
             const errorCodeMessage = error.code ? `ErrorCode: ${error.code}` : "";
             throw new DataContextException(
                 error.message

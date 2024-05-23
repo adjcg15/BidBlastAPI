@@ -40,7 +40,8 @@ class OfferController {
                     [CreateOfferCodes.BASE_PRICE_NOT_FULLFILLED]: "Your offer is lower than the base auction price",
                     [CreateOfferCodes.EARLY_OFFER]: "You must wait before making an offer again",
                     [CreateOfferCodes.MINIMUM_BID_NOT_FULFILLED]: "Your offer is lower than the minimum bid allowed for this auction",
-                    [CreateOfferCodes.OFFER_OVERCOMED]: "There is a better offer for this auction, improve yours"
+                    [CreateOfferCodes.OFFER_OVERCOMED]: "There is a better offer for this auction, improve yours",
+                    [CreateOfferCodes.AUCTION_OWNER]: "You can't make an offer on one auction where you are the owner"
                 }
 
                 res.status(HttpStatusCodes.BAD_REQUEST).json({
