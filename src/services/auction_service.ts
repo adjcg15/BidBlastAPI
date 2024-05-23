@@ -859,11 +859,71 @@ class AuctionService {
             throw new DataContextException(
                 error.message
                 ? `${error.message}. ${errorCodeMessage}`
-                : `It was not possible to recover the auctions. ${errorCodeMessage}`
+                : `It was not possible to recover the expired auctions. ${errorCodeMessage}`
             );
         }
 
         return expiredAuctions;
+    }
+
+    public static async closeAuction(idAuction: number) {
+        try {
+            const dbAuction = await Auction.findByPk(idAuction);
+            if(dbAuction !== null) {
+                const dbClosedState = await AuctionState.findOne({
+                    where: {
+                        name: AuctionStatus.CLOSED
+                    }
+                });
+
+                if(dbClosedState !== null) {
+                    const { id_auction_state } = dbClosedState.toJSON();
+
+                    await AuctionStatesApplications.create({
+                        id_auction: idAuction,
+                        id_auction_state,
+                        application_date: CurrentDateService.getCurrentDateTime()
+                    });
+                }
+            }
+        } catch(error: any) {
+            const errorCodeMessage = error.code ? `ErrorCode: ${error.code}` : "";
+            throw new DataContextException(
+                error.message
+                ? `${error.message}. ${errorCodeMessage}`
+                : `It was not possible to close the auction. ${errorCodeMessage}`
+            );
+        }
+    }
+
+    public static async concretizeAuction(idAuction: number) {
+        try {
+            const dbAuction = await Auction.findByPk(idAuction);
+            if(dbAuction !== null) {
+                const dbConcretizedState = await AuctionState.findOne({
+                    where: {
+                        name: AuctionStatus.CONCRETIZED
+                    }
+                });
+
+                if(dbConcretizedState !== null) {
+                    const { id_auction_state } = dbConcretizedState.toJSON();
+
+                    await AuctionStatesApplications.create({
+                        id_auction: idAuction,
+                        id_auction_state,
+                        application_date: CurrentDateService.getCurrentDateTime()
+                    });
+                }
+            }
+        } catch(error: any) {
+            const errorCodeMessage = error.code ? `ErrorCode: ${error.code}` : "";
+            throw new DataContextException(
+                error.message
+                ? `${error.message}. ${errorCodeMessage}`
+                : `It was not possible to concretize the auction. ${errorCodeMessage}`
+            );
+        }
     }
 }
 
