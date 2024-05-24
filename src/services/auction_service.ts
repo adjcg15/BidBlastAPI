@@ -6,7 +6,7 @@ import HypermediaFile from "@models/HypermediaFile";
 import Offer from "@models/Offer";
 import Profile from "@models/Profile";
 import { IAuctionData, IHypermediaFileData, IOfferData } from "@ts/data";
-import { AuctionStatus } from "@ts/enums";
+import { AuctionStatus, UserRoles } from "@ts/enums";
 import AuctionCategory from "@models/AuctionCategory";
 import AuctionStatesApplications from "@models/AuctionsStatesApplications";
 import { GetManyAuctionsConfigParamType } from "@ts/services";
@@ -17,6 +17,8 @@ import ItemCondition from "@models/ItemCondition";
 import BlackLists from "@models/BlackLists";
 import CurrentDateService from "@lib/current_date_service";
 import AuctionReviews from "@models/AuctionReviews";
+import Role from "@models/Role";
+import AccountsRoles from "@models/AccountsRoles";
 
 class AuctionService {
     public static async getManyAuctions({ 
@@ -974,6 +976,9 @@ class AuctionService {
                         id_auction_state,
                         application_date: CurrentDateService.getCurrentDateTime()
                     });
+
+                    dbAuction.approval_date = CurrentDateService.getCurrentDateTime();
+                    await dbAuction.save();
                 }
             }
         } catch(error: any) {
@@ -982,6 +987,59 @@ class AuctionService {
                 error.message
                 ? `${error.message}. ${errorCodeMessage}`
                 : `It was not possible to publish the auction. ${errorCodeMessage}`
+            );
+        }
+    }
+
+    public static async convertAuctionAuthorToAuctioneer(idAuction: number) {
+        try {
+            const dbAuction = await Auction.findByPk(
+                idAuction,
+                {
+                    include: {
+                        model: Profile,
+                        attributes: ["id_profile"],
+                        include: [
+                            {
+                                model: Account,
+                                attributes: ["id_account"],
+                                include: [
+                                    {
+                                        model: Role
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                }
+            );
+            if(dbAuction !== null) {
+                const { Profile: auctioneer } = dbAuction.toJSON();
+                const { Account: { Roles: auctioneerRoles, id_account } } = auctioneer;
+
+                if(!auctioneerRoles.some((role: any) => role.name === UserRoles.AUCTIONEER)) {
+                    const dbAuctioneerRole = await Role.findOne({
+                        where: {
+                            name: UserRoles.AUCTIONEER
+                        }
+                    });
+                    if(dbAuctioneerRole !== null) {
+                        const { id_rol } = dbAuctioneerRole.toJSON();
+    
+                        await AccountsRoles.create({
+                            id_account,
+                            id_rol
+                        });
+                    }
+                }
+            }
+        } catch(error: any) {
+            console.log(error);
+            const errorCodeMessage = error.code ? `ErrorCode: ${error.code}` : "";
+            throw new DataContextException(
+                error.message
+                ? `${error.message}. ${errorCodeMessage}`
+                : `It was not possible to assign the role AUCTIONEER to the author of auction with ID ${idAuction}. ${errorCodeMessage}`
             );
         }
     }
