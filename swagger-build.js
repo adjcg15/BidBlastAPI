@@ -52,6 +52,14 @@ const doc = {
                 ]
             }
         ],
+        AuctionApproval: {
+            idAuction: 136,
+	        idAuctionCategory: 108
+        },
+        AuctionRejection: {
+            idAuction: 136,
+	        comments: "La subasta no cumple las políticas de venta de BidBlast"
+        },
         MediaFile: {
             id: 2,
             name: "tool2",
@@ -71,7 +79,7 @@ const doc = {
             error: true,
             statusCode: 400,
             details: "Explanation about bad request failure",
-            apiErrorCode: "COFR-400004"
+            apiErrorCode: "XXXX-40000X"
         },
         ValidationError: {
             error: true,

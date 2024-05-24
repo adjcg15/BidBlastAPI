@@ -5,6 +5,29 @@ import AuctionService from "services/auction_service";
 
 class AuctionReviewController {
     public static async approveAuction(req: Request, res: Response, next: NextFunction) {
+        /* 
+            #swagger.tags = ['Auction reviews']
+            #swagger.summary = 'Approves a proposed auction'
+            #swagger.parameters['body'] = {
+                in: 'body',
+                required: true,
+                schema: { $ref: '#/definitions/AuctionApproval' }
+            } 
+            #swagger.security = [{
+                BearerAuth: []
+            }]
+            #swagger.responses[201] = {
+                description: 'Auction approval created'
+            }
+            #swagger.responses[400] = {
+                description: 'Bad request',
+                schema: { $ref: "#/definitions/BadRequestErrorWithApiError" }
+            }
+            #swagger.responses[500] = {
+                description: 'Server error',
+                schema: { $ref: '#/definitions/ServerError' }
+            }
+        */
         try {
             const { idAuction, idAuctionCategory } = req.body;
             
@@ -55,6 +78,29 @@ class AuctionReviewController {
     }
 
     public static async rejectAuction(req: Request, res: Response, next: NextFunction) {
+        /* 
+            #swagger.tags = ['Auction reviews']
+            #swagger.summary = 'Rejects a proposed auction'
+            #swagger.parameters['body'] = {
+                in: 'body',
+                required: true,
+                schema: { $ref: '#/definitions/AuctionRejection' }
+            } 
+            #swagger.security = [{
+                BearerAuth: []
+            }]
+            #swagger.responses[201] = {
+                description: 'Auction rejection created'
+            }
+            #swagger.responses[400] = {
+                description: 'Bad request',
+                schema: { $ref: "#/definitions/BadRequestErrorWithApiError" }
+            }
+            #swagger.responses[500] = {
+                description: 'Server error',
+                schema: { $ref: '#/definitions/ServerError' }
+            }
+        */
         try {
             const { idAuction, comments } = req.body;
             const { id: idModerator } = req.user;
