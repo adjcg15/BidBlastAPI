@@ -991,6 +991,36 @@ class AuctionService {
         }
     }
 
+    public static async rejectAuction(idAuction: number) {
+        try {
+            const dbAuction = await Auction.findByPk(idAuction);
+            if(dbAuction !== null) {
+                const dbRejectedState = await AuctionState.findOne({
+                    where: {
+                        name: AuctionStatus.REJECTED
+                    }
+                });
+
+                if(dbRejectedState !== null) {
+                    const { id_auction_state } = dbRejectedState.toJSON();
+
+                    await AuctionStatesApplications.create({
+                        id_auction: idAuction,
+                        id_auction_state,
+                        application_date: CurrentDateService.getCurrentDateTime()
+                    });
+                }
+            }
+        } catch(error: any) {
+            const errorCodeMessage = error.code ? `ErrorCode: ${error.code}` : "";
+            throw new DataContextException(
+                error.message
+                ? `${error.message}. ${errorCodeMessage}`
+                : `It was not possible to reject the auction. ${errorCodeMessage}`
+            );
+        }
+    }
+
     public static async convertAuctionAuthorToAuctioneer(idAuction: number) {
         try {
             const dbAuction = await Auction.findByPk(
@@ -1034,7 +1064,6 @@ class AuctionService {
                 }
             }
         } catch(error: any) {
-            console.log(error);
             const errorCodeMessage = error.code ? `ErrorCode: ${error.code}` : "";
             throw new DataContextException(
                 error.message
