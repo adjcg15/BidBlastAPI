@@ -13,9 +13,12 @@ class AuctionClosingController {
                     await AuctionService.closeAuction(auction.id);
                 } else {
                     await AuctionService.concretizeAuction(auction.id);
+
                     const emailService = new EmailService();
                     await emailService.notifySaleToAuctioneer(auction);
                     await emailService.notifySaleToCustomer(auction);
+                    
+                    await AuctionService.finishAuction(auction.id);
                 }
             }
 
