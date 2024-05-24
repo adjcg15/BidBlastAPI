@@ -17,7 +17,6 @@ class AuctionReviewRequestValidator {
                     options: { min: 1 },
                     errorMessage: "The body attribute 'idAuctionCategory' is an invalid ID for an auction category"
                 },
-                optional: { options: { nullable: true } },
                 toInt: true
             }
         };
@@ -36,10 +35,9 @@ class AuctionReviewRequestValidator {
             comments: {
                 in: ["body"],
                 isString: {
-                    errorMessage: "The body attribute 'comments' should be a string value"
+                    errorMessage: "The body attribute 'comments' must be a string value"
                 },
-                trim: true,
-                optional: { options: { nullable: true } }
+                trim: true
             }
         };
     }
