@@ -48,6 +48,19 @@ class UserRequestValidator {
             }
         };
     }
+
+    public static userAuctionByIdSchema(): Schema{
+        return {
+            idAuction: {
+                in: ["params"],
+                isInt: {
+                    options: { min: 1 },
+                    errorMessage: "Invalid auction Id"
+                },
+                toInt: true
+            }
+        }
+    }
 }
 
 export default UserRequestValidator;
