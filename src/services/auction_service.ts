@@ -930,14 +930,14 @@ class AuctionService {
         try {
             const dbAuction = await Auction.findByPk(idAuction);
             if(dbAuction !== null) {
-                const dbConcretizedState = await AuctionState.findOne({
+                const dbFinishedState = await AuctionState.findOne({
                     where: {
                         name: AuctionStatus.FINISHED
                     }
                 });
 
-                if(dbConcretizedState !== null) {
-                    const { id_auction_state } = dbConcretizedState.toJSON();
+                if(dbFinishedState !== null) {
+                    const { id_auction_state } = dbFinishedState.toJSON();
 
                     await AuctionStatesApplications.create({
                         id_auction: idAuction,
@@ -952,6 +952,36 @@ class AuctionService {
                 error.message
                 ? `${error.message}. ${errorCodeMessage}`
                 : `It was not possible to finish the auction. ${errorCodeMessage}`
+            );
+        }
+    }
+
+    public static async publishAuction(idAuction: number) {
+        try {
+            const dbAuction = await Auction.findByPk(idAuction);
+            if(dbAuction !== null) {
+                const dbPublishedState = await AuctionState.findOne({
+                    where: {
+                        name: AuctionStatus.PUBLISHED
+                    }
+                });
+
+                if(dbPublishedState !== null) {
+                    const { id_auction_state } = dbPublishedState.toJSON();
+
+                    await AuctionStatesApplications.create({
+                        id_auction: idAuction,
+                        id_auction_state,
+                        application_date: CurrentDateService.getCurrentDateTime()
+                    });
+                }
+            }
+        } catch(error: any) {
+            const errorCodeMessage = error.code ? `ErrorCode: ${error.code}` : "";
+            throw new DataContextException(
+                error.message
+                ? `${error.message}. ${errorCodeMessage}`
+                : `It was not possible to publish the auction. ${errorCodeMessage}`
             );
         }
     }
