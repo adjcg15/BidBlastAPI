@@ -2,6 +2,7 @@ USE bid_blast_database;
 
 DELETE FROM offers WHERE id_offer >= 1;
 
+DELETE FROM auction_reviews WHERE id_auction_review >= 1;
 DELETE FROM black_lists WHERE id_black_list >= 1;
 DELETE FROM auctions_states_applications WHERE id_auction_state_application >= 1;
 DELETE FROM hypermedia_files WHERE id_hypermedia_file >= 1;
