@@ -6,7 +6,7 @@ import HypermediaFile from "@models/HypermediaFile";
 import Offer from "@models/Offer";
 import Profile from "@models/Profile";
 import { IAuctionData, IHypermediaFileData, IOfferData } from "@ts/data";
-import { AuctionStatus, UserRoles } from "@ts/enums";
+import { ApproveAuctionCodes, AuctionStatus, UserRoles } from "@ts/enums";
 import AuctionCategory from "@models/AuctionCategory";
 import AuctionStatesApplications from "@models/AuctionsStatesApplications";
 import { GetManyAuctionsConfigParamType } from "@ts/services";
@@ -958,29 +958,60 @@ class AuctionService {
         }
     }
 
-    public static async publishAuction(idAuction: number) {
+    public static async publishAuction(idAuction: number, idAuctionCategory: number) {
+        let resultCode: ApproveAuctionCodes | null = null;
+
         try {
-            const dbAuction = await Auction.findByPk(idAuction);
-            if(dbAuction !== null) {
-                const dbPublishedState = await AuctionState.findOne({
-                    where: {
-                        name: AuctionStatus.PUBLISHED
-                    }
-                });
-
-                if(dbPublishedState !== null) {
-                    const { id_auction_state } = dbPublishedState.toJSON();
-
-                    await AuctionStatesApplications.create({
-                        id_auction: idAuction,
-                        id_auction_state,
-                        application_date: CurrentDateService.getCurrentDateTime()
-                    });
-
-                    dbAuction.approval_date = CurrentDateService.getCurrentDateTime();
-                    await dbAuction.save();
+            const dbAuction = await Auction.findByPk(idAuction, {
+                attributes: {
+                    include: [
+                        [
+                            literal(`(SELECT IF(S.name = "${AuctionStatus.PROPOSED}", 1, 0) FROM auctions_states_applications AS 
+                            H INNER JOIN auction_states AS S ON H.id_auction_state = S.id_auction_state WHERE H.id_auction = 
+                            Auction.id_auction ORDER BY H.application_date DESC LIMIT 1)`),
+                            "isWaitingEvaluation"
+                        ]
+                    ]
                 }
+            });
+
+            if(dbAuction === null) {
+                resultCode = ApproveAuctionCodes.AUCTION_NOT_FOUND;
+                return resultCode;
             }
+
+            const { isWaitingEvaluation } = dbAuction.toJSON();
+            if(!isWaitingEvaluation) {
+                resultCode = ApproveAuctionCodes.AUCTION_ALREADY_EVALUATED;
+                return resultCode;
+            }
+            
+            const dbPublishedState = await AuctionState.findOne({
+                where: {
+                    name: AuctionStatus.PUBLISHED
+                }
+            });
+            if(dbPublishedState === null) {
+                resultCode = ApproveAuctionCodes.DB_MALFORMED;
+                return resultCode;
+            }
+
+            const dbAuctionCategory = await AuctionCategory.findByPk(idAuctionCategory);
+            if(dbAuctionCategory === null) {
+                resultCode = ApproveAuctionCodes.CATEGORY_NOT_FOUND;
+                return resultCode;
+            }
+
+            const { id_auction_state } = dbPublishedState.toJSON();
+            await AuctionStatesApplications.create({
+                id_auction: idAuction,
+                id_auction_state,
+                application_date: CurrentDateService.getCurrentDateTime()
+            });
+
+            dbAuction.approval_date = CurrentDateService.getCurrentDateTime();
+            dbAuction.id_auction_category = idAuctionCategory;
+            await dbAuction.save();
         } catch(error: any) {
             const errorCodeMessage = error.code ? `ErrorCode: ${error.code}` : "";
             throw new DataContextException(
@@ -989,6 +1020,8 @@ class AuctionService {
                 : `It was not possible to publish the auction. ${errorCodeMessage}`
             );
         }
+
+        return resultCode;
     }
 
     public static async rejectAuction(idAuction: number) {
@@ -1022,6 +1055,8 @@ class AuctionService {
     }
 
     public static async convertAuctionAuthorToAuctioneer(idAuction: number) {
+        let resultCode: ApproveAuctionCodes | null = null;
+        
         try {
             const dbAuction = await Auction.findByPk(
                 idAuction,
@@ -1043,25 +1078,31 @@ class AuctionService {
                     }
                 }
             );
-            if(dbAuction !== null) {
-                const { Profile: auctioneer } = dbAuction.toJSON();
-                const { Account: { Roles: auctioneerRoles, id_account } } = auctioneer;
+            if(dbAuction == null) {
+                resultCode = ApproveAuctionCodes.AUCTION_NOT_FOUND;
+                return resultCode;
+            }
 
-                if(!auctioneerRoles.some((role: any) => role.name === UserRoles.AUCTIONEER)) {
-                    const dbAuctioneerRole = await Role.findOne({
-                        where: {
-                            name: UserRoles.AUCTIONEER
-                        }
-                    });
-                    if(dbAuctioneerRole !== null) {
-                        const { id_rol } = dbAuctioneerRole.toJSON();
-    
-                        await AccountsRoles.create({
-                            id_account,
-                            id_rol
-                        });
+            const { Profile: auctioneer } = dbAuction.toJSON();
+            const { Account: { Roles: auctioneerRoles, id_account } } = auctioneer;
+
+            if(!auctioneerRoles.some((role: any) => role.name === UserRoles.AUCTIONEER)) {
+                const dbAuctioneerRole = await Role.findOne({
+                    where: {
+                        name: UserRoles.AUCTIONEER
                     }
+                });
+
+                if(dbAuctioneerRole === null) {
+                    resultCode = ApproveAuctionCodes.DB_MALFORMED;
+                    return resultCode;
                 }
+                
+                const { id_rol } = dbAuctioneerRole.toJSON();
+                await AccountsRoles.create({
+                    id_account,
+                    id_rol
+                });
             }
         } catch(error: any) {
             const errorCodeMessage = error.code ? `ErrorCode: ${error.code}` : "";
@@ -1071,6 +1112,8 @@ class AuctionService {
                 : `It was not possible to assign the role AUCTIONEER to the author of auction with ID ${idAuction}. ${errorCodeMessage}`
             );
         }
+
+        return resultCode;
     }
 }
 

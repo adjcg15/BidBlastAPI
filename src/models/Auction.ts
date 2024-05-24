@@ -9,6 +9,7 @@ class Auction extends Model {
     declare approval_date: string;
     declare title: string;
     declare days_available: number;
+    declare id_auction_category: number;
 }
 
 Auction.init(
