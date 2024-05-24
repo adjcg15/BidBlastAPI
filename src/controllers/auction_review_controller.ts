@@ -1,4 +1,4 @@
-import { ApproveAuctionCodes, HttpStatusCodes } from "@ts/enums";
+import { ApproveAuctionCodes, HttpStatusCodes, RejectAuctionCodes } from "@ts/enums";
 import { NextFunction, Request, Response } from "express";
 import AuctionReviewService from "services/auction_review_service";
 import AuctionService from "services/auction_service";
@@ -59,8 +59,44 @@ class AuctionReviewController {
             const { idAuction, comments } = req.body;
             const { id: idModerator } = req.user;
 
-            await AuctionService.rejectAuction(idAuction);
-            await AuctionReviewService.createAuctionReview(comments, idAuction, idModerator);
+            const errorMessages = {
+                [RejectAuctionCodes.AUCTION_NOT_FOUND]: `The auction with ID ${idAuction} was not found`,
+                [RejectAuctionCodes.AUCTION_ALREADY_EVALUATED]: `The auction with ID ${idAuction} has been already evaluated`,
+                [RejectAuctionCodes.DB_MALFORMED]: "It was not possible to process your request, please try it later"
+            };
+
+            let rejectAuctionResult: RejectAuctionCodes | null = 
+                await AuctionService.rejectAuction(idAuction);
+            if(rejectAuctionResult !== null) {
+                const errorBody = {
+                    error: true,
+                    statusCode: HttpStatusCodes.BAD_REQUEST,
+                    details: errorMessages[rejectAuctionResult]
+                }
+
+                if(rejectAuctionResult === RejectAuctionCodes.DB_MALFORMED) {
+                    errorBody.statusCode = HttpStatusCodes.INTERNAL_SERVER_ERROR
+                }
+
+                res.status(errorBody.statusCode).json(errorBody);
+                return;
+            }
+
+            rejectAuctionResult = await AuctionReviewService.createAuctionReview(comments, idAuction, idModerator);
+            if(rejectAuctionResult !== null) {
+                const errorBody = {
+                    error: true,
+                    statusCode: HttpStatusCodes.BAD_REQUEST,
+                    details: errorMessages[rejectAuctionResult]
+                }
+
+                if(rejectAuctionResult === RejectAuctionCodes.DB_MALFORMED) {
+                    errorBody.statusCode = HttpStatusCodes.INTERNAL_SERVER_ERROR
+                }
+
+                res.status(errorBody.statusCode).json(errorBody);
+                return;
+            }
 
             res.status(HttpStatusCodes.CREATED).send();
         } catch(error) {

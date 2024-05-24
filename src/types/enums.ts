@@ -26,6 +26,7 @@ enum EndpointContexts {
     CREATE_BLOCK_USER = "CRBU",
     CREATE_OFFER = "COFR",
     APPROVE_AUCTION = "APAU",
+    REJECT_AUCTION = "RJAU"
 };
 
 enum UserRoles {
@@ -61,11 +62,18 @@ enum ApproveAuctionCodes {
     DB_MALFORMED = EndpointContexts.APPROVE_AUCTION + "-500001"
 }
 
+enum RejectAuctionCodes {
+    AUCTION_NOT_FOUND = EndpointContexts.REJECT_AUCTION + "-400001",
+    AUCTION_ALREADY_EVALUATED = EndpointContexts.REJECT_AUCTION + "-400002",
+    DB_MALFORMED = EndpointContexts.REJECT_AUCTION + "-500001"
+}
+
 export {
     HttpStatusCodes,
     UserRoles,
     AuctionStatus,
     EndpointContexts,
     CreateOfferCodes,
-    ApproveAuctionCodes
+    ApproveAuctionCodes,
+    RejectAuctionCodes
 };

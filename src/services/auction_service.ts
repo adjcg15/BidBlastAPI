@@ -6,7 +6,7 @@ import HypermediaFile from "@models/HypermediaFile";
 import Offer from "@models/Offer";
 import Profile from "@models/Profile";
 import { IAuctionData, IHypermediaFileData, IOfferData } from "@ts/data";
-import { ApproveAuctionCodes, AuctionStatus, UserRoles } from "@ts/enums";
+import { ApproveAuctionCodes, AuctionStatus, RejectAuctionCodes, UserRoles } from "@ts/enums";
 import AuctionCategory from "@models/AuctionCategory";
 import AuctionStatesApplications from "@models/AuctionsStatesApplications";
 import { GetManyAuctionsConfigParamType } from "@ts/services";
@@ -1025,25 +1025,48 @@ class AuctionService {
     }
 
     public static async rejectAuction(idAuction: number) {
+        let resultCode: RejectAuctionCodes | null = null;
+
         try {
-            const dbAuction = await Auction.findByPk(idAuction);
-            if(dbAuction !== null) {
-                const dbRejectedState = await AuctionState.findOne({
-                    where: {
-                        name: AuctionStatus.REJECTED
-                    }
-                });
-
-                if(dbRejectedState !== null) {
-                    const { id_auction_state } = dbRejectedState.toJSON();
-
-                    await AuctionStatesApplications.create({
-                        id_auction: idAuction,
-                        id_auction_state,
-                        application_date: CurrentDateService.getCurrentDateTime()
-                    });
+            const dbAuction = await Auction.findByPk(idAuction, {
+                attributes: {
+                    include: [
+                        [
+                            literal(`(SELECT IF(S.name = "${AuctionStatus.PROPOSED}", 1, 0) FROM auctions_states_applications AS 
+                            H INNER JOIN auction_states AS S ON H.id_auction_state = S.id_auction_state WHERE H.id_auction = 
+                            Auction.id_auction ORDER BY H.application_date DESC LIMIT 1)`),
+                            "isWaitingEvaluation"
+                        ]
+                    ]
                 }
+            });
+            if(dbAuction === null) {
+                resultCode = RejectAuctionCodes.AUCTION_NOT_FOUND;
+                return resultCode;
             }
+
+            const { isWaitingEvaluation } = dbAuction.toJSON();
+            if(!isWaitingEvaluation) {
+                resultCode = RejectAuctionCodes.AUCTION_ALREADY_EVALUATED;
+                return resultCode;
+            }
+
+            const dbRejectedState = await AuctionState.findOne({
+                where: {
+                    name: AuctionStatus.REJECTED
+                }
+            });
+            if(dbRejectedState === null) {
+                resultCode = RejectAuctionCodes.DB_MALFORMED;
+                return resultCode;
+            }
+
+            const { id_auction_state } = dbRejectedState.toJSON();
+            await AuctionStatesApplications.create({
+                id_auction: idAuction,
+                id_auction_state,
+                application_date: CurrentDateService.getCurrentDateTime()
+            });
         } catch(error: any) {
             const errorCodeMessage = error.code ? `ErrorCode: ${error.code}` : "";
             throw new DataContextException(
@@ -1052,6 +1075,8 @@ class AuctionService {
                 : `It was not possible to reject the auction. ${errorCodeMessage}`
             );
         }
+
+        return resultCode;
     }
 
     public static async convertAuctionAuthorToAuctioneer(idAuction: number) {
