@@ -1,6 +1,5 @@
 import AuctionReviewController from "@controllers/auction_review_controller";
 import AccessControl from "@middlewares/access_control";
-import AuctionReviewMiddleware from "@middlewares/auction_review_middleware";
 import RequestFormatValidator from "@middlewares/request_format_validator";
 import AuctionReviewRequestValidator from "@request_schemas/auction_review_request_validator";
 import { UserRoles } from "@ts/enums";
@@ -9,13 +8,20 @@ import { checkSchema } from "express-validator";
 
 const AuctionReviewRouter = Router();
 
-AuctionReviewRouter.post("/",
+AuctionReviewRouter.post("/approval",
     AccessControl.checkTokenValidity,
     AccessControl.allowRoles([UserRoles.MODERATOR]),
-    checkSchema(AuctionReviewRequestValidator.auctionReviewSchema()),
+    checkSchema(AuctionReviewRequestValidator.approvalSchema()),
     RequestFormatValidator.validateRequestFormat,
-    AuctionReviewMiddleware.conditionalCommentsValidation,
-    AuctionReviewController.createAuctionReview
+    AuctionReviewController.approveAuction
+);
+
+AuctionReviewRouter.post("/rejection", 
+    AccessControl.checkTokenValidity,
+    AccessControl.allowRoles([UserRoles.MODERATOR]),
+    checkSchema(AuctionReviewRequestValidator.rejectionSchema()),
+    RequestFormatValidator.validateRequestFormat,
+    AuctionReviewController.rejectAuction
 );
 
 export default AuctionReviewRouter;
