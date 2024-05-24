@@ -36,4 +36,12 @@ UserRouter.get("/auctions",
     AuctionController.searchCreatedAuction
 );
 
+UserRouter.get("/auctions/:idAuction",
+    AccessControl.checkTokenValidity,
+    AccessControl.allowRoles([UserRoles.AUCTIONEER]),
+    checkSchema(UserRequestValidator.userAuctionByIdSchema()),
+    RequestFormatValidator.validateRequestFormat,
+    AuctionController.getUserAuctionWithOffersById
+);
+
 export default UserRouter;
