@@ -370,6 +370,9 @@ class AuctionService {
                                     FROM offers o
                                     WHERE o.id_auction = Auction.id_auction
                                 )`)
+                            },
+                            id_profile: {
+                                [Op.eq]: userId
                             }
                         }
                     },
@@ -560,6 +563,7 @@ class AuctionService {
                     title,
                     approval_date, 
                     days_available,
+                    base_price,
                     minimum_bid,
                     AuctionStatesApplications: States,
                     AuctionReviews: Review, 
@@ -569,11 +573,19 @@ class AuctionService {
                 const closesAt = new Date(approval_date);
                 closesAt.setDate(approval_date.getDate() + days_available);
 
+                let minimumBid;
+                if(minimum_bid === null){
+                    minimumBid = 0;
+                }else{
+                    minimumBid = minimum_bid;
+                }
+
                 const auctionData: IAuctionData = {
                     id: id_auction,
                     title,
                     closesAt,
-                    minimumBid: minimum_bid,
+                    minimumBid,
+                    basePrice: base_price,
                     daysAvailable: days_available
                 }
 
