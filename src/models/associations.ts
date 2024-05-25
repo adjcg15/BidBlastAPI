@@ -11,6 +11,7 @@ import AuctionStatesApplications from "./AuctionsStatesApplications";
 import AuctionState from "./AuctionState";
 import AuctionReviews from "./AuctionReviews";
 import BlackLists from "./BlackLists";
+import AuctionReview from "./AuctionReview";
 
 function configureModel() {
     Profile.hasOne(Account, {
@@ -219,6 +220,36 @@ function configureModel() {
     BlackLists.belongsTo(Profile, {
         foreignKey: {
             name: "id_profile",
+            allowNull: false
+        },
+        onDelete: "CASCADE"
+    });
+
+    AuctionReview.belongsTo(Profile, {
+        foreignKey: {
+            name: "id_profile",
+            allowNull: false
+        },
+        onDelete: "CASCADE"
+    });
+    Profile.hasMany(AuctionReview, {
+        foreignKey: {
+            name: "id_profile",
+            allowNull: false
+        },
+        onDelete: "CASCADE"
+    });
+
+    AuctionReview.belongsTo(Auction, {
+        foreignKey: {
+            name: "id_auction",
+            allowNull: false
+        },
+        onDelete: "CASCADE"
+    });
+    Auction.hasOne(AuctionReview, {
+        foreignKey: {
+            name: "id_auction",
             allowNull: false
         },
         onDelete: "CASCADE"
