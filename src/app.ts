@@ -8,6 +8,7 @@ import configureModel from "@models/associations";
 import { swaggerDocs } from "swagger";
 import MainRouter from "./routes";
 import ErrorHandler from "@middlewares/error_handler";
+import Timer from "@lib/timer";
 
 const database = DataBase.getInstance();
 database.startConnection()
@@ -25,6 +26,7 @@ database.startConnection()
         app.listen(process.env.PORT, () => {
             console.log(`Server is running on ${process.env.HOST_URL}:${APP_PORT}`);
             swaggerDocs(app, APP_PORT);
+            Timer.startAuctionsClosingListener();
         });
     })
     .catch(error => {
