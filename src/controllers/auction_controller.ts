@@ -245,7 +245,37 @@ class AuctionController {
         }
     }
 
-    public static async getAuctionById(req: Request, res: Response): Promise<void> {
+    public static async getAuctionById(req: Request, res: Response, next: NextFunction): Promise<void> {
+        /*  
+            #swagger.tags = ['Auctions']
+            #swagger.summary = 'Recovers an auction by its ID'
+            #swagger.parameters['idAuction'] = {
+                in: 'path',
+                description: 'Id of the requested auction',
+                required: true,
+                type: 'integer',
+                example: '10'
+            }
+            #swagger.security = [{
+                BearerAuth: []
+            }]
+            #swagger.responses[200] = {
+                description: 'Auction',
+                schema: { $ref: '#/definitions/Auction' }
+            }
+            #swagger.responses[400] = {
+                description: 'Parameters values validation error',
+                schema: { $ref: "#/definitions/ValidationError" }
+            }
+            #swagger.responses[404] = {
+                description: 'Auction not found',
+                schema: { $ref: '#/definitions/NotFoundError' }
+            }
+            #swagger.responses[500] = {
+                description: 'Server error',
+                schema: { $ref: '#/definitions/ServerError' }
+            }
+        */
         try {
             const { idAuction } = req.params;
 
@@ -253,28 +283,14 @@ class AuctionController {
             if(auction === null) {
                 res.status(HttpStatusCodes.NOT_FOUND).send({
                     error: true,
-                    statusCode: HttpStatusCodes.BAD_REQUEST,
+                    statusCode: HttpStatusCodes.NOT_FOUND,
                     details: "It was not possible to find the auction with the ID " + idAuction
                 });
             } else {
                 res.status(HttpStatusCodes.OK).json(auction);
             }
         } catch(error: any) {
-            let statusCode = HttpStatusCodes.INTERNAL_SERVER_ERROR;
-            const responseDetails = {
-                error: true,
-                statusCode: HttpStatusCodes.INTERNAL_SERVER_ERROR,
-                details: "There was an unexpeted error, please try it again later"
-            };
-
-            if(error instanceof DataContextException) {
-                Logger.error(error.name, error.message);
-                responseDetails.details = "It was not possible to get the information of the auction, please try it again later";
-            } else {
-                Logger.error(error.name, error.message);
-            }
-
-            res.status(statusCode).json(responseDetails);
+            next(error);
         }
     }
 

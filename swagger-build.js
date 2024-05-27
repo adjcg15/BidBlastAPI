@@ -48,7 +48,7 @@ const doc = {
                     avatar: "/9j/4AAQSkZJRgABAQAAAQABAAD/2wCEAAwMDQsNCxAODBANEA4QExYRDRASGR..."
                 },
                 mediaFiles: [
-                    { $ref: '#/definitions/MediaFile' }
+                    { $ref: "#/definitions/MediaFile" }
                 ]
             }
         ],
@@ -60,10 +60,37 @@ const doc = {
             idAuction: 136,
 	        comments: "La subasta no cumple las políticas de venta de BidBlast"
         },
+        CompleteMediaFile: {
+            id: 2,
+            name: "tool2",
+            content: "/9j/4AAQSkZJRgABAQAAAQABAAD/2wCEAAwMDQsNCxAODBANEA4QExYRDRASGR...",
+            mimeType: "image/png"
+        },
         MediaFile: {
             id: 2,
             name: "tool2",
             content: "/9j/4AAQSkZJRgABAQAAAQABAAD/2wCEAAwMDQsNCxAODBANEA4QExYRDRASGR..."
+        },
+        Auction: {
+            id: 160,
+            title: "Fortnite Marvel: Iron Man Zero War Rare Bundle Skin Outfit",
+            closesAt: "2024-06-09T11:12:07.000Z",
+            description: "Código totalmente legal. No lo utilicé porque ya no juego.",
+            basePrice: 15000,
+            minimumBid: 200,
+            itemCondition: {
+                id: 1,
+                name: "Nuevo"
+            },
+            mediaFiles: [
+                { $ref: "#/definitions/CompleteMediaFile" }
+            ]
+        },
+        AuctionCategory: {
+            id: 126,
+            title: "Videojuegos",
+            description: "En esta categoría de subastas podrás encontrar todo tipo de juegos de video, sin importar su tipo o plataforma.",
+            keywords: "pc, xbox, playstation, discos"
         },
         ServerError: {
             error: true,
@@ -74,6 +101,11 @@ const doc = {
             error: true,
             statusCode: 400,
             details: "Explanation about bad request failure"
+        },
+        NotFoundError: {
+            error: true,
+            statusCode: 404,
+            details: "Explanation about element not found failure"
         },
         BadRequestErrorWithApiError: {
             error: true,
