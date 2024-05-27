@@ -1,11 +1,9 @@
 import { DataContextException } from "@exceptions/services";
 import ImageConverter from "@lib/image_converter";
 import Account from "@models/Account";
-import BlackLists from "@models/BlackLists";
 import Profile from "@models/Profile";
 import Role from "@models/Role";
 import { IUserData } from "@ts/data";
-import CurrentDateService from "@lib/current_date_service";
 
 class UserService {
     public static async getUserByEmail(email: string) {
@@ -26,7 +24,7 @@ class UserService {
                 user = {
                     id: accountInformation.Profile.id_profile,
                     fullName: accountInformation.Profile.full_name,
-                    phoneNumber: accountInformation.Profile.phone_number,
+                    phoneNumber: accountInformation.Profile.phone_number ?? "",
                     avatar: ImageConverter.bufferToBase64(accountInformation.Profile.avatar),
                     email: accountInformation.email,
                     roles: roles.map(role => role.name),
