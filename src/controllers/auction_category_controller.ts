@@ -121,6 +121,21 @@ class AuctionCategoryController{
     }
 
     public static async getAuctionCategoriesList(req: Request, res: Response, next: NextFunction): Promise<void> {
+        /*  
+            #swagger.tags = ['Auction categories']
+            #swagger.summary = 'Recovers all the auction categories'
+            #swagger.security = [{
+                BearerAuth: []
+            }]
+            #swagger.responses[200] = {
+                description: 'Auction categories list',
+                schema: [{ $ref: '#/definitions/AuctionCategory' }]
+            }
+            #swagger.responses[500] = {
+                description: 'Server error',
+                schema: { $ref: '#/definitions/ServerError' }
+            }
+        */
         try {
             const auctionCategories = await AuctionCategoryService.getManyAuctionCategories();
             res.status(HttpStatusCodes.OK).json(auctionCategories);

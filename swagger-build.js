@@ -72,12 +72,12 @@ const doc = {
             content: "/9j/4AAQSkZJRgABAQAAAQABAAD/2wCEAAwMDQsNCxAODBANEA4QExYRDRASGR..."
         },
         Auction: {
-            id: 1,
-            title: "",
-            closesAt: "",
-            description: "",
-            basePrice: 4000,
-            minimumBid: 50,
+            id: 160,
+            title: "Fortnite Marvel: Iron Man Zero War Rare Bundle Skin Outfit",
+            closesAt: "2024-06-09T11:12:07.000Z",
+            description: "Código totalmente legal. No lo utilicé porque ya no juego.",
+            basePrice: 15000,
+            minimumBid: 200,
             itemCondition: {
                 id: 1,
                 name: "Nuevo"
@@ -85,6 +85,12 @@ const doc = {
             mediaFiles: [
                 { $ref: "#/definitions/CompleteMediaFile" }
             ]
+        },
+        AuctionCategory: {
+            id: 126,
+            title: "Videojuegos",
+            description: "En esta categoría de subastas podrás encontrar todo tipo de juegos de video, sin importar su tipo o plataforma.",
+            keywords: "pc, xbox, playstation, discos"
         },
         ServerError: {
             error: true,
