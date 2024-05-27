@@ -48,7 +48,7 @@ const doc = {
                     avatar: "/9j/4AAQSkZJRgABAQAAAQABAAD/2wCEAAwMDQsNCxAODBANEA4QExYRDRASGR..."
                 },
                 mediaFiles: [
-                    { $ref: '#/definitions/MediaFile' }
+                    { $ref: "#/definitions/MediaFile" }
                 ]
             }
         ],
@@ -60,10 +60,31 @@ const doc = {
             idAuction: 136,
 	        comments: "La subasta no cumple las políticas de venta de BidBlast"
         },
+        CompleteMediaFile: {
+            id: 2,
+            name: "tool2",
+            content: "/9j/4AAQSkZJRgABAQAAAQABAAD/2wCEAAwMDQsNCxAODBANEA4QExYRDRASGR...",
+            mimeType: "image/png"
+        },
         MediaFile: {
             id: 2,
             name: "tool2",
             content: "/9j/4AAQSkZJRgABAQAAAQABAAD/2wCEAAwMDQsNCxAODBANEA4QExYRDRASGR..."
+        },
+        Auction: {
+            id: 1,
+            title: "",
+            closesAt: "",
+            description: "",
+            basePrice: 4000,
+            minimumBid: 50,
+            itemCondition: {
+                id: 1,
+                name: "Nuevo"
+            },
+            mediaFiles: [
+                { $ref: "#/definitions/CompleteMediaFile" }
+            ]
         },
         ServerError: {
             error: true,
@@ -74,6 +95,11 @@ const doc = {
             error: true,
             statusCode: 400,
             details: "Explanation about bad request failure"
+        },
+        NotFoundError: {
+            error: true,
+            statusCode: 404,
+            details: "Explanation about element not found failure"
         },
         BadRequestErrorWithApiError: {
             error: true,
