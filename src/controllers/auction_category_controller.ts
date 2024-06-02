@@ -6,6 +6,32 @@ import { DataContextException } from "@exceptions/services";
 
 class AuctionCategoryController{
     public static async getAuctionCategory(req: Request, res: Response): Promise<void> {
+        /*
+            #swagger.tags = ['Auction categories']
+            #swagger.summary = 'Gets a specific auction category by ID'
+            #swagger.parameters['catid'] = {
+                in: 'path',
+                required: true,
+                type: 'integer',
+                description: 'ID of the auction category'
+            }
+            #swagger.responses[200] = {
+                description: 'Auction category retrieved successfully',
+                schema: { $ref: '#/definitions/AuctionCategory' }
+            }
+            #swagger.responses[400] = {
+                description: 'Bad request',
+                schema: {
+                    error: true,
+                    statusCode: 400,
+                    details: "Auction category doesn't exist with this id"
+                }
+            }
+            #swagger.responses[500] = {
+                description: 'Server error',
+                schema: { $ref: '#/definitions/ServerError' }
+            }
+        */
         try {
             const { catid } = req.params;
             const idCategory: number = parseInt(catid);
@@ -42,6 +68,43 @@ class AuctionCategoryController{
     }
 
     public static async registerAuctionCategory(req: Request, res: Response): Promise<void> {
+        /*
+            #swagger.tags = ['Auction categories']
+            #swagger.summary = 'Registers a new auction category'
+            #swagger.parameters['body'] = {
+                in: 'body',
+                required: true,
+                schema: {
+                    type: 'object',
+                    required: ['title', 'description', 'keywords'],
+                    properties: {
+                        title: { type: 'string' },
+                        description: { type: 'string' },
+                        keywords: { type: 'array', items: { type: 'string' } }
+                    }
+                }
+            }
+            #swagger.responses[200] = {
+                description: 'Auction category is registered',
+                schema: {
+                    error: false,
+                    statusCode: 200,
+                    details: 'Auction category is registered'
+                }
+            }
+            #swagger.responses[400] = {
+                description: 'Bad request',
+                schema: {
+                    error: true,
+                    statusCode: 400,
+                    details: 'The title exists in another auction category'
+                }
+            }
+            #swagger.responses[500] = {
+                description: 'Server error',
+                schema: { $ref: '#/definitions/ServerError' }
+            }
+        */
         try {
             const { title, description, keywords } = req.body;
 
@@ -80,6 +143,49 @@ class AuctionCategoryController{
     }
 
     public static async updateAuctionCategory(req: Request, res: Response): Promise<void> {
+        /*
+            #swagger.tags = ['Auction categories']
+            #swagger.summary = 'Updates an existing auction category'
+            #swagger.parameters['catid'] = {
+                in: 'path',
+                required: true,
+                type: 'integer',
+                description: 'ID of the auction category'
+            }
+            #swagger.parameters['body'] = {
+                in: 'body',
+                required: true,
+                schema: {
+                    type: 'object',
+                    required: ['title', 'description', 'keywords'],
+                    properties: {
+                        title: { type: 'string' },
+                        description: { type: 'string' },
+                        keywords: { type: 'array', items: { type: 'string' } }
+                    }
+                }
+            }
+            #swagger.responses[200] = {
+                description: 'Auction category is updated',
+                schema: {
+                    error: false,
+                    statusCode: 200,
+                    details: 'Auction category is updated'
+                }
+            }
+            #swagger.responses[400] = {
+                description: 'Bad request',
+                schema: {
+                    error: true,
+                    statusCode: 400,
+                    details: 'verify that the id exists and the title is unique'
+                }
+            }
+            #swagger.responses[500] = {
+                description: 'Server error',
+                schema: { $ref: '#/definitions/ServerError' }
+            }
+        */
         try {
             const { catid } = req.params;
             const idCategory: number = parseInt(catid);

@@ -5,7 +5,65 @@ import { HttpStatusCodes } from "@ts/enums";
 
 class AccountController {
     public static async createAccount(req: Request, res: Response): Promise<void> {
-        
+        /*
+            #swagger.tags = ['Accounts']
+            #swagger.summary = 'Creates a new account'
+            #swagger.parameters['body'] = {
+                in: 'body',
+                required: true,
+                schema: { 
+                    type: 'object',
+                    required: ['fullName', 'email', 'phoneNumber', 'password'],
+                    properties: {
+                        fullName: { type: 'string' },
+                        email: { type: 'string' },
+                        phoneNumber: { type: 'string' },
+                        avatar: { type: 'string', format: 'byte' },
+                        password: { type: 'string' }
+                    }
+                }
+            }
+            #swagger.responses[201] = {
+                description: 'Account created successfully',
+                schema: {
+                    message: 'Account created successfully',
+                    account: {
+                        type: 'object',
+                        properties: {
+                            id: { type: 'string' },
+                            fullName: { type: 'string' },
+                            email: { type: 'string' },
+                            phoneNumber: { type: 'string' },
+                            avatar: { type: 'string', format: 'byte' }
+                        }
+                    }
+                }
+            }
+            #swagger.responses[400] = {
+                description: 'Bad request',
+                schema: {
+                    error: true,
+                    statusCode: 400,
+                    details: 'Bad request'
+                }
+            }
+            #swagger.responses[401] = {
+                description: 'Email already exists',
+                schema: {
+                    error: true,
+                    statusCode: 401,
+                    details: 'The email address is already in use. Please use a different email address.'
+                }
+            }
+            #swagger.responses[500] = {
+                description: 'Server error',
+                schema: {
+                    error: true,
+                    statusCode: 500,
+                    details: 'There was an unexpected error, please try again later'
+                }
+            }
+        */
         const { fullName, email, phoneNumber, avatar, password } = req.body;
 
         try {
@@ -26,7 +84,7 @@ class AccountController {
             if (error instanceof DataContextException) {
                 responseDetails.details = "It was not possible to create the account, please try again later";
             } else if (error.message === "Email already exists") {
-                statusCode = HttpStatusCodes.BAD_REQUEST;
+                statusCode = HttpStatusCodes.UNAUTHORIZED;
                 responseDetails.statusCode = statusCode;
                 responseDetails.details = "The email address is already in use. Please use a different email address.";
             }

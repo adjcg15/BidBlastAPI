@@ -121,6 +121,73 @@ class AuctionController {
         }
     }
     public static async createAuction(req: Request, res: Response): Promise<void> {
+        /*
+            #swagger.tags = ['Auctions']
+            #swagger.summary = 'Creates a new auction'
+            #swagger.parameters['body'] = {
+                in: 'body',
+                required: true,
+                schema: {
+                    type: 'object',
+                    required: [
+                        'title', 
+                        'description', 
+                        'basePrice', 
+                        'minimumBid', 
+                        'approvalDate', 
+                        'daysAvailable', 
+                        'idItemCondition', 
+                        'mediaFiles'
+                    ],
+                    properties: {
+                        title: { type: 'string' },
+                        description: { type: 'string' },
+                        basePrice: { type: 'number' },
+                        minimumBid: { type: 'number' },
+                        approvalDate: { type: 'string', format: 'date-time' },
+                        daysAvailable: { type: 'integer' },
+                        idItemCondition: { type: 'integer' },
+                        idAuctionCategory: {
+                            type: 'integer',
+                            nullable: true,
+                            description: 'Auction category ID (can be null)'
+                        },
+                        mediaFiles: {
+                            type: 'array',
+                            items: { 
+                                type: 'object',
+                                properties: {
+                                    mimeType: { type: 'string' },
+                                    content: { type: 'string' },
+                                    name: { type: 'string', nullable: true }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            #swagger.security = [{
+                BearerAuth: []
+            }]
+            #swagger.responses[201] = {
+                description: 'Auction created successfully',
+                schema: {
+                    message: 'Auction created successfully',
+                    auction: { $ref: '#/definitions/Auction' }
+                }
+            }
+            #swagger.responses[400] = {
+                description: 'Invalid request data',
+                schema: {
+                    error: true,
+                    message: 'Invalid request data'
+                }
+            }
+            #swagger.responses[500] = {
+                description: 'Server error',
+                schema: { $ref: '#/definitions/ServerError' }
+            }
+        */
         const auctionData = {
             title: req.body.title,
             description: req.body.description,
