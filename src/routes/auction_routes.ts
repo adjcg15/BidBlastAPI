@@ -26,6 +26,7 @@ AuctionRouter.get("/:idAuction",
 
 AuctionRouter.post("/",
     AccessControl.checkTokenValidity,
+    AccessControl.allowRoles([UserRoles.AUCTIONEER, UserRoles.CUSTOMER]),
     checkSchema(AuctionRequestValidator.createAuctionSchema()), 
     RequestFormatValidator.validateRequestFormat, 
     AuctionController.createAuction

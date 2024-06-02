@@ -84,7 +84,7 @@ class AccountController {
             if (error instanceof DataContextException) {
                 responseDetails.details = "It was not possible to create the account, please try again later";
             } else if (error.message === "Email already exists") {
-                statusCode = HttpStatusCodes.BAD_REQUEST;
+                statusCode = HttpStatusCodes.UNAUTHORIZED;
                 responseDetails.statusCode = statusCode;
                 responseDetails.details = "The email address is already in use. Please use a different email address.";
             }

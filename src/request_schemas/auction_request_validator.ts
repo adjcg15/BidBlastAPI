@@ -134,7 +134,8 @@ class AuctionRequestValidator {
                 isInt: {
                     errorMessage: "Auction category ID must be an integer"
                 },
-                toInt: true
+                toInt: true,
+                optional: { options: { nullable: true } }
             },
             mediaFiles: {
                 in: ["body"],
