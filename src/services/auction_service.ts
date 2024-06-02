@@ -709,7 +709,6 @@ class AuctionService {
 
     public static async getAuctionById(idAuction: number): Promise<IAuctionData | null> {
         let auction: IAuctionData | null = null;
-
         try {
             const dbAuction = await Auction.findByPk(idAuction, {
                 include: [
@@ -747,7 +746,7 @@ class AuctionService {
                     description,
                     base_price,
                     minimum_bid,
-                    ItemCondition: { id_item_condition, name: itemConditionName },
+                    ItemCondition: { name: itemConditionName },
                     HypermediaFiles: auctionImages
                 } = dbAuction.toJSON();
                 const closesAt = new Date(approval_date);
@@ -790,10 +789,7 @@ class AuctionService {
                     description,
                     basePrice: Number(base_price) || 0,
                     minimumBid: Number(minimum_bid) || 0,
-                    itemCondition: {
-                        id: id_item_condition,
-                        name: itemConditionName
-                    },
+                    itemCondition: itemConditionName,
                     mediaFiles: auctionMediaFiles
                 };
             }

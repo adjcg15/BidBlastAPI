@@ -56,7 +56,7 @@ interface IAuctionData {
     mediaFiles?: IHypermediaFileData[];
     lastOffer?: IOfferData;
     offers?: IOfferData[];
-    itemCondition?: IItemConditionData;
+    itemCondition?: string;
     review?: IAuctionReview;
     updatedDate?: Date;
     auctionState?: string;
