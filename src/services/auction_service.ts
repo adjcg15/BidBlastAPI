@@ -651,131 +651,60 @@ class AuctionService {
 
         return auctions;
     }
-
-    public static async getUserAuctionWithOffersById(idAuction: number): Promise<IAuctionData | null> {
-        let auction: IAuctionData | null = null;
-
+    
+    public static async getUserAuctionOffersByAuctionId(idAuction: number, offset: number, limit: number): Promise<IOfferData[] | null> {
+        let offers: IOfferData[] = [];
         try {
-            const dbAuction = await Auction.findByPk(idAuction, {
+            const dbOffers = await Offer.findAll({
+                limit,
+                offset,
                 include: [
                     {
-                        model: HypermediaFile,
-                        where: { 
-                            mime_type: {
-                                [Op.startsWith]: "image/"
-                            }
-                        },
-                        attributes: ["id_hypermedia_file", "mime_type", "name", "content"]
-                    },
-                    {
-                        model: Offer,
-                        include: [
-                            {
-                                model: Profile,
-                                include: [
-                                    {
-                                        model: Account
-                                    }
-                                ]
-                            }
-                        ]
+                        model: Profile
                     }
                 ],
-                attributes: {
-                    include: [
-                        [
-                            literal(`(SELECT IF(S.name = "${AuctionStatus.PUBLISHED}", 1, 0) FROM auctions_states_applications AS 
-                            H INNER JOIN auction_states AS S ON H.id_auction_state = S.id_auction_state WHERE H.id_auction = 
-                            Auction.id_auction ORDER BY H.application_date DESC LIMIT 1)`),
-                            "is_public"
-                        ]
-                    ],
-                },
-                having:{ ["is_public"]: {[Op.eq]:1}},
+                where: [
+                    {
+                        id_auction: idAuction
+                    }
+                ],
                 order: [
-                    [Offer, "creation_date", "DESC"]
+                    ["creation_date", "DESC"]
                 ]
             });
+            const offersInformation = dbOffers.map(offer => offer.toJSON());
+            offersInformation.forEach(offer => {
+                const {
+                    id_offer,
+                    amount,
+                    creation_date
+                } = offer;
 
-            if(dbAuction !== null) {
-                const { 
-                    title, 
-                    approval_date, 
-                    days_available,
-                    Offers,
-                    HypermediaFiles: auctionImages
-                } = dbAuction.toJSON();
-                const closesAt = new Date(approval_date);
-                closesAt.setDate(approval_date.getDate() + days_available);
+                const customerData = offer.Profile;
 
-                const dbAuctionVideos = await HypermediaFile.findAll({
-                    where: {
-                        [Op.and]: {
-                            mime_type: {
-                                [Op.startsWith]: "video/"
-                            },
-                            id_auction: idAuction
-                        }
-                    },
-                    attributes: ["id_hypermedia_file", "mime_type", "name"]
-                });
-                const auctionVideos = dbAuctionVideos.map(video => video.toJSON());
-
-                const auctionMediaFiles = [...auctionImages, ...auctionVideos]
-                    .sort((file1, file2) => file1.id_hypermedia_file - file2.id_hypermedia_file)
-                    .map(({id_hypermedia_file, mime_type, name, content}) => {
-                        const fileData = {
-                            id: id_hypermedia_file,
-                            mimeType: mime_type,
-                            name,
-                            content: ""
-                        } as IHypermediaFileData;
-
-                        if(mime_type.startsWith("image")) {
-                            fileData.content = ImageConverter.bufferToBase64(content);
-                        }
-
-                        return fileData;
-                    });
-
-                    let offersData;
-                    if (Array.isArray(Offers) && Offers.length > 0) {
-                        offersData = Offers.map(({id_offer, amount, creation_date, Profile}) => {
-                            const offerData = {
-                                id: id_offer,
-                                amount: parseFloat(amount),
-                                creationDate: creation_date,
-                                customer: {
-                                    id: Profile.id_profile,
-                                    fullName: Profile.full_name,
-                                    phoneNumber: Profile.phone_number,
-                                    avatar: Profile.avatar,
-                                    email: Profile.Account.email
-                                }
-                            } as IOfferData;
-                    
-                            return offerData;
-                        });
-                    }               
-
-                auction = {
-                    id: idAuction,
-                    title,
-                    closesAt,
-                    mediaFiles: auctionMediaFiles,
-                    offers: offersData
+                const offerData: IOfferData = {
+                    id: id_offer,
+                    amount,
+                    creationDate: creation_date,
+                    customer: {
+                        id: customerData.id_profile,
+                        fullName: customerData.full_name,
+                        avatar: customerData.avatar
+                    }
                 };
-            }
+
+                offers.push(offerData);
+            });
         } catch(error: any) {
             const errorCodeMessage = error.code ? `ErrorCode: ${error.code}` : "";
             throw new DataContextException(
                 error.message
                 ? `${error.message}. ${errorCodeMessage}`
-                : `It was not possible to recover the auction by its ID. ${errorCodeMessage}`
+                : `It was not possible to recover the offers by its auction ID. ${errorCodeMessage}`
             );
         }
 
-        return auction;
+        return offers;
     }
 
     public static async getAuctionById(idAuction: number): Promise<IAuctionData | null> {

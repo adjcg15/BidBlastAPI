@@ -1,6 +1,6 @@
 import { DataContextException } from "@exceptions/services";
 import Logger from "@lib/logger";
-import { SearchActionQueryType } from "@ts/controllers";
+import { OffersAuctionQueryType, SearchActionQueryType } from "@ts/controllers";
 import { HttpStatusCodes } from "@ts/enums";
 import { NextFunction, Request, Response } from "express";
 import AuctionService from "services/auction_service";
@@ -212,16 +212,17 @@ class AuctionController {
         }
     }
 
-    public static async getUserAuctionWithOffersById(req: Request, res: Response): Promise<void> {
+    public static async getUserAuctionOffersByAuctionId(req: Request, res: Response): Promise<void> {
         try {
-            const { idAuction } = req.params;
+            const { offset, limit } = req.query as OffersAuctionQueryType;
+            const { auid } = req.params;
 
-            const auction = await AuctionService.getUserAuctionWithOffersById(Number(idAuction));
+            const auction = await AuctionService.getUserAuctionOffersByAuctionId(Number(auid), offset!, limit!);
             if(auction === null) {
                 res.status(HttpStatusCodes.NOT_FOUND).send({
                     error: true,
                     statusCode: HttpStatusCodes.BAD_REQUEST,
-                    details: "It was not possible to find the auction with the ID " + idAuction
+                    details: "It was not possible to find the offers with the auction ID " + auid
                 });
             } else {
                 res.status(HttpStatusCodes.OK).json(auction);
@@ -236,7 +237,7 @@ class AuctionController {
 
             if(error instanceof DataContextException) {
                 Logger.error(error.name, error.message);
-                responseDetails.details = "It was not possible to get the information of the auction, please try it again later";
+                responseDetails.details = "It was not possible to get the information of the offers, please try it again later";
             } else {
                 Logger.error(error.name, error.message);
             }
