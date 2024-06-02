@@ -39,4 +39,13 @@ AuctionRouter.post("/:auid/user-blocking",
     AuctionController.blockUserInAnAuction
 );
 
+AuctionRouter.get("/:auid/offers",
+    AccessControl.checkTokenValidity,
+    AccessControl.allowRoles([UserRoles.AUCTIONEER]),
+    checkSchema(AuctionRequestValidator.offersByAuctionIdSchema()), 
+    RequestFormatValidator.validateRequestFormat, 
+    DefaultValuesInjector.setOffersAuctionDefaultParams,
+    AuctionController.getUserAuctionOffersByAuctionId
+);
+
 export default AuctionRouter;

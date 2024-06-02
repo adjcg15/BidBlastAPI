@@ -1,4 +1,4 @@
-import { SearchActionQueryType } from "@ts/controllers";
+import { OffersAuctionQueryType, SearchActionQueryType } from "@ts/controllers";
 import { NextFunction, Request, Response } from "express";
 
 class DefaultValuesInjector {
@@ -46,6 +46,22 @@ class DefaultValuesInjector {
         if(!query.query) {
             query.query = DEFAULT_QUERY_SEARCH;
         }
+
+        if(!query.limit) {
+            query.limit = DEFAULT_LIMIT;
+        }
+
+        if(!query.offset) {
+            query.offset = DEFAULT_OFFSET;
+        }
+
+        next();
+    }
+
+    public static setOffersAuctionDefaultParams(req: Request, res: Response, next: NextFunction) {
+        const DEFAULT_LIMIT = 5;
+        const DEFAULT_OFFSET = 0;
+        const query = req.query as OffersAuctionQueryType;
 
         if(!query.limit) {
             query.limit = DEFAULT_LIMIT;

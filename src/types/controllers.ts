@@ -7,6 +7,12 @@ type SearchActionQueryType = {
     maximumPrice?: number;
 };
 
+type OffersAuctionQueryType = {
+    limit?: number;
+    offset?: number;
+}
+
 export type {
-    SearchActionQueryType
+    SearchActionQueryType,
+    OffersAuctionQueryType
 };
