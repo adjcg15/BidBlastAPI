@@ -5,7 +5,7 @@ import AuctionCategoryService from "services/auction_category_service";
 import { DataContextException } from "@exceptions/services";
 
 class AuctionCategoryController{
-    public static async getAuctionCategory(req: Request, res: Response): Promise<void> {
+    public static async getAuctionCategory(req: Request, res: Response, next: NextFunction): Promise<void> {
         /*
             #swagger.tags = ['Auction categories']
             #swagger.summary = 'Gets a specific auction category by ID'
@@ -35,9 +35,9 @@ class AuctionCategoryController{
         try {
             const { catid } = req.params;
             const idCategory: number = parseInt(catid);
-
+    
             const auctionCategory = await AuctionCategoryService.getAuctionCategoryById(idCategory);
-
+    
             if(auctionCategory == null){
                 res.status(HttpStatusCodes.BAD_REQUEST).json({
                     error: true,
@@ -46,28 +46,14 @@ class AuctionCategoryController{
                 });
                 return;
             }
-
+    
             res.status(HttpStatusCodes.OK).json(auctionCategory);
         } catch (error: any) {
-            let statusCode = HttpStatusCodes.INTERNAL_SERVER_ERROR;
-            const responseDetails = {
-                error: true,
-                statusCode: HttpStatusCodes.INTERNAL_SERVER_ERROR,
-                details: "There was an unexpeted error, please try it again later"
-            };
-
-            if(error instanceof DataContextException) {
-                Logger.error(error.name, error.message);
-                responseDetails.details = "It was not possible to recover category, please try it again later";
-            } else {
-                Logger.error(error.name, error.message);
-            }
-
-            res.status(statusCode).json(responseDetails);
+            next(error);
         }
-    }
+    }    
 
-    public static async registerAuctionCategory(req: Request, res: Response): Promise<void> {
+    public static async registerAuctionCategory(req: Request, res: Response, next: NextFunction): Promise<void> {
         /*
             #swagger.tags = ['Auction categories']
             #swagger.summary = 'Registers a new auction category'
@@ -107,11 +93,11 @@ class AuctionCategoryController{
         */
         try {
             const { title, description, keywords } = req.body;
-
+    
             const errorMessages = {
                 [CreateAuctionCategoryCodes.TITLE_ALREADY_EXISTS]: `Category title already exists`
             };
-
+    
             let createCategoryResult: CreateAuctionCategoryCodes | null = 
                 await AuctionCategoryService.registerAuctionCategory(title, description, keywords);
             if(createCategoryResult !== null){
@@ -120,32 +106,18 @@ class AuctionCategoryController{
                     statusCode: HttpStatusCodes.BAD_REQUEST,
                     details: errorMessages[createCategoryResult]
                 }
-
+    
                 res.status(errorBody.statusCode).json(errorBody);
                 return;
             }
-
+    
             res.status(HttpStatusCodes.CREATED).json();
         } catch (error: any) {
-            let statusCode = HttpStatusCodes.INTERNAL_SERVER_ERROR;
-            const responseDetails = {
-                error: true,
-                statusCode: HttpStatusCodes.INTERNAL_SERVER_ERROR,
-                details: "There was an unexpeted error, please try it again later"
-            };
-
-            if(error instanceof DataContextException) {
-                Logger.error(error.name, error.message);
-                responseDetails.details = "It was not possible to update category, please try it again later";
-            } else {
-                Logger.error(error.name, error.message);
-            }
-
-            res.status(statusCode).json(responseDetails);
+            next(error);
         }
-    }
+    }    
 
-    public static async updateAuctionCategory(req: Request, res: Response): Promise<void> {
+    public static async updateAuctionCategory(req: Request, res: Response, next: NextFunction): Promise<void> {
         /*
             #swagger.tags = ['Auction categories']
             #swagger.summary = 'Updates an existing auction category'
@@ -192,14 +164,14 @@ class AuctionCategoryController{
         try {
             const { catid } = req.params;
             const idCategory: number = parseInt(catid);
-
+    
             const { title, description, keywords } = req.body;
-
+    
             const errorMessages = {
                 [ModifyAuctionCategoryCodes.CATEGORY_NOT_FOUND]: `The auction category with ID ${idCategory} was not found`,
                 [ModifyAuctionCategoryCodes.TITLE_ALREADY_EXISTS]: `Category title already exists`
             };
-
+    
             let modifyCategoryResult: ModifyAuctionCategoryCodes | null = 
                 await AuctionCategoryService.updateAuctionCategory(idCategory, title, description, keywords);
             if(modifyCategoryResult !== null) {
@@ -208,30 +180,16 @@ class AuctionCategoryController{
                     statusCode: HttpStatusCodes.BAD_REQUEST,
                     details: errorMessages[modifyCategoryResult]
                 }
-
+    
                 res.status(errorBody.statusCode).json(errorBody);
                 return;
             }
-
+    
             res.status(HttpStatusCodes.CREATED).send();
         } catch (error: any) {
-            let statusCode = HttpStatusCodes.INTERNAL_SERVER_ERROR;
-            const responseDetails = {
-                error: true,
-                statusCode: HttpStatusCodes.INTERNAL_SERVER_ERROR,
-                details: "There was an unexpeted error, please try it again later"
-            };
-
-            if(error instanceof DataContextException) {
-                Logger.error(error.name, error.message);
-                responseDetails.details = "It was not possible to update category, please try it again later";
-            } else {
-                Logger.error(error.name, error.message);
-            }
-
-            res.status(statusCode).json(responseDetails);
+            next(error);
         }
-    }
+    }    
 
     public static async getAuctionCategoriesList(req: Request, res: Response, next: NextFunction): Promise<void> {
         /*  
