@@ -1,7 +1,8 @@
 import { DataContextException } from "@exceptions/services";
 import { IAuctionCategory } from "@ts/data";
 import AuctionCategory from "@models/AuctionCategory";
-import { UniqueConstraintError } from 'sequelize';
+import { UniqueConstraintError, literal } from 'sequelize';
+import { ModifyAuctionCategoryCodes } from "@ts/enums";
 
 class AuctionCategoryService{
     public static async getAuctionCategoryById(idAuctionCategory: number){
@@ -66,9 +67,35 @@ class AuctionCategoryService{
     }
 
     public static async updateAuctionCategory(idAuctionCategory: number, title: string, description: string, keywords: string){
-        let isUpdated: boolean = false;
+        let resultCode: ModifyAuctionCategoryCodes | null = null;
         
         try {
+            const dbCategory = await AuctionCategory.findByPk(idAuctionCategory, {
+                attributes: {
+                    include: [
+                        [
+                            literal(`(
+                                SELECT IF(COUNT(*) > 0, 1, 0)
+                                FROM auction_categories
+                                WHERE title = "${title}" AND id_auction_category != "${idAuctionCategory}"
+                            )`),
+                            "titleAlreadyExists"
+                        ]
+                    ]
+                }
+            });            
+
+            if (dbCategory === null) {
+                resultCode = ModifyAuctionCategoryCodes.CATEGORY_NOT_FOUND;
+                return resultCode;
+            }
+
+            const { titleAlreadyExists } = dbCategory.toJSON();
+            if (titleAlreadyExists) {
+                resultCode = ModifyAuctionCategoryCodes.TITLE_ALREADY_EXISTS;
+                return resultCode;
+            }
+
             await AuctionCategory.update(
                 {
                     title, description, keywords
@@ -78,22 +105,16 @@ class AuctionCategoryService{
                 }
             });
 
-            isUpdated = true;
         } catch (error: any) {
             const errorCodeMessage = error.code ? `ErrorCode: ${error.code}` : "";
-
-            if (error instanceof UniqueConstraintError) {
-                isUpdated = false;
-            } else {
-                throw new DataContextException(
-                    error.message
-                    ? `${error.message}. ${errorCodeMessage}`
-                    : `It was not possible to update the information of the auction category. ${errorCodeMessage}`
-                );
-            }
+            throw new DataContextException(
+                error.message
+                ? `${error.message}. ${errorCodeMessage}`
+                : `It was not possible to update the information of the auction category. ${errorCodeMessage}`
+            );
         }
 
-        return isUpdated;
+        return resultCode;
     }
 
     public static async getManyAuctionCategories(): Promise<IAuctionCategory[]> {

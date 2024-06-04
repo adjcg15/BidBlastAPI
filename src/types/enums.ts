@@ -90,5 +90,8 @@ export {
     EndpointContexts,
     CreateOfferCodes,
     ApproveAuctionCodes,
-    RejectAuctionCodes
+    RejectAuctionCodes,
+    ModifyAuctionCategoryCodes,
+    CreateCategoryCodes,
+    BlockUserCodes
 };
