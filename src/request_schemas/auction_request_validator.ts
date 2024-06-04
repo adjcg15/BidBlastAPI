@@ -183,14 +183,19 @@ class AuctionRequestValidator {
         return {
             auid: {
                 in: ["params"],
-                isInt: true,
-                errorMessage: "Invalid auction ID"
+                isInt: {
+                    options: { min: 1 },
+                    errorMessage: "Invalid auction ID"
+                },
+                toInt: true
             },
             id_profile: {
                 in: ["body"],
-                notEmpty: true,
-                isInt: true,
-                errorMessage: "Invalid profile id"
+                isInt: {
+                    options: { min: 1 },
+                    errorMessage: "Invalid profile ID"
+                },
+                toInt: true
             }
         }
     }

@@ -1,4 +1,4 @@
-import { HttpStatusCodes, ModifyAuctionCategoryCodes } from "@ts/enums";
+import { CreateAuctionCategoryCodes, HttpStatusCodes, ModifyAuctionCategoryCodes } from "@ts/enums";
 import { NextFunction, Request, Response } from "express";
 import Logger from "@lib/logger";
 import AuctionCategoryService from "services/auction_category_service";
@@ -108,21 +108,23 @@ class AuctionCategoryController{
         try {
             const { title, description, keywords } = req.body;
 
-            const isRegistered = await AuctionCategoryService.registerAuctionCategory(title, description, keywords);
-            if(!isRegistered){
-                res.status(HttpStatusCodes.BAD_REQUEST).json({
+            const errorMessages = {
+                [CreateAuctionCategoryCodes.TITLE_ALREADY_EXISTS]: `Category title already exists`
+            };
+
+            const createCategoryResult = await AuctionCategoryService.registerAuctionCategory(title, description, keywords);
+            if(createCategoryResult !== null){
+                const errorBody = {
                     error: true,
                     statusCode: HttpStatusCodes.BAD_REQUEST,
-                    details: "The title exists in another auction category"
-                });
+                    details: errorMessages[createCategoryResult]
+                }
+
+                res.status(errorBody.statusCode).json(errorBody);
                 return;
             }
 
-            res.status(HttpStatusCodes.OK).json({
-                error: false,
-                statusCode: HttpStatusCodes.OK,
-                details: "Auction category is registered"
-            });
+            res.status(HttpStatusCodes.CREATED).json();
         } catch (error: any) {
             let statusCode = HttpStatusCodes.INTERNAL_SERVER_ERROR;
             const responseDetails = {

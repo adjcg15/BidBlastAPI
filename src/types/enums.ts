@@ -73,7 +73,7 @@ enum ModifyAuctionCategoryCodes {
     TITLE_ALREADY_EXISTS = EndpointContexts.MODIFY_CATEGORY_BY_ID + "-400002", 
 }
 
-enum CreateCategoryCodes {
+enum CreateAuctionCategoryCodes {
     TITLE_ALREADY_EXISTS = EndpointContexts.MODIFY_CATEGORY_BY_ID + "-400001"
 }
 
@@ -92,6 +92,6 @@ export {
     ApproveAuctionCodes,
     RejectAuctionCodes,
     ModifyAuctionCategoryCodes,
-    CreateCategoryCodes,
+    CreateAuctionCategoryCodes,
     BlockUserCodes
 };

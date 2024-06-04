@@ -2,7 +2,7 @@ import { DataContextException } from "@exceptions/services";
 import { IAuctionCategory } from "@ts/data";
 import AuctionCategory from "@models/AuctionCategory";
 import { UniqueConstraintError, literal } from 'sequelize';
-import { ModifyAuctionCategoryCodes } from "@ts/enums";
+import { CreateAuctionCategoryCodes, ModifyAuctionCategoryCodes } from "@ts/enums";
 
 class AuctionCategoryService{
     public static async getAuctionCategoryById(idAuctionCategory: number){
@@ -39,31 +39,36 @@ class AuctionCategoryService{
     }
 
     public static async registerAuctionCategory(title: string, description: string, keywords: string){
-        let isRegistered: boolean = false;
+        let resultCode: CreateAuctionCategoryCodes | null = null;
         
         try {
+            const dbCategory = await AuctionCategory.findOne({
+                where: {
+                    title
+                }
+            }); 
+
+            if (dbCategory !== null) {
+                resultCode = CreateAuctionCategoryCodes.TITLE_ALREADY_EXISTS;
+                return resultCode;
+            }
+
             await AuctionCategory.create(
                 {
                     title, description, keywords
                 }
             );
 
-            isRegistered = true;
         } catch (error: any) {
             const errorCodeMessage = error.code ? `ErrorCode: ${error.code}` : "";
-
-            if (error instanceof UniqueConstraintError) {
-                isRegistered = false;
-            } else {
-                throw new DataContextException(
-                    error.message
-                    ? `${error.message}. ${errorCodeMessage}`
-                    : `It was not possible to register the information of the auction category. ${errorCodeMessage}`
-                );
-            }
+            throw new DataContextException(
+                error.message
+                ? `${error.message}. ${errorCodeMessage}`
+                : `It was not possible to register the information of the auction category. ${errorCodeMessage}`
+            );
         }
 
-        return isRegistered;
+        return resultCode;
     }
 
     public static async updateAuctionCategory(idAuctionCategory: number, title: string, description: string, keywords: string){
