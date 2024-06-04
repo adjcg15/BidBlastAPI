@@ -47,6 +47,11 @@ const doc = {
                     fullName: "Penélope Camacho Castro",
                     avatar: "/9j/4AAQSkZJRgABAQAAAQABAAD/2wCEAAwMDQsNCxAODBANEA4QExYRDRASGR..."
                 },
+                lastOffer: {
+                    id: 23,
+                    amount: 134.5,
+                    creationDate: "2024-06-4T18:59:15.000Z"
+                },
                 mediaFiles: [
                     { $ref: "#/definitions/MediaFile" }
                 ]
