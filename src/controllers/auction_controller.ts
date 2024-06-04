@@ -310,7 +310,7 @@ class AuctionController {
         }
     }
 
-    public static async searchCreatedAuction(req: Request, res: Response) {
+    public static async searchCreatedAuction(req: Request, res: Response, next: NextFunction) {
         try {
             const { query, limit, offset } = req.query as SearchActionQueryType;
             const idProfile = req.user.id;
@@ -319,21 +319,7 @@ class AuctionController {
 
             res.status(HttpStatusCodes.OK).json(response);
         } catch(error: any) {
-            let statusCode = HttpStatusCodes.INTERNAL_SERVER_ERROR;
-            const responseDetails = {
-                error: true,
-                statusCode: HttpStatusCodes.INTERNAL_SERVER_ERROR,
-                details: "There was an unexpeted error, please try it again later"
-            };
-
-            if(error instanceof DataContextException) {
-                Logger.error(error.name, error.message);
-                responseDetails.details = "It was not possible to recover the created auctions, please try it again later";
-            } else {
-                Logger.error(error.name, error.message);
-            }
-
-            res.status(statusCode).json(responseDetails);
+            next(error);
         }
     }
 
