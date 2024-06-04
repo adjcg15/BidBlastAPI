@@ -146,7 +146,7 @@ class AuctionController {
         }
     }
 
-    public static async createAuction(req: Request, res: Response): Promise<void> {
+    public static async createAuction(req: Request, res: Response, next: NextFunction): Promise<void> {
         /*
             #swagger.tags = ['Auctions']
             #swagger.summary = 'Creates a new auction'
@@ -226,7 +226,7 @@ class AuctionController {
         };
         const mediaFiles = req.body.mediaFiles;
         const userProfileId: number = req.user.id;
-
+    
         if (!auctionData || !mediaFiles) {
             res.status(HttpStatusCodes.BAD_REQUEST).json({
                 error: true,
@@ -234,23 +234,17 @@ class AuctionController {
             });
             return;
         }
-
+    
         console.log("Received auction data:", auctionData);
         console.log("Received media files:", mediaFiles);
-
+    
         try {
             const auction = await AuctionService.createAuction(auctionData, mediaFiles, userProfileId);
             res.status(HttpStatusCodes.CREATED).json({ message: "Auction created successfully", auction });
         } catch (error: any) {
-            console.error("Error type:", error.constructor.name);
-            console.error("Error message:", error.message);
-
-            res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).json({
-                error: true,
-                message: "There was an unexpected error, please try again later"
-            });
+            next(error);
         }
-    }
+    }    
     public static async searchCompletedAuction(req: Request, res: Response, next: NextFunction) {
         /*
             #swagger.auto = false
