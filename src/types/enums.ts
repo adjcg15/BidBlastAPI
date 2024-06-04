@@ -68,6 +68,21 @@ enum RejectAuctionCodes {
     DB_MALFORMED = EndpointContexts.REJECT_AUCTION + "-500001"
 }
 
+enum ModifyAuctionCategoryCodes {
+    CATEGORY_NOT_FOUND = EndpointContexts.MODIFY_CATEGORY_BY_ID + "-400001",
+    TITLE_ALREADY_EXISTS = EndpointContexts.MODIFY_CATEGORY_BY_ID + "-400002", 
+}
+
+enum CreateCategoryCodes {
+    TITLE_ALREADY_EXISTS = EndpointContexts.MODIFY_CATEGORY_BY_ID + "-400001"
+}
+
+enum BlockUserCodes {
+    AUCTION_NOT_FOUND = EndpointContexts.CREATE_BLOCK_USER + "-400001",
+    USER_NOT_FOUND = EndpointContexts.CREATE_BLOCK_USER + "-400002",
+    USER_ALREADY_BLOCKED = EndpointContexts.CREATE_BLOCK_USER + "-400003"
+}
+
 export {
     HttpStatusCodes,
     UserRoles,
