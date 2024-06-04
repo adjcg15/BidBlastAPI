@@ -370,6 +370,52 @@ class AuctionController {
     }
 
     public static async getUserAuctionOffersByAuctionId(req: Request, res: Response, next: NextFunction): Promise<void> {
+        /*  
+            #swagger.auto = false
+
+            #swagger.path = '/api/auctions/:auid/offers'
+            #swagger.method = 'get'
+            #swagger.produces = ['application/json']
+            #swagger.consumes = ['application/json']
+            #swagger.tags = ['Auctions']
+            #swagger.summary = 'Recovers all offers for an auction'
+            #swagger.parameters['auid'] = {
+                in: 'path',
+                description: 'Id of the auction',
+                required: true,
+                type: 'integer',
+                example: '10'
+            }
+            #swagger.parameters['limit'] = {
+                in: 'query',
+                description: 'Limit of offers to recover',
+                required: false,
+                type: 'integer',
+                example: '10'
+            }
+            #swagger.parameters['offset'] = {
+                in: 'query',
+                description: 'Number of offers to skip',
+                required: false,
+                type: 'integer',
+                example: '15'
+            }
+            #swagger.security = [{
+                BearerAuth: []
+            }]
+            #swagger.responses[200] = {
+                description: 'Auction offers',
+                schema: { $ref: '#/definitions/AuctionOffersList' }
+            }
+            #swagger.responses[400] = {
+                description: 'Parameters values validation error',
+                schema: { $ref: "#/definitions/ValidationError" }
+            }
+            #swagger.responses[500] = {
+                description: 'Server error',
+                schema: { $ref: '#/definitions/ServerError' }
+            }
+        */
         try {
             const { offset, limit } = req.query as OffersAuctionQueryType;
             const { auid } = req.params;

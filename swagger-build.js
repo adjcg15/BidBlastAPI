@@ -158,6 +158,18 @@ const doc = {
                 }
             }
         ],
+        AuctionOffersList: [
+            {
+                id: 23,
+                amount: 134.5,
+                creationDate: "2024-06-4T18:59:15.000Z",
+                customer: {
+                    id: 77,
+                    fullName: "Juan De la rosa Torres",
+                    avatar: "/9j/4AAQSkZJRgABAQAAAQABAAD/2wCEAAwMDQsNCxAODBANEA4QExYRDRASGR..."
+                }
+            }
+        ],
         AuctionCategory: {
             id: 126,
             title: "Videojuegos",
