@@ -369,7 +369,7 @@ class AuctionController {
         }
     }
 
-    public static async getUserAuctionOffersByAuctionId(req: Request, res: Response): Promise<void> {
+    public static async getUserAuctionOffersByAuctionId(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
             const { offset, limit } = req.query as OffersAuctionQueryType;
             const { auid } = req.params;
@@ -385,21 +385,7 @@ class AuctionController {
                 res.status(HttpStatusCodes.OK).json(auction);
             }
         } catch(error: any) {
-            let statusCode = HttpStatusCodes.INTERNAL_SERVER_ERROR;
-            const responseDetails = {
-                error: true,
-                statusCode: HttpStatusCodes.INTERNAL_SERVER_ERROR,
-                details: "There was an unexpeted error, please try it again later"
-            };
-
-            if(error instanceof DataContextException) {
-                Logger.error(error.name, error.message);
-                responseDetails.details = "It was not possible to get the information of the offers, please try it again later";
-            } else {
-                Logger.error(error.name, error.message);
-            }
-
-            res.status(statusCode).json(responseDetails);
+            next(error);
         }
     }
 
