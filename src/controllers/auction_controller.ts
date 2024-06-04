@@ -124,7 +124,7 @@ class AuctionController {
             }]
             #swagger.responses[200] = {
                 description: 'List of auctions',
-                schema: { $ref: '#/definitions/AuctionInSalesList' }
+                schema: { $ref: '#/definitions/AuctionSalesList' }
             }
             #swagger.responses[400] = {
                 description: 'Query values validation error',

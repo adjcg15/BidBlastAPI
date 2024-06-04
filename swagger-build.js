@@ -88,20 +88,22 @@ const doc = {
                 { $ref: "#/definitions/CompleteMediaFile" }
             ]
         },
-        AuctionInSalesList: {
-            id: 160,
-            title: "Fortnite Marvel: Iron Man Zero War Rare Bundle Skin Outfit",
-            category: {
-                id: 25,
-                title: "Videojuegos"
-            },
-            lastOffer: {
-                id: 23,
-                amount: 134.5,
-                creationDate: "2024-06-4T18:59:15.000Z"
-            },
-            updatedDate: "2024-06-09T11:12:07.000Z"
-        },
+        AuctionSalesList: [
+            {
+                id: 160,
+                title: "Fortnite Marvel: Iron Man Zero War Rare Bundle Skin Outfit",
+                category: {
+                    id: 25,
+                    title: "Videojuegos"
+                },
+                lastOffer: {
+                    id: 23,
+                    amount: 134.5,
+                    creationDate: "2024-06-4T18:59:15.000Z"
+                },
+                updatedDate: "2024-06-09T11:12:07.000Z"
+            }
+        ],
         AuctionCategory: {
             id: 126,
             title: "Videojuegos",
