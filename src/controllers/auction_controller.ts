@@ -96,6 +96,45 @@ class AuctionController {
     }
 
     public static async getUserSalesAuctionsList(req: Request, res: Response): Promise<void> {
+        /*
+            #swagger.auto = false
+
+            #swagger.path = '/api/users/sold-auctions'
+            #swagger.method = 'get'
+            #swagger.produces = ['application/json']
+            #swagger.consumes = ['application/json']
+            #swagger.tags = ['Users']
+            #swagger.summary = 'Recovers all sold auctions by an auctioneer'
+            #swagger.parameters['startDate'] = {
+                in: 'query',
+                description: 'Date filter that indicates when to filter the results in YYYY-MM-DD format',
+                required: false,
+                type: 'string',
+                example: '2024-06-03'
+            }
+            #swagger.parameters['endDate'] = {
+                in: 'query',
+                description: 'Date filter that indicates until when to filter the results in YYYY-MM-DD format',
+                required: false,
+                type: 'string',
+                example: '2024-06-05'
+            }
+            #swagger.security = [{
+                BearerAuth: []
+            }]
+            #swagger.responses[200] = {
+                description: 'List of auctions',
+                schema: { $ref: '#/definitions/AuctionInSalesList' }
+            }
+            #swagger.responses[400] = {
+                description: 'Query values validation error',
+                schema: { $ref: "#/definitions/ValidationError" }
+            }
+            #swagger.responses[500] = {
+                description: 'Server error',
+                schema: { $ref: '#/definitions/ServerError' }
+            }
+        */
         try {
             const { startDate, endDate } = req.query as { startDate?: string, endDate?: string };
             const idProfile = req.user.id;
@@ -120,6 +159,7 @@ class AuctionController {
             res.status(statusCode).json(responseDetails);
         }
     }
+    
     public static async createAuction(req: Request, res: Response): Promise<void> {
         /*
             #swagger.tags = ['Auctions']

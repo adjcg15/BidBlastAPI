@@ -5,7 +5,6 @@ import UserRequestValidator from "@request_schemas/user_request_validator";
 import RequestFormatValidator from "@middlewares/request_format_validator";
 import DefaultValuesInjector from "@middlewares/default_values_injector";
 import AuctionController from "@controllers/auction_controller";
-import UserController from "@controllers/user_controller";
 import { UserRoles } from "@ts/enums";
 
 const UserRouter = Router();
