@@ -37,7 +37,7 @@ AuctionRouter.post("/:auid/user-blocking",
     AccessControl.allowRoles([UserRoles.AUCTIONEER]),
     checkSchema(AuctionRequestValidator.userOnBlackListSchema()), 
     RequestFormatValidator.validateRequestFormat, 
-    AuctionController.blockUserInAnAuction
+    AuctionController.blockUserInAnAuctionAndDeleteHisOffers
 );
 
 AuctionRouter.get("/:auid/offers",

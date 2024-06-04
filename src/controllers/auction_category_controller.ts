@@ -112,7 +112,8 @@ class AuctionCategoryController{
                 [CreateAuctionCategoryCodes.TITLE_ALREADY_EXISTS]: `Category title already exists`
             };
 
-            const createCategoryResult = await AuctionCategoryService.registerAuctionCategory(title, description, keywords);
+            let createCategoryResult: CreateAuctionCategoryCodes | null = 
+                await AuctionCategoryService.registerAuctionCategory(title, description, keywords);
             if(createCategoryResult !== null){
                 const errorBody = {
                     error: true,
@@ -201,18 +202,18 @@ class AuctionCategoryController{
 
             let modifyCategoryResult: ModifyAuctionCategoryCodes | null = 
                 await AuctionCategoryService.updateAuctionCategory(idCategory, title, description, keywords);
-                if(modifyCategoryResult !== null) {
-                    const errorBody = {
-                        error: true,
-                        statusCode: HttpStatusCodes.BAD_REQUEST,
-                        details: errorMessages[modifyCategoryResult]
-                    }
-    
-                    res.status(errorBody.statusCode).json(errorBody);
-                    return;
+            if(modifyCategoryResult !== null) {
+                const errorBody = {
+                    error: true,
+                    statusCode: HttpStatusCodes.BAD_REQUEST,
+                    details: errorMessages[modifyCategoryResult]
                 }
 
-                res.status(HttpStatusCodes.CREATED).send();
+                res.status(errorBody.statusCode).json(errorBody);
+                return;
+            }
+
+            res.status(HttpStatusCodes.CREATED).send();
         } catch (error: any) {
             let statusCode = HttpStatusCodes.INTERNAL_SERVER_ERROR;
             const responseDetails = {

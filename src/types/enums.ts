@@ -80,7 +80,8 @@ enum CreateAuctionCategoryCodes {
 enum BlockUserCodes {
     AUCTION_NOT_FOUND = EndpointContexts.CREATE_BLOCK_USER + "-400001",
     USER_NOT_FOUND = EndpointContexts.CREATE_BLOCK_USER + "-400002",
-    USER_ALREADY_BLOCKED = EndpointContexts.CREATE_BLOCK_USER + "-400003"
+    USER_ALREADY_BLOCKED = EndpointContexts.CREATE_BLOCK_USER + "-400003",
+    USER_BID_ON_AUCTION_NOT_FOUND = EndpointContexts.CREATE_BLOCK_USER + "-400004"
 }
 
 export {

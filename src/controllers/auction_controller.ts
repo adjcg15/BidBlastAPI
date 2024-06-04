@@ -1,7 +1,7 @@
 import { DataContextException } from "@exceptions/services";
 import Logger from "@lib/logger";
 import { OffersAuctionQueryType, SearchActionQueryType } from "@ts/controllers";
-import { HttpStatusCodes } from "@ts/enums";
+import { BlockUserCodes, HttpStatusCodes } from "@ts/enums";
 import { NextFunction, Request, Response } from "express";
 import AuctionService from "services/auction_service";
 
@@ -362,35 +362,35 @@ class AuctionController {
         }
     }
 
-    public static async blockUserInAnAuction(req: Request, res: Response): Promise<void> {
+    public static async blockUserInAnAuctionAndDeleteHisOffers(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
             const { auid } = req.params;
             const id_auction = parseInt(auid);
             const { id_profile } = req.body;
 
-            await AuctionService.blockUserInAnAuction(id_profile, id_auction);
-
-            res.status(HttpStatusCodes.OK).json({
-                error: false,
-                statusCode: HttpStatusCodes.OK,
-                details: "User was blocked for the auction"
-            });
-        } catch (error: any) {
-            let statusCode = HttpStatusCodes.INTERNAL_SERVER_ERROR;
-            const responseDetails = {
-                error: true,
-                statusCode: HttpStatusCodes.INTERNAL_SERVER_ERROR,
-                details: "There was an unexpeted error, please try it again later"
+            const errorMessages = {
+                [BlockUserCodes.AUCTION_NOT_FOUND]: `The auction  with ID ${id_auction} was not found`,
+                [BlockUserCodes.USER_NOT_FOUND]: `The profile with ID ${id_profile} was not found`,
+                [BlockUserCodes.USER_BID_ON_AUCTION_NOT_FOUND]: `The profile with ID ${id_profile} was not found bidding at the auction`,
+                [BlockUserCodes.USER_ALREADY_BLOCKED]: `The profile with ID ${id_profile} has already been blocked`
             };
 
-            if(error instanceof DataContextException) {
-                Logger.error(error.name, error.message);
-                responseDetails.details = "It was not possible to block user, please try it again later";
-            } else {
-                Logger.error(error.name, error.message);
+            let blockUserResult: BlockUserCodes | null = 
+                await AuctionService.blockUserInAnAuctionAndDeleteHisOffers(id_profile, id_auction);
+            if(blockUserResult !== null){
+                const errorBody = {
+                    error: true,
+                    statusCode: HttpStatusCodes.BAD_REQUEST,
+                    details: errorMessages[blockUserResult]
+                }
+
+                res.status(errorBody.statusCode).json(errorBody);
+                return;
             }
 
-            res.status(statusCode).json(responseDetails);
+            res.status(HttpStatusCodes.CREATED).json();
+        } catch (error: any) {
+            next(error);
         }
     }
 }

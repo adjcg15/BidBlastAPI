@@ -1,4 +1,4 @@
-import { Model, Op, literal } from "sequelize";
+import { Model, Op, literal, where } from "sequelize";
 import { DataContextException } from "@exceptions/services";
 import ImageConverter from "@lib/image_converter";
 import Auction from "@models/Auction";
@@ -6,7 +6,7 @@ import HypermediaFile from "@models/HypermediaFile";
 import Offer from "@models/Offer";
 import Profile from "@models/Profile";
 import { IAuctionData, IHypermediaFileData, IOfferData } from "@ts/data";
-import { ApproveAuctionCodes, AuctionStatus, RejectAuctionCodes, UserRoles } from "@ts/enums";
+import { ApproveAuctionCodes, AuctionStatus, BlockUserCodes, RejectAuctionCodes, UserRoles } from "@ts/enums";
 import AuctionCategory from "@models/AuctionCategory";
 import AuctionStatesApplications from "@models/AuctionsStatesApplications";
 import { GetManyAuctionsConfigParamType } from "@ts/services";
@@ -805,14 +805,54 @@ class AuctionService {
         return auction;
     }
 
-    public static async blockUserInAnAuction(id_profile: number, id_auction: number){
+    public static async blockUserInAnAuctionAndDeleteHisOffers(id_profile: number, id_auction: number){
+        let resultCode: BlockUserCodes | null = null;
+
         try {
+            const dbAuction = await Auction.findByPk(id_auction);
+            if (dbAuction === null) {
+                resultCode = BlockUserCodes.AUCTION_NOT_FOUND;
+                return resultCode;
+            }
+
+            const dbProfile = await Profile.findByPk(id_profile);
+            if (dbProfile === null) {
+                resultCode = BlockUserCodes.USER_NOT_FOUND;
+                return resultCode;
+            }
+
+            const dbBlackList = await BlackLists.findOne({
+                where: {
+                    id_profile, id_auction
+                }
+            });
+            if (dbBlackList !==  null) {
+                resultCode = BlockUserCodes.USER_ALREADY_BLOCKED;
+                return resultCode;
+            }
+
+            const dbOffer = await Offer.findOne({
+                where: {
+                    id_profile
+                }
+            });
+            if (dbOffer === null) {
+                resultCode = BlockUserCodes.USER_BID_ON_AUCTION_NOT_FOUND;
+                return resultCode;
+            }
+
             const creation_date = CurrentDateService.getCurrentDateTime();
             await BlackLists.create(
                 {
                     creation_date, id_profile, id_auction
                 }
             );
+            
+            await Offer.destroy({
+                where: {
+                    id_profile, id_auction
+                }
+            });
         } catch (error: any) {
             const errorCodeMessage = error.code ? `ErrorCode: ${error.code}` : "";
             throw new DataContextException(
@@ -821,6 +861,8 @@ class AuctionService {
                 : `It was not possible to recover the auction by its ID. ${errorCodeMessage}`
             );
         }
+
+        return resultCode;
     }
 
     public static async getExpiredAuctions(): Promise<IAuctionData[]> {
