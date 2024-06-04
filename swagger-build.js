@@ -83,10 +83,7 @@ const doc = {
             description: "Código totalmente legal. No lo utilicé porque ya no juego.",
             basePrice: 15000,
             minimumBid: 200,
-            itemCondition: {
-                id: 1,
-                name: "Nuevo"
-            },
+            itemCondition: "Nuevo",
             mediaFiles: [
                 { $ref: "#/definitions/CompleteMediaFile" }
             ]
