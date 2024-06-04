@@ -95,7 +95,46 @@ class AuctionController {
         }
     }
 
-    public static async getUserSalesAuctionsList(req: Request, res: Response): Promise<void> {
+    public static async getUserSalesAuctionsList(req: Request, res: Response, next: NextFunction): Promise<void> {
+        /*
+            #swagger.auto = false
+
+            #swagger.path = '/api/users/sold-auctions'
+            #swagger.method = 'get'
+            #swagger.produces = ['application/json']
+            #swagger.consumes = ['application/json']
+            #swagger.tags = ['Users']
+            #swagger.summary = 'Recovers all sold auctions by an auctioneer'
+            #swagger.parameters['startDate'] = {
+                in: 'query',
+                description: 'Date filter that indicates when to filter the results in YYYY-MM-DD format',
+                required: false,
+                type: 'string',
+                example: '2024-06-03'
+            }
+            #swagger.parameters['endDate'] = {
+                in: 'query',
+                description: 'Date filter that indicates until when to filter the results in YYYY-MM-DD format',
+                required: false,
+                type: 'string',
+                example: '2024-06-05'
+            }
+            #swagger.security = [{
+                BearerAuth: []
+            }]
+            #swagger.responses[200] = {
+                description: 'List of auctions',
+                schema: { $ref: '#/definitions/AuctionSalesList' }
+            }
+            #swagger.responses[400] = {
+                description: 'Query values validation error',
+                schema: { $ref: "#/definitions/ValidationError" }
+            }
+            #swagger.responses[500] = {
+                description: 'Server error',
+                schema: { $ref: '#/definitions/ServerError' }
+            }
+        */
         try {
             const { startDate, endDate } = req.query as { startDate?: string, endDate?: string };
             const idProfile = req.user.id;
@@ -103,23 +142,10 @@ class AuctionController {
 
             res.status(HttpStatusCodes.OK).json(response);
         } catch (error: any) {
-            let statusCode = HttpStatusCodes.INTERNAL_SERVER_ERROR;
-            const responseDetails = {
-                error: true,
-                statusCode: HttpStatusCodes.INTERNAL_SERVER_ERROR,
-                details: "There was an unexpeted error, please try it again later"
-            };
-
-            if(error instanceof DataContextException) {
-                Logger.error(error.name, error.message);
-                responseDetails.details = "It was not possible to recover sales auctions, please try it again later";
-            } else {
-                Logger.error(error.name, error.message);
-            }
-
-            res.status(statusCode).json(responseDetails);
+            next(error);
         }
     }
+
     public static async createAuction(req: Request, res: Response): Promise<void> {
         /*
             #swagger.tags = ['Auctions']
@@ -225,7 +251,53 @@ class AuctionController {
             });
         }
     }
-    public static async searchCompletedAuction(req: Request, res: Response) {
+    public static async searchCompletedAuction(req: Request, res: Response, next: NextFunction) {
+        /*
+            #swagger.auto = false
+
+            #swagger.path = '/api/users/completed-auctions'
+            #swagger.method = 'get'
+            #swagger.produces = ['application/json']
+            #swagger.consumes = ['application/json']
+            #swagger.tags = ['Users']
+            #swagger.summary = 'Recovers all completed auctions for a customer'
+            #swagger.parameters['limit'] = {
+                in: 'query',
+                description: 'Limit of auctions to recover',
+                required: false,
+                type: 'integer',
+                example: '10'
+            }
+            #swagger.parameters['offset'] = {
+                in: 'query',
+                description: 'Number of actions to skip',
+                required: false,
+                type: 'integer',
+                example: '15'
+            }
+            #swagger.parameters['query'] = {
+                in: 'query',
+                description: 'Search query to match auction title or description',
+                required: false,
+                type: 'string',
+                example: 'car'
+            }
+            #swagger.security = [{
+                BearerAuth: []
+            }]
+            #swagger.responses[200] = {
+                description: 'List of auctions',
+                schema: { $ref: '#/definitions/CompletedAuctionsList' }
+            }
+            #swagger.responses[400] = {
+                description: 'Query values validation error',
+                schema: { $ref: "#/definitions/ValidationError" }
+            }
+            #swagger.responses[500] = {
+                description: 'Server error',
+                schema: { $ref: '#/definitions/ServerError' }
+            }
+        */
         try {
             const { query, limit, offset } = req.query as SearchActionQueryType;
             const idProfile = req.user.id;
@@ -234,25 +306,57 @@ class AuctionController {
 
             res.status(HttpStatusCodes.OK).json(response);
         } catch(error: any) {
-            let statusCode = HttpStatusCodes.INTERNAL_SERVER_ERROR;
-            const responseDetails = {
-                error: true,
-                statusCode: HttpStatusCodes.INTERNAL_SERVER_ERROR,
-                details: "There was an unexpeted error, please try it again later"
-            };
-
-            if(error instanceof DataContextException) {
-                Logger.error(error.name, error.message);
-                responseDetails.details = "It was not possible to recover the completed auctions, please try it again later";
-            } else {
-                Logger.error(error.name, error.message);
-            }
-
-            res.status(statusCode).json(responseDetails);
+            next(error);
         }
     }
 
-    public static async searchCreatedAuction(req: Request, res: Response) {
+    public static async searchCreatedAuction(req: Request, res: Response, next: NextFunction) {
+        /*
+            #swagger.auto = false
+
+            #swagger.path = '/api/users/auctions'
+            #swagger.method = 'get'
+            #swagger.produces = ['application/json']
+            #swagger.consumes = ['application/json']
+            #swagger.tags = ['Users']
+            #swagger.summary = 'Recovers all created auctions for an auctioneer'
+            #swagger.parameters['limit'] = {
+                in: 'query',
+                description: 'Limit of auctions to recover',
+                required: false,
+                type: 'integer',
+                example: '10'
+            }
+            #swagger.parameters['offset'] = {
+                in: 'query',
+                description: 'Number of actions to skip',
+                required: false,
+                type: 'integer',
+                example: '15'
+            }
+            #swagger.parameters['query'] = {
+                in: 'query',
+                description: 'Search query to match auction title or description',
+                required: false,
+                type: 'string',
+                example: 'car'
+            }
+            #swagger.security = [{
+                BearerAuth: []
+            }]
+            #swagger.responses[200] = {
+                description: 'List of auctions',
+                schema: { $ref: '#/definitions/CreatedAuctionsList' }
+            }
+            #swagger.responses[400] = {
+                description: 'Query values validation error',
+                schema: { $ref: "#/definitions/ValidationError" }
+            }
+            #swagger.responses[500] = {
+                description: 'Server error',
+                schema: { $ref: '#/definitions/ServerError' }
+            }
+        */
         try {
             const { query, limit, offset } = req.query as SearchActionQueryType;
             const idProfile = req.user.id;
@@ -261,25 +365,57 @@ class AuctionController {
 
             res.status(HttpStatusCodes.OK).json(response);
         } catch(error: any) {
-            let statusCode = HttpStatusCodes.INTERNAL_SERVER_ERROR;
-            const responseDetails = {
-                error: true,
-                statusCode: HttpStatusCodes.INTERNAL_SERVER_ERROR,
-                details: "There was an unexpeted error, please try it again later"
-            };
-
-            if(error instanceof DataContextException) {
-                Logger.error(error.name, error.message);
-                responseDetails.details = "It was not possible to recover the created auctions, please try it again later";
-            } else {
-                Logger.error(error.name, error.message);
-            }
-
-            res.status(statusCode).json(responseDetails);
+            next(error);
         }
     }
 
-    public static async getUserAuctionOffersByAuctionId(req: Request, res: Response): Promise<void> {
+    public static async getUserAuctionOffersByAuctionId(req: Request, res: Response, next: NextFunction): Promise<void> {
+        /*  
+            #swagger.auto = false
+
+            #swagger.path = '/api/auctions/:auid/offers'
+            #swagger.method = 'get'
+            #swagger.produces = ['application/json']
+            #swagger.consumes = ['application/json']
+            #swagger.tags = ['Auctions']
+            #swagger.summary = 'Recovers all offers for an auction'
+            #swagger.parameters['auid'] = {
+                in: 'path',
+                description: 'Id of the auction',
+                required: true,
+                type: 'integer',
+                example: '10'
+            }
+            #swagger.parameters['limit'] = {
+                in: 'query',
+                description: 'Limit of offers to recover',
+                required: false,
+                type: 'integer',
+                example: '10'
+            }
+            #swagger.parameters['offset'] = {
+                in: 'query',
+                description: 'Number of offers to skip',
+                required: false,
+                type: 'integer',
+                example: '15'
+            }
+            #swagger.security = [{
+                BearerAuth: []
+            }]
+            #swagger.responses[200] = {
+                description: 'Auction offers',
+                schema: { $ref: '#/definitions/AuctionOffersList' }
+            }
+            #swagger.responses[400] = {
+                description: 'Parameters values validation error',
+                schema: { $ref: "#/definitions/ValidationError" }
+            }
+            #swagger.responses[500] = {
+                description: 'Server error',
+                schema: { $ref: '#/definitions/ServerError' }
+            }
+        */
         try {
             const { offset, limit } = req.query as OffersAuctionQueryType;
             const { auid } = req.params;
@@ -295,21 +431,7 @@ class AuctionController {
                 res.status(HttpStatusCodes.OK).json(auction);
             }
         } catch(error: any) {
-            let statusCode = HttpStatusCodes.INTERNAL_SERVER_ERROR;
-            const responseDetails = {
-                error: true,
-                statusCode: HttpStatusCodes.INTERNAL_SERVER_ERROR,
-                details: "There was an unexpeted error, please try it again later"
-            };
-
-            if(error instanceof DataContextException) {
-                Logger.error(error.name, error.message);
-                responseDetails.details = "It was not possible to get the information of the offers, please try it again later";
-            } else {
-                Logger.error(error.name, error.message);
-            }
-
-            res.status(statusCode).json(responseDetails);
+            next(error);
         }
     }
 
