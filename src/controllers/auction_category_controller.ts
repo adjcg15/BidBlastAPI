@@ -1,4 +1,4 @@
-import { HttpStatusCodes } from "@ts/enums";
+import { CreateAuctionCategoryCodes, HttpStatusCodes, ModifyAuctionCategoryCodes } from "@ts/enums";
 import { NextFunction, Request, Response } from "express";
 import Logger from "@lib/logger";
 import AuctionCategoryService from "services/auction_category_service";
@@ -108,21 +108,23 @@ class AuctionCategoryController{
         try {
             const { title, description, keywords } = req.body;
 
-            const isRegistered = await AuctionCategoryService.registerAuctionCategory(title, description, keywords);
-            if(!isRegistered){
-                res.status(HttpStatusCodes.BAD_REQUEST).json({
+            const errorMessages = {
+                [CreateAuctionCategoryCodes.TITLE_ALREADY_EXISTS]: `Category title already exists`
+            };
+
+            const createCategoryResult = await AuctionCategoryService.registerAuctionCategory(title, description, keywords);
+            if(createCategoryResult !== null){
+                const errorBody = {
                     error: true,
                     statusCode: HttpStatusCodes.BAD_REQUEST,
-                    details: "The title exists in another auction category"
-                });
+                    details: errorMessages[createCategoryResult]
+                }
+
+                res.status(errorBody.statusCode).json(errorBody);
                 return;
             }
 
-            res.status(HttpStatusCodes.OK).json({
-                error: false,
-                statusCode: HttpStatusCodes.OK,
-                details: "Auction category is registered"
-            });
+            res.status(HttpStatusCodes.CREATED).json();
         } catch (error: any) {
             let statusCode = HttpStatusCodes.INTERNAL_SERVER_ERROR;
             const responseDetails = {
@@ -192,21 +194,25 @@ class AuctionCategoryController{
 
             const { title, description, keywords } = req.body;
 
-            const isUpdated = await AuctionCategoryService.updateAuctionCategory(idCategory, title, description, keywords);
-            if(!isUpdated){
-                res.status(HttpStatusCodes.BAD_REQUEST).json({
-                    error: true,
-                    statusCode: HttpStatusCodes.BAD_REQUEST,
-                    details: "verify that the id exists and the title is unique"
-                });
-                return;
-            }
+            const errorMessages = {
+                [ModifyAuctionCategoryCodes.CATEGORY_NOT_FOUND]: `The auction category with ID ${idCategory} was not found`,
+                [ModifyAuctionCategoryCodes.TITLE_ALREADY_EXISTS]: `Category title already exists`
+            };
 
-            res.status(HttpStatusCodes.OK).json({
-                error: false,
-                statusCode: HttpStatusCodes.OK,
-                details: "Auction category is updated"
-            });
+            let modifyCategoryResult: ModifyAuctionCategoryCodes | null = 
+                await AuctionCategoryService.updateAuctionCategory(idCategory, title, description, keywords);
+                if(modifyCategoryResult !== null) {
+                    const errorBody = {
+                        error: true,
+                        statusCode: HttpStatusCodes.BAD_REQUEST,
+                        details: errorMessages[modifyCategoryResult]
+                    }
+    
+                    res.status(errorBody.statusCode).json(errorBody);
+                    return;
+                }
+
+                res.status(HttpStatusCodes.CREATED).send();
         } catch (error: any) {
             let statusCode = HttpStatusCodes.INTERNAL_SERVER_ERROR;
             const responseDetails = {

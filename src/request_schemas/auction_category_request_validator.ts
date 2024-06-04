@@ -5,8 +5,11 @@ class AuctionCategoriesRequestValidator {
         return {
             catid: {
                 in: ["params"],
-                isInt: true,
-                errorMessage: "Invalid category id"
+                isInt: {
+                    options: { min: 1 },
+                    errorMessage: "Invalid category ID"
+                },
+                toInt: true
             },
         };
     }
@@ -15,8 +18,11 @@ class AuctionCategoriesRequestValidator {
         return {
             catid: {
                 in: ["params"],
-                isInt: true,
-                errorMessage: "Invalid category id"
+                isInt: {
+                    options: { min: 1 },
+                    errorMessage: "Invalid category ID"
+                },
+                toInt: true
             },
             title: {
                 in: ["body"],
