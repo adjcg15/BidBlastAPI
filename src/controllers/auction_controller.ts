@@ -311,6 +311,52 @@ class AuctionController {
     }
 
     public static async searchCreatedAuction(req: Request, res: Response, next: NextFunction) {
+        /*
+            #swagger.auto = false
+
+            #swagger.path = '/api/users/auctions'
+            #swagger.method = 'get'
+            #swagger.produces = ['application/json']
+            #swagger.consumes = ['application/json']
+            #swagger.tags = ['Users']
+            #swagger.summary = 'Recovers all created auctions for an auctioneer'
+            #swagger.parameters['limit'] = {
+                in: 'query',
+                description: 'Limit of auctions to recover',
+                required: false,
+                type: 'integer',
+                example: '10'
+            }
+            #swagger.parameters['offset'] = {
+                in: 'query',
+                description: 'Number of actions to skip',
+                required: false,
+                type: 'integer',
+                example: '15'
+            }
+            #swagger.parameters['query'] = {
+                in: 'query',
+                description: 'Search query to match auction title or description',
+                required: false,
+                type: 'string',
+                example: 'car'
+            }
+            #swagger.security = [{
+                BearerAuth: []
+            }]
+            #swagger.responses[200] = {
+                description: 'List of auctions',
+                schema: { $ref: '#/definitions/CreatedAuctionsList' }
+            }
+            #swagger.responses[400] = {
+                description: 'Query values validation error',
+                schema: { $ref: "#/definitions/ValidationError" }
+            }
+            #swagger.responses[500] = {
+                description: 'Server error',
+                schema: { $ref: '#/definitions/ServerError' }
+            }
+        */
         try {
             const { query, limit, offset } = req.query as SearchActionQueryType;
             const idProfile = req.user.id;

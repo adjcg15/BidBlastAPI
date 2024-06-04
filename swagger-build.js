@@ -126,6 +126,38 @@ const doc = {
                 updatedDate: "2024-06-4T18:59:15.000Z"
             }
         ],
+        CreatedAuctionsList: [
+            {
+                id: 1,
+                title: "MIKEL'S Soporte para Motor 500 kg",
+                closesAt: "2024-06-11T13:55:08.000Z",
+                minimumBid: 50,
+                basePrice: 550,
+                daysAvailable: 8,
+                updatedDate: "2024-06-4T18:59:15.000Z",
+                auctionState: "FINALIZADA",
+                lastOffer: {
+                    id: 23,
+                    amount: 134.5,
+                    creationDate: "2024-06-4T18:59:15.000Z",
+                    customer: {
+                        id: 77,
+                        fullName: "Juan De la rosa Torres",
+                        phoneNumber: "2281645442",
+                        avatar: "/9j/4AAQSkZJRgABAQAAAQABAAD/2wCEAAwMDQsNCxAODBANEA4QExYRDRASGR...",
+                        email: "juan@gmail.com"
+                    }
+                },
+                mediaFiles: [
+                    { $ref: "#/definitions/MediaFile" }
+                ],
+                review: {
+                    id: 23,
+                    creationDate: "2024-06-4T18:59:15.000Z",
+                    comments: "Excelente producto, espero se venda como pan caliente"
+                }
+            }
+        ],
         AuctionCategory: {
             id: 126,
             title: "Videojuegos",
