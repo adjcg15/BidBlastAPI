@@ -95,7 +95,7 @@ class AuctionController {
         }
     }
 
-    public static async getUserSalesAuctionsList(req: Request, res: Response): Promise<void> {
+    public static async getUserSalesAuctionsList(req: Request, res: Response, next: NextFunction): Promise<void> {
         /*
             #swagger.auto = false
 
@@ -142,24 +142,10 @@ class AuctionController {
 
             res.status(HttpStatusCodes.OK).json(response);
         } catch (error: any) {
-            let statusCode = HttpStatusCodes.INTERNAL_SERVER_ERROR;
-            const responseDetails = {
-                error: true,
-                statusCode: HttpStatusCodes.INTERNAL_SERVER_ERROR,
-                details: "There was an unexpeted error, please try it again later"
-            };
-
-            if(error instanceof DataContextException) {
-                Logger.error(error.name, error.message);
-                responseDetails.details = "It was not possible to recover sales auctions, please try it again later";
-            } else {
-                Logger.error(error.name, error.message);
-            }
-
-            res.status(statusCode).json(responseDetails);
+            next(error);
         }
     }
-    
+
     public static async createAuction(req: Request, res: Response): Promise<void> {
         /*
             #swagger.tags = ['Auctions']
