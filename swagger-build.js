@@ -104,6 +104,28 @@ const doc = {
                 updatedDate: "2024-06-09T11:12:07.000Z"
             }
         ],
+        CompletedAuctionsList: [
+            {
+                id: 160,
+                title: "Fortnite Marvel: Iron Man Zero War Rare Bundle Skin Outfit",
+                auctioneer: {
+                    id: 15,
+                    fullName: "Penélope Camacho Castro",
+                    avatar: "/9j/4AAQSkZJRgABAQAAAQABAAD/2wCEAAwMDQsNCxAODBANEA4QExYRDRASGR...",
+                    phoneNumber: "2281989898",
+                    email: "adjcg15@gmail.com"
+                },
+                lastOffer: {
+                    id: 23,
+                    amount: 134.5,
+                    creationDate: "2024-06-4T18:59:15.000Z"
+                },
+                mediaFiles: [
+                    { $ref: "#/definitions/MediaFile" }
+                ],
+                updatedDate: "2024-06-4T18:59:15.000Z"
+            }
+        ],
         AuctionCategory: {
             id: 126,
             title: "Videojuegos",
