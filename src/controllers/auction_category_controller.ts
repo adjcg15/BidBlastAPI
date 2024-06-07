@@ -104,7 +104,8 @@ class AuctionCategoryController{
                 const errorBody = {
                     error: true,
                     statusCode: HttpStatusCodes.BAD_REQUEST,
-                    details: errorMessages[createCategoryResult]
+                    details: errorMessages[createCategoryResult],
+                    apiErrorCode: createCategoryResult
                 }
     
                 res.status(errorBody.statusCode).json(errorBody);
@@ -178,7 +179,8 @@ class AuctionCategoryController{
                 const errorBody = {
                     error: true,
                     statusCode: HttpStatusCodes.BAD_REQUEST,
-                    details: errorMessages[modifyCategoryResult]
+                    details: errorMessages[modifyCategoryResult],
+                    apiErrorCode: modifyCategoryResult
                 }
     
                 res.status(errorBody.statusCode).json(errorBody);

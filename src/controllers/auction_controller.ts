@@ -1,7 +1,8 @@
 import { DataContextException } from "@exceptions/services";
 import Logger from "@lib/logger";
 import { OffersAuctionQueryType, SearchActionQueryType } from "@ts/controllers";
-import { BlockUserCodes, HttpStatusCodes } from "@ts/enums";
+import { IOfferData } from "@ts/data";
+import { BlockUserCodes, GetOffersCodes, HttpStatusCodes } from "@ts/enums";
 import { NextFunction, Request, Response } from "express";
 import AuctionService from "services/auction_service";
 
@@ -414,15 +415,23 @@ class AuctionController {
             const { offset, limit } = req.query as OffersAuctionQueryType;
             const { auid } = req.params;
 
-            const auction = await AuctionService.getUserAuctionOffersByAuctionId(Number(auid), offset!, limit!);
-            if(auction === null) {
-                res.status(HttpStatusCodes.NOT_FOUND).send({
+            const errorMessages = {
+                [GetOffersCodes.AUCTION_NOT_FOUND]: `The auction  with ID ${auid} was not found`,
+            };
+
+            let offersResult: IOfferData[] | GetOffersCodes = 
+                await AuctionService.getUserAuctionOffersByAuctionId(Number(auid), offset!, limit!);
+            if (offersResult === GetOffersCodes.AUCTION_NOT_FOUND) {
+                const errorBody = {
                     error: true,
                     statusCode: HttpStatusCodes.BAD_REQUEST,
-                    details: "It was not possible to find the offers with the auction ID " + auid
-                });
+                    details: errorMessages[offersResult],
+                    apiErrorCode: offersResult
+                }
+
+                res.status(errorBody.statusCode).json(errorBody);
             } else {
-                res.status(HttpStatusCodes.OK).json(auction);
+                res.status(HttpStatusCodes.OK).json(offersResult);
             }
         } catch(error: any) {
             next(error);
@@ -481,23 +490,24 @@ class AuctionController {
     public static async blockUserInAnAuctionAndDeleteHisOffers(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
             const { auid } = req.params;
-            const id_auction = parseInt(auid);
-            const { id_profile } = req.body;
+            const idAuction = parseInt(auid);
+            const { idProfile } = req.body;
 
             const errorMessages = {
-                [BlockUserCodes.AUCTION_NOT_FOUND]: `The auction  with ID ${id_auction} was not found`,
-                [BlockUserCodes.USER_NOT_FOUND]: `The profile with ID ${id_profile} was not found`,
-                [BlockUserCodes.USER_BID_ON_AUCTION_NOT_FOUND]: `The profile with ID ${id_profile} was not found bidding at the auction`,
-                [BlockUserCodes.USER_ALREADY_BLOCKED]: `The profile with ID ${id_profile} has already been blocked`
+                [BlockUserCodes.AUCTION_NOT_FOUND]: `The auction  with ID ${idAuction} was not found`,
+                [BlockUserCodes.USER_NOT_FOUND]: `The profile with ID ${idProfile} was not found`,
+                [BlockUserCodes.USER_BID_ON_AUCTION_NOT_FOUND]: `The profile with ID ${idProfile} was not found bidding at the auction`,
+                [BlockUserCodes.USER_ALREADY_BLOCKED]: `The profile with ID ${idProfile} has already been blocked`
             };
 
             let blockUserResult: BlockUserCodes | null = 
-                await AuctionService.blockUserInAnAuctionAndDeleteHisOffers(id_profile, id_auction);
+                await AuctionService.blockUserInAnAuctionAndDeleteHisOffers(idProfile, idAuction);
             if(blockUserResult !== null){
                 const errorBody = {
                     error: true,
                     statusCode: HttpStatusCodes.BAD_REQUEST,
-                    details: errorMessages[blockUserResult]
+                    details: errorMessages[blockUserResult],
+                    apiErrorCode: blockUserResult
                 }
 
                 res.status(errorBody.statusCode).json(errorBody);

@@ -189,7 +189,7 @@ class AuctionRequestValidator {
                 },
                 toInt: true
             },
-            id_profile: {
+            idProfile: {
                 in: ["body"],
                 isInt: {
                     options: { min: 1 },

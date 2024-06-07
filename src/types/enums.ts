@@ -23,6 +23,7 @@ enum EndpointContexts {
     GET_USER_SALES = "GUSA",
     GET_COMPLETED_AUCTIONS = "GCOA",
     GET_USER_AUCTIONS = "GUAU",
+    GET_OFFERS_BY_AUCTION = "GOBA",
     CREATE_BLOCK_USER = "CRBU",
     CREATE_OFFER = "COFR",
     APPROVE_AUCTION = "APAU",
@@ -77,6 +78,11 @@ enum CreateAuctionCategoryCodes {
     TITLE_ALREADY_EXISTS = EndpointContexts.MODIFY_CATEGORY_BY_ID + "-400001"
 }
 
+enum GetOffersCodes {
+    AUCTION_NOT_FOUND = EndpointContexts.GET_OFFERS_BY_AUCTION + "-400001",
+    OFFERS_NOT_FOUND = EndpointContexts.GET_OFFERS_BY_AUCTION + "-400002"
+}
+
 enum BlockUserCodes {
     AUCTION_NOT_FOUND = EndpointContexts.CREATE_BLOCK_USER + "-400001",
     USER_NOT_FOUND = EndpointContexts.CREATE_BLOCK_USER + "-400002",
@@ -94,5 +100,6 @@ export {
     RejectAuctionCodes,
     ModifyAuctionCategoryCodes,
     CreateAuctionCategoryCodes,
+    GetOffersCodes,
     BlockUserCodes
 };

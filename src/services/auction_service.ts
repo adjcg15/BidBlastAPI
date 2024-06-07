@@ -6,7 +6,7 @@ import HypermediaFile from "@models/HypermediaFile";
 import Offer from "@models/Offer";
 import Profile from "@models/Profile";
 import { IAuctionData, IHypermediaFileData, IOfferData } from "@ts/data";
-import { ApproveAuctionCodes, AuctionStatus, BlockUserCodes, RejectAuctionCodes, UserRoles } from "@ts/enums";
+import { ApproveAuctionCodes, AuctionStatus, BlockUserCodes, GetOffersCodes, RejectAuctionCodes, UserRoles } from "@ts/enums";
 import AuctionCategory from "@models/AuctionCategory";
 import AuctionStatesApplications from "@models/AuctionsStatesApplications";
 import { GetManyAuctionsConfigParamType } from "@ts/services";
@@ -424,13 +424,20 @@ class AuctionService {
                     HypermediaFiles
                 } = auction;
 
+                let phoneNumber;
+                if (phone_number === null) {
+                    phoneNumber = "";
+                } else {
+                    phoneNumber = phone_number;
+                }
+
                 const auctionData: IAuctionData = {
                     id: id_auction,
                     title,
                     auctioneer: {
                         id: id_profile,
                         fullName: full_name,
-                        phoneNumber: phone_number,
+                        phoneNumber,
                         email: account.email,
                         avatar: ImageConverter.bufferToBase64(avatar)
                     }
@@ -594,6 +601,13 @@ class AuctionService {
                 if(Array.isArray(Offers) && Offers.length > 0) {
                     const { id_offer, amount, creation_date, Profile } = Offers[0];
 
+                    let phoneNumber;
+                    if (Profile.phone_number === null) {
+                        phoneNumber = "";
+                    } else {
+                        phoneNumber = Profile.phone_number;
+                    }
+
                     auctionData.lastOffer = {
                         id: id_offer,
                         amount: parseFloat(amount),
@@ -601,7 +615,7 @@ class AuctionService {
                         customer: {
                             id: Profile.id_profile,
                             fullName: Profile.full_name,
-                            phoneNumber: Profile.phone_number,
+                            phoneNumber,
                             avatar: Profile.avatar,
                             email: Profile.Account.email
                         }
@@ -652,9 +666,18 @@ class AuctionService {
         return auctions;
     }
     
-    public static async getUserAuctionOffersByAuctionId(idAuction: number, offset: number, limit: number): Promise<IOfferData[] | null> {
+    public static async getUserAuctionOffersByAuctionId(idAuction: number, offset: number, limit: number): Promise<IOfferData[] | GetOffersCodes> {
         let offers: IOfferData[] = [];
+        let resultCode: GetOffersCodes | null = null;
+
         try {
+            const dbAuction = await Auction.findByPk(idAuction);
+
+            if (dbAuction === null) {
+                resultCode = GetOffersCodes.AUCTION_NOT_FOUND;
+                return resultCode;
+            }
+
             const dbOffers = await Offer.findAll({
                 limit,
                 offset,
@@ -672,6 +695,7 @@ class AuctionService {
                     ["creation_date", "DESC"]
                 ]
             });
+
             const offersInformation = dbOffers.map(offer => offer.toJSON());
             offersInformation.forEach(offer => {
                 const {
@@ -805,17 +829,17 @@ class AuctionService {
         return auction;
     }
 
-    public static async blockUserInAnAuctionAndDeleteHisOffers(id_profile: number, id_auction: number){
+    public static async blockUserInAnAuctionAndDeleteHisOffers(idProfile: number, idAuction: number){
         let resultCode: BlockUserCodes | null = null;
 
         try {
-            const dbAuction = await Auction.findByPk(id_auction);
+            const dbAuction = await Auction.findByPk(idAuction);
             if (dbAuction === null) {
                 resultCode = BlockUserCodes.AUCTION_NOT_FOUND;
                 return resultCode;
             }
 
-            const dbProfile = await Profile.findByPk(id_profile);
+            const dbProfile = await Profile.findByPk(idProfile);
             if (dbProfile === null) {
                 resultCode = BlockUserCodes.USER_NOT_FOUND;
                 return resultCode;
@@ -823,7 +847,7 @@ class AuctionService {
 
             const dbBlackList = await BlackLists.findOne({
                 where: {
-                    id_profile, id_auction
+                    id_profile: idProfile, id_auction: idAuction
                 }
             });
             if (dbBlackList !==  null) {
@@ -833,7 +857,7 @@ class AuctionService {
 
             const dbOffer = await Offer.findOne({
                 where: {
-                    id_profile
+                    id_profile: idProfile
                 }
             });
             if (dbOffer === null) {
@@ -841,16 +865,16 @@ class AuctionService {
                 return resultCode;
             }
 
-            const creation_date = CurrentDateService.getCurrentDateTime();
+            const creationDate = CurrentDateService.getCurrentDateTime();
             await BlackLists.create(
                 {
-                    creation_date, id_profile, id_auction
+                    creation_date: creationDate, id_profile: idProfile, id_auction: idAuction
                 }
             );
             
             await Offer.destroy({
                 where: {
-                    id_profile, id_auction
+                    id_profile: idProfile, id_auction: idAuction
                 }
             });
         } catch (error: any) {
