@@ -713,7 +713,7 @@ class AuctionService {
                     customer: {
                         id: customerData.id_profile,
                         fullName: customerData.full_name,
-                        avatar: customerData.avatar
+                        avatar: ImageConverter.bufferToBase64(customerData.avatar)
                     }
                 };
 
