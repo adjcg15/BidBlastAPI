@@ -2,13 +2,13 @@ import { DataContextException } from "@exceptions/services";
 import ImageConverter from "@lib/image_converter";
 import Account from "@models/Account";
 import AccountsRoles from "@models/AccountsRoles";
-import { Transaction, literal } from "sequelize";
+import { Transaction, literal, where } from "sequelize";
 import Profile from "@models/Profile";
 import Role from "@models/Role";
 import { IUserData } from "@ts/data";
 import SecurityService from "@lib/security_service";
 import DataBase from "@lib/db";
-import { UpdateUserCodes, UserRoles } from "@ts/enums";
+import { DeleteUserCodes, UpdateUserCodes, UserRoles } from "@ts/enums";
 
 class UserService {
     public static async getUsersList(): Promise<IUserData[]> {
@@ -50,7 +50,7 @@ class UserService {
                 } = account;
 
                 let isRemovable: boolean = false;
-                if (isActive === 0 && roles[0].name !== UserRoles.ADMINISTRATOR && roles[0].name !== UserRoles.MODERATOR) {
+                if (!isActive && roles[0].name !== UserRoles.ADMINISTRATOR && roles[0].name !== UserRoles.MODERATOR) {
                     isRemovable = true;
                 }
 
@@ -126,10 +126,10 @@ class UserService {
     public static async updateUser(idProfile: number, fullName: string, email: string, phoneNumber: string, avatar: Buffer, password: string): Promise<UpdateUserCodes | null> {
         let resultCode: UpdateUserCodes | null = null;
         
-        const sequelize = DataBase.getInstance().getConnection();
-        const transaction = await sequelize.transaction();
-        
         try {
+            const sequelize = DataBase.getInstance().getConnection();
+            const transaction = await sequelize.transaction();
+
             if (!Account.sequelize) {
                 throw new DataContextException("Sequelize instance is not available");
             }
@@ -197,6 +197,79 @@ class UserService {
                 error.message
                 ? `${error.message}. ${errorCodeMessage}`
                 : `It was not possible to update the information of the user. ${errorCodeMessage}`
+            );
+        }
+
+        return resultCode;
+    }
+
+    public static async deleteUser(idProfile: number): Promise<DeleteUserCodes | null> {
+        let resultCode: DeleteUserCodes | null = null;
+        try {
+            const sequelize = DataBase.getInstance().getConnection();
+            const dbAccount = await Account.findOne(
+                {
+                    include: [Role],
+                    where: {
+                        id_profile: idProfile
+                    },
+                    attributes: {
+                        include: [
+                            [
+                                literal(`(
+                                    SELECT IF(
+                                        EXISTS (
+                                            SELECT 1 FROM offers WHERE offers.id_profile = ${idProfile}
+                                        ) OR EXISTS (
+                                            SELECT 1 FROM auctions WHERE auctions.id_profile = ${idProfile}
+                                        ) OR EXISTS (
+                                            SELECT 1 FROM black_lists WHERE black_lists.id_profile = ${idProfile}
+                                        ),
+                                        1,
+                                        0
+                                    )
+                                )`),
+                                "isActive"
+                            ]
+                        ]
+                    }
+                }
+            );
+
+            if (dbAccount === null) {
+                resultCode = DeleteUserCodes.USER_NOT_FOUND;
+                return resultCode;
+            }
+            const { isActive } = dbAccount.toJSON();
+            const account = dbAccount.toJSON();
+
+            const roles = account.Roles as any[];
+
+            if (isActive || roles[0].name === UserRoles.ADMINISTRATOR || roles[0].name === UserRoles.MODERATOR) {
+                resultCode = DeleteUserCodes.USER_IS_NOT_REMOVABLE;
+                return resultCode;
+            }
+
+            await sequelize.transaction(async (t) => {
+                await AccountsRoles.destroy({
+                    where: { id_account: account.id_account },
+                    transaction: t
+                });
+                await Account.destroy({
+                    where: { id_profile: idProfile },
+                    transaction: t
+                });
+                await Profile.destroy({
+                    where: { id_profile: idProfile },
+                    transaction: t
+                });
+            });
+        } catch (error: any) {
+            const errorCodeMessage = error.code ? `ErrorCode: ${error.code}` : "";
+            throw new DataContextException(
+                error.message
+                ? `${error.message}. ${errorCodeMessage}`
+                : `It was not possible to delete user. ${errorCodeMessage}`
             );
         }
 

@@ -98,6 +98,19 @@ class UserRequestValidator {
             }
         }
     }
+
+    public static userSchemaForDeletion(): Schema{
+        return {
+            idProfile: {
+                in: ["params"],
+                isInt: {
+                    options: { min: 1 },
+                    errorMessage: "Invalid profile Id"
+                },
+                toInt: true
+            }
+        }
+    }
 }
 
 export default UserRequestValidator;

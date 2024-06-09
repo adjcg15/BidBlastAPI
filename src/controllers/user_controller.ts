@@ -1,4 +1,4 @@
-import { HttpStatusCodes, UpdateUserCodes } from "@ts/enums";
+import { DeleteUserCodes, HttpStatusCodes, UpdateUserCodes } from "@ts/enums";
 import { NextFunction, Request, Response } from "express";
 import { DataContextException } from "@exceptions/services";
 import UserService from "services/user_service";
@@ -118,6 +118,34 @@ class UserController {
                     statusCode: HttpStatusCodes.BAD_REQUEST,
                     details: errorMessages[updateUserResult],
                     apiErrorCode: updateUserResult
+                }
+    
+                res.status(errorBody.statusCode).json(errorBody);
+                return;
+            }
+    
+            res.status(HttpStatusCodes.CREATED).json();
+        } catch (error: any) {
+            next(error);
+        }
+    }
+
+    public static async deleteUser(req: Request, res: Response, next: NextFunction): Promise<void> {
+        const { idProfile } = req.params;
+        
+        try {
+            const errorMessages = {
+                [DeleteUserCodes.USER_NOT_FOUND]: `The profile with ID ${idProfile} was not found`,
+                [DeleteUserCodes.USER_IS_NOT_REMOVABLE]: `The profile with ID ${idProfile} cannot be deleted`
+            };
+
+            let deleteUserResult: DeleteUserCodes | null = await UserService.deleteUser(Number(idProfile));
+            if(deleteUserResult !== null){
+                const errorBody = {
+                    error: true,
+                    statusCode: HttpStatusCodes.BAD_REQUEST,
+                    details: errorMessages[deleteUserResult],
+                    apiErrorCode: deleteUserResult
                 }
     
                 res.status(errorBody.statusCode).json(errorBody);

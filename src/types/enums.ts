@@ -54,6 +54,11 @@ enum UpdateUserCodes {
     ACCOUNT_NOT_FOUND = EndpointContexts.UPDATE_USER + "-400003"
 }
 
+enum DeleteUserCodes {
+    USER_IS_NOT_REMOVABLE = EndpointContexts.DELETE_USER + "-400001",
+    USER_NOT_FOUND = EndpointContexts.DELETE_USER + "-400002"
+}
+
 enum CreateOfferCodes {
     OFFER_OVERCOMED = EndpointContexts.CREATE_OFFER + "-400001",
     AUCTION_NOT_FOUND = EndpointContexts.CREATE_OFFER + "-400002",
@@ -103,6 +108,7 @@ export {
     HttpStatusCodes,
     UserRoles,
     UpdateUserCodes,
+    DeleteUserCodes,
     AuctionStatus,
     EndpointContexts,
     CreateOfferCodes,

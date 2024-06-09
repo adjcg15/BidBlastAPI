@@ -24,6 +24,14 @@ UserRouter.post("/",
     UserController.createUser
 );
 
+UserRouter.delete("/:idProfile",
+    AccessControl.checkTokenValidity,
+    AccessControl.allowRoles([UserRoles.ADMINISTRATOR]),
+    checkSchema(UserRequestValidator.userSchemaForDeletion()),
+    RequestFormatValidator.validateRequestFormat,
+    UserController.deleteUser
+)
+
 UserRouter.put("/",
     AccessControl.checkTokenValidity,
     AccessControl.allowRoles([UserRoles.AUCTIONEER, UserRoles.CUSTOMER]),
