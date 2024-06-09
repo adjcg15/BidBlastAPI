@@ -1,6 +1,43 @@
 import { Schema } from "express-validator";
 
 class UserRequestValidator {
+    public static userSchema(): Schema {
+        return {
+            fullName: {
+                in: ["body"],
+                trim: true,
+                notEmpty: true,
+                errorMessage: "Full name is required"
+            },
+            email: {
+                in: ["body"],
+                trim: true,
+                isEmail: true,
+                errorMessage: "Invalid email address"
+            },
+            phoneNumber: {
+                in: ["body"],
+                optional: { options: { nullable: true } },
+                trim: true,
+                isNumeric: true,
+                isLength: {
+                    options: { min: 10, max: 10 },
+                    errorMessage: "Phone number must be 10 digits long"
+                }
+            },
+            avatar: {
+                in: ["body"],
+                optional: { options: { nullable: true } },
+                trim: true
+            },
+            password: {
+                in: ["body"],
+                trim: true,
+                notEmpty: true,
+                errorMessage: "Password is required"
+            }
+        };
+    }
     public static userSalesAuctionsListSchema() : Schema{
         return {
             startDate: {
@@ -56,6 +93,19 @@ class UserRequestValidator {
                 isInt: {
                     options: { min: 1 },
                     errorMessage: "Invalid auction Id"
+                },
+                toInt: true
+            }
+        }
+    }
+
+    public static userSchemaForDeletion(): Schema{
+        return {
+            idProfile: {
+                in: ["params"],
+                isInt: {
+                    options: { min: 1 },
+                    errorMessage: "Invalid profile Id"
                 },
                 toInt: true
             }
