@@ -8,6 +8,7 @@ interface IUserData {
     email?: string;
     password?: string;
     roles?: UserRoles[];
+    isRemovable?: boolean;
 }
 
 interface IAuctionCategory {

@@ -11,6 +11,12 @@ import UserController from "@controllers/user_controller";
 
 const UserRouter = Router();
 
+UserRouter.get("/",
+    AccessControl.checkTokenValidity,
+    AccessControl.allowRoles([UserRoles.ADMINISTRATOR]),
+    UserController.getUsersList
+);
+
 UserRouter.post("/", 
     RateLimiter.limitPublicEndpointUse(),
     checkSchema(UserRequestValidator.userSchema()),

@@ -2,15 +2,82 @@ import { DataContextException } from "@exceptions/services";
 import ImageConverter from "@lib/image_converter";
 import Account from "@models/Account";
 import AccountsRoles from "@models/AccountsRoles";
-import { Transaction } from "sequelize";
+import { Transaction, literal } from "sequelize";
 import Profile from "@models/Profile";
 import Role from "@models/Role";
 import { IUserData } from "@ts/data";
 import SecurityService from "@lib/security_service";
 import DataBase from "@lib/db";
-import { UpdateUserCodes } from "@ts/enums";
+import { UpdateUserCodes, UserRoles } from "@ts/enums";
 
 class UserService {
+    public static async getUsersList(): Promise<IUserData[]> {
+        let users: IUserData[] = [];
+
+        try {
+            const dbAccounts = await Account.findAll({
+                include: [Role, Profile],
+                attributes: {
+                    include: [
+                        [
+                            literal(`(
+                                SELECT IF(
+                                    EXISTS (
+                                        SELECT 1 FROM offers WHERE offers.id_profile = Profile.id_profile
+                                    ) OR EXISTS (
+                                        SELECT 1 FROM auctions WHERE auctions.id_profile = Profile.id_profile
+                                    ) OR EXISTS (
+                                        SELECT 1 FROM black_lists WHERE black_lists.id_profile = Profile.id_profile
+                                    ),
+                                    1,
+                                    0
+                                )
+                            )`),
+                            "isActive"
+                        ]
+                    ]
+                }
+            });
+
+            const accountsInformation = dbAccounts.map(account => account.toJSON());
+            accountsInformation.forEach(account => {
+                const roles = account.Roles as any[];
+
+                const {
+                    email,
+                    Profile,
+                    isActive
+                } = account;
+
+                let isRemovable: boolean = false;
+                if (isActive === 0 && roles[0].name !== UserRoles.ADMINISTRATOR && roles[0].name !== UserRoles.MODERATOR) {
+                    isRemovable = true;
+                }
+
+                const user: IUserData = {
+                    id: Profile.id_profile,
+                    fullName: Profile.full_name,
+                    email,
+                    phoneNumber: Profile.phone_number ?? "",
+                    avatar: ImageConverter.bufferToBase64(Profile.avatar),
+                    roles: roles.map(role => role.name),
+                    isRemovable
+                };
+
+                users.push(user);
+            });
+        } catch (error: any) {
+            const errorCodeMessage = error.code ? `ErrorCode: ${error.code}` : "";
+            throw new DataContextException(
+                error.message
+                ? `${error.message}. ${errorCodeMessage}`
+                : `It was not possible to recover the users. ${errorCodeMessage}`
+            );
+        }
+
+        return users;
+    }
+
     public static async createUser(fullName: string, email: string, phoneNumber: string | null, avatar: Buffer | null, password: string): Promise<Account> {
         let transaction: Transaction | null = null;
 
@@ -77,12 +144,14 @@ class UserService {
             const dbAccount = await Account.findOne({
                 attributes: {
                     include: [
-                        [sequelize.literal(`(
-                            SELECT IF(COUNT(*) > 0, 1, 0)
-                            FROM accounts
-                            WHERE email = "${email}" AND id_profile != "${idProfile}"
-                        )`),
-                        "emailAlreadyExists"]
+                        [
+                            literal(`(
+                                SELECT IF(COUNT(*) > 0, 1, 0)
+                                FROM accounts
+                                WHERE email = "${email}" AND id_profile != "${idProfile}"
+                            )`),
+                            "emailAlreadyExists"
+                        ]
                     ]
                 },
                 where: {

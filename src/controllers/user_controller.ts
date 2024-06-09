@@ -5,6 +5,15 @@ import UserService from "services/user_service";
 import { userBodyType } from "@ts/controllers";
 
 class UserController {
+    public static async getUsersList(req: Request, res: Response, next: NextFunction): Promise<void>  {
+        try {
+            const users = await UserService.getUsersList();
+            res.status(HttpStatusCodes.OK).json(users);
+        } catch (error: any) {
+            next(error);
+        }
+    }
+
     public static async createUser(req: Request, res: Response, next: NextFunction): Promise<void> {
         /*
             #swagger.tags = ['Accounts']

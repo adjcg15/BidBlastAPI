@@ -33,6 +33,7 @@ enum EndpointContexts {
 };
 
 enum UserRoles {
+    ADMINISTRATOR = "ADMINISTRATOR",
     CUSTOMER = "CUSTOMER",
     AUCTIONEER = "AUCTIONEER",
     MODERATOR = "MODERATOR"
