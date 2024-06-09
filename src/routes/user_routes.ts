@@ -14,6 +14,9 @@ const UserRouter = Router();
 UserRouter.get("/",
     AccessControl.checkTokenValidity,
     AccessControl.allowRoles([UserRoles.ADMINISTRATOR]),
+    checkSchema(UserRequestValidator.usersListSchema()),
+    RequestFormatValidator.validateRequestFormat,
+    DefaultValuesInjector.setSearchUsersDefaultParams,
     UserController.getUsersList
 );
 

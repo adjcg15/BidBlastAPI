@@ -2,12 +2,13 @@ import { DeleteUserCodes, HttpStatusCodes, UpdateUserCodes } from "@ts/enums";
 import { NextFunction, Request, Response } from "express";
 import { DataContextException } from "@exceptions/services";
 import UserService from "services/user_service";
-import { userBodyType } from "@ts/controllers";
+import { GetUsersQueryType, userBodyType } from "@ts/controllers";
 
 class UserController {
     public static async getUsersList(req: Request, res: Response, next: NextFunction): Promise<void>  {
         try {
-            const users = await UserService.getUsersList();
+            const { query, limit, offset } = req.query as GetUsersQueryType;
+            const users = await UserService.getUsersList(query!, offset!, limit!);
             res.status(HttpStatusCodes.OK).json(users);
         } catch (error: any) {
             next(error);

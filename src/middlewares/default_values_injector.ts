@@ -1,4 +1,4 @@
-import { OffersAuctionQueryType, SearchActionQueryType } from "@ts/controllers";
+import { GetUsersQueryType, OffersAuctionQueryType, SearchActionQueryType } from "@ts/controllers";
 import { NextFunction, Request, Response } from "express";
 
 class DefaultValuesInjector {
@@ -42,6 +42,27 @@ class DefaultValuesInjector {
         const DEFAULT_LIMIT = 5;
         const DEFAULT_OFFSET = 0;
         const query = req.query as SearchActionQueryType;
+
+        if(!query.query) {
+            query.query = DEFAULT_QUERY_SEARCH;
+        }
+
+        if(!query.limit) {
+            query.limit = DEFAULT_LIMIT;
+        }
+
+        if(!query.offset) {
+            query.offset = DEFAULT_OFFSET;
+        }
+
+        next();
+    }
+
+    public static setSearchUsersDefaultParams(req: Request, res: Response, next: NextFunction) {
+        const DEFAULT_QUERY_SEARCH = "";
+        const DEFAULT_LIMIT = 5;
+        const DEFAULT_OFFSET = 0;
+        const query = req.query as GetUsersQueryType;
 
         if(!query.query) {
             query.query = DEFAULT_QUERY_SEARCH;

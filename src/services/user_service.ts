@@ -2,7 +2,7 @@ import { DataContextException } from "@exceptions/services";
 import ImageConverter from "@lib/image_converter";
 import Account from "@models/Account";
 import AccountsRoles from "@models/AccountsRoles";
-import { Transaction, literal, where } from "sequelize";
+import { Op, Transaction, literal, where } from "sequelize";
 import Profile from "@models/Profile";
 import Role from "@models/Role";
 import { IUserData } from "@ts/data";
@@ -11,12 +11,32 @@ import DataBase from "@lib/db";
 import { DeleteUserCodes, UpdateUserCodes, UserRoles } from "@ts/enums";
 
 class UserService {
-    public static async getUsersList(): Promise<IUserData[]> {
+    public static async getUsersList(query: string, offset: number, limit: number): Promise<IUserData[]> {
         let users: IUserData[] = [];
 
         try {
+            const mainWhereClause = {
+                [Op.and]: {
+                    [Op.or]: {
+                        full_name: {
+                            [Op.substring]: query
+                        }
+                    }
+                },
+            };
+
             const dbAccounts = await Account.findAll({
-                include: [Role, Profile],
+                limit,
+                offset,
+                include: [
+                    {
+                      model: Role
+                    },
+                    {
+                      model: Profile,
+                      where: mainWhereClause
+                    }
+                ],
                 attributes: {
                     include: [
                         [

@@ -16,6 +16,12 @@ type SearchActionQueryType = {
     maximumPrice?: number;
 };
 
+type GetUsersQueryType = {
+    query?: string;
+    limit?: number;
+    offset?: number;
+}
+
 type OffersAuctionQueryType = {
     limit?: number;
     offset?: number;
@@ -23,6 +29,7 @@ type OffersAuctionQueryType = {
 
 export type {
     userBodyType,
+    GetUsersQueryType,
     SearchActionQueryType,
     OffersAuctionQueryType
 };
