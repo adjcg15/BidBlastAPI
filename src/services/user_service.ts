@@ -7,6 +7,8 @@ import Profile from "@models/Profile";
 import Role from "@models/Role";
 import { IUserData } from "@ts/data";
 import SecurityService from "@lib/security_service";
+import DataBase from "@lib/db";
+import { UpdateUserCodes } from "@ts/enums";
 
 class UserService {
     public static async createUser(fullName: string, email: string, phoneNumber: string | null, avatar: Buffer | null, password: string): Promise<Account> {
@@ -53,6 +55,85 @@ class UserService {
             throw new DataContextException("Error while creating account: " + error.message);
         }
     }
+
+    public static async updateUser(idProfile: number, fullName: string, email: string, phoneNumber: string, avatar: Buffer, password: string): Promise<UpdateUserCodes | null> {
+        let resultCode: UpdateUserCodes | null = null;
+        
+        const sequelize = DataBase.getInstance().getConnection();
+        const transaction = await sequelize.transaction();
+        
+        try {
+            if (!Account.sequelize) {
+                throw new DataContextException("Sequelize instance is not available");
+            }
+
+            const dbProfile = await Profile.findByPk(idProfile);
+
+            if (dbProfile === null) {
+                resultCode = UpdateUserCodes.PROFILE_NOT_FOUND;
+                return resultCode;
+            }
+
+            const dbAccount = await Account.findOne({
+                attributes: {
+                    include: [
+                        [sequelize.literal(`(
+                            SELECT IF(COUNT(*) > 0, 1, 0)
+                            FROM accounts
+                            WHERE email = "${email}" AND id_profile != "${idProfile}"
+                        )`),
+                        "emailAlreadyExists"]
+                    ]
+                },
+                where: {
+                    id_profile: idProfile
+                }
+            });
+
+            if (dbAccount === null) {
+                resultCode = UpdateUserCodes.ACCOUNT_NOT_FOUND;
+                return resultCode;
+            }
+
+            const { emailAlreadyExists } = dbAccount.toJSON();
+            if (emailAlreadyExists) {
+                resultCode = UpdateUserCodes.EMAIL_ALREADY_EXISTS;
+                return resultCode;
+            }
+
+            const securityService = new SecurityService();
+            const hashedPassword = securityService.hashPassword(password);
+
+            await dbProfile.update(
+                {
+                    full_name: fullName, phone_number: phoneNumber, avatar
+                },
+                {
+                    transaction
+                }
+            );
+
+            await dbAccount.update(
+                {
+                    email, password: hashedPassword
+                },
+                {
+                    transaction
+                }
+            );
+            await transaction.commit();
+        } catch (error: any) {
+            const errorCodeMessage = error.code ? `ErrorCode: ${error.code}` : "";
+            throw new DataContextException(
+                error.message
+                ? `${error.message}. ${errorCodeMessage}`
+                : `It was not possible to update the information of the user. ${errorCodeMessage}`
+            );
+        }
+
+        return resultCode;
+    }
+
     public static async getUserByEmail(email: string) {
         let user: IUserData | null = null;
 

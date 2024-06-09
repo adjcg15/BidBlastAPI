@@ -20,6 +20,8 @@ enum EndpointContexts {
     GET_AUCTION_BY_ID = "GABI",
     CREATE_AUCTION = "CRAU",
     CREATE_USER = "CRUS",
+    UPDATE_USER = "UPUS",
+    DELETE_USER = "DEUS",
     GET_USER_SALES = "GUSA",
     GET_COMPLETED_AUCTIONS = "GCOA",
     GET_USER_AUCTIONS = "GUAU",
@@ -44,6 +46,12 @@ enum AuctionStatus {
     CONCRETIZED = "CONCRETADA",
     FINISHED = "FINALIZADA"
 };
+
+enum UpdateUserCodes {
+    EMAIL_ALREADY_EXISTS = EndpointContexts.UPDATE_USER + "-400001",
+    PROFILE_NOT_FOUND = EndpointContexts.UPDATE_USER + "-400002",
+    ACCOUNT_NOT_FOUND = EndpointContexts.UPDATE_USER + "-400003"
+}
 
 enum CreateOfferCodes {
     OFFER_OVERCOMED = EndpointContexts.CREATE_OFFER + "-400001",
@@ -93,6 +101,7 @@ enum BlockUserCodes {
 export {
     HttpStatusCodes,
     UserRoles,
+    UpdateUserCodes,
     AuctionStatus,
     EndpointContexts,
     CreateOfferCodes,

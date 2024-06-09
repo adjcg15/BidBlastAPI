@@ -23,6 +23,7 @@ UserRouter.put("/",
     AccessControl.allowRoles([UserRoles.AUCTIONEER, UserRoles.CUSTOMER]),
     checkSchema(UserRequestValidator.userSchema()),
     RequestFormatValidator.validateRequestFormat,
+    UserController.updateUser
 );
 
 UserRouter.get("/sold-auctions", 

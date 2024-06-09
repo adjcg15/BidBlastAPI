@@ -1,3 +1,12 @@
+type userBodyType = {
+    id_profile: number;
+    fullName: string;
+    email: string;
+    phoneNumber?: string;
+    avatar?: Buffer;
+    password: string;
+}
+
 type SearchActionQueryType = {
     query?: string;
     limit?: number;
@@ -13,6 +22,7 @@ type OffersAuctionQueryType = {
 }
 
 export type {
+    userBodyType,
     SearchActionQueryType,
     OffersAuctionQueryType
 };

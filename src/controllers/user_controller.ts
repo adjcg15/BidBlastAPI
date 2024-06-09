@@ -1,7 +1,8 @@
-import { HttpStatusCodes } from "@ts/enums";
+import { HttpStatusCodes, UpdateUserCodes } from "@ts/enums";
 import { NextFunction, Request, Response } from "express";
 import { DataContextException } from "@exceptions/services";
 import UserService from "services/user_service";
+import { userBodyType } from "@ts/controllers";
 
 class UserController {
     public static async createUser(req: Request, res: Response, next: NextFunction): Promise<void> {
@@ -86,6 +87,37 @@ class UserController {
             } else {
                 next(error);
             }
+        }
+    }
+
+    public static async updateUser(req: Request, res: Response, next: NextFunction): Promise<void> {
+        try {
+            const idProfile = req.user.id;
+            const { fullName, email, phoneNumber, avatar, password } = req.body as userBodyType;
+
+            const errorMessages = {
+                [UpdateUserCodes.PROFILE_NOT_FOUND]: `The profile with ID ${idProfile} was not found`,
+                [UpdateUserCodes.ACCOUNT_NOT_FOUND]: `There is no account associated with the profile with the id ${idProfile}`,
+                [UpdateUserCodes.EMAIL_ALREADY_EXISTS]: `Email already exists`
+            };
+
+            let updateUserResult: UpdateUserCodes | null = 
+            await UserService.updateUser(idProfile, fullName, email, phoneNumber!, avatar!, password);
+            if(updateUserResult !== null){
+                const errorBody = {
+                    error: true,
+                    statusCode: HttpStatusCodes.BAD_REQUEST,
+                    details: errorMessages[updateUserResult],
+                    apiErrorCode: updateUserResult
+                }
+    
+                res.status(errorBody.statusCode).json(errorBody);
+                return;
+            }
+    
+            res.status(HttpStatusCodes.CREATED).json();
+        } catch (error: any) {
+            next(error);
         }
     }
 }
