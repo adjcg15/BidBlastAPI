@@ -1,4 +1,4 @@
-import { DeleteUserCodes, HttpStatusCodes, UpdateUserCodes } from "@ts/enums";
+import { CreateUserCodes, DeleteUserCodes, HttpStatusCodes, UpdateUserCodes } from "@ts/enums";
 import { NextFunction, Request, Response } from "express";
 import { DataContextException } from "@exceptions/services";
 import UserService from "services/user_service";
@@ -76,27 +76,31 @@ class UserController {
             }
         */
         try {
-            const { fullName, email, phoneNumber, avatar, password } = req.body;
-
+            const { fullName, email, phoneNumber, avatar, password } = req.body as userBodyType;
             const avatarBuffer = avatar ? Buffer.from(avatar, 'base64') : null;
-            const account = await UserService.createUser(fullName, email, phoneNumber, avatarBuffer, password);
-            res.status(HttpStatusCodes.CREATED).json({ message: "Account created successfully", account });
-        } catch (error: any) {
-            if (error.message === "Email already exists") {
-                res.status(HttpStatusCodes.UNAUTHORIZED).json({
-                    error: true,
-                    statusCode: HttpStatusCodes.UNAUTHORIZED,
-                    details: "The email address is already in use. Please use a different email address."
-                });
-            } else if (error instanceof DataContextException) {
-                res.status(HttpStatusCodes.BAD_REQUEST).json({
+
+            const errorMessages = {
+                [CreateUserCodes.EMAIL_ALREADY_EXISTS]: `Email already exists`,
+                [CreateUserCodes.CUSTOMER_ROLE_NOT_FOUND]: `Customer role not found`
+            };
+
+            let createUserResult: CreateUserCodes | null = 
+            await UserService.createUser(fullName, email, phoneNumber!, avatarBuffer!, password);
+            if(createUserResult !== null){
+                const errorBody = {
                     error: true,
                     statusCode: HttpStatusCodes.BAD_REQUEST,
-                    details: "It was not possible to create the account, please try again later"
-                });
-            } else {
-                next(error);
+                    details: errorMessages[createUserResult],
+                    apiErrorCode: createUserResult
+                }
+    
+                res.status(errorBody.statusCode).json(errorBody);
+                return;
             }
+    
+            res.status(HttpStatusCodes.CREATED).json();
+        } catch (error: any) {
+            next(error);
         }
     }
 
@@ -104,6 +108,7 @@ class UserController {
         try {
             const idProfile = req.user.id;
             const { fullName, email, phoneNumber, avatar, password } = req.body as userBodyType;
+            const avatarBuffer = avatar ? Buffer.from(avatar, 'base64') : null;
 
             const errorMessages = {
                 [UpdateUserCodes.PROFILE_NOT_FOUND]: `The profile with ID ${idProfile} was not found`,
@@ -112,7 +117,7 @@ class UserController {
             };
 
             let updateUserResult: UpdateUserCodes | null = 
-            await UserService.updateUser(idProfile, fullName, email, phoneNumber!, avatar!, password);
+            await UserService.updateUser(idProfile, fullName, email, phoneNumber!, avatarBuffer!, password);
             if(updateUserResult !== null){
                 const errorBody = {
                     error: true,

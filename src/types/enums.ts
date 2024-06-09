@@ -48,6 +48,11 @@ enum AuctionStatus {
     FINISHED = "FINALIZADA"
 };
 
+enum CreateUserCodes {
+    EMAIL_ALREADY_EXISTS = EndpointContexts.CREATE_USER + "-400001",
+    CUSTOMER_ROLE_NOT_FOUND = EndpointContexts.CREATE_USER + "-400002"
+}
+
 enum UpdateUserCodes {
     EMAIL_ALREADY_EXISTS = EndpointContexts.UPDATE_USER + "-400001",
     PROFILE_NOT_FOUND = EndpointContexts.UPDATE_USER + "-400002",
@@ -107,6 +112,7 @@ enum BlockUserCodes {
 export {
     HttpStatusCodes,
     UserRoles,
+    CreateUserCodes,
     UpdateUserCodes,
     DeleteUserCodes,
     AuctionStatus,

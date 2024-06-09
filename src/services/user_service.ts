@@ -8,7 +8,7 @@ import Role from "@models/Role";
 import { IUserData } from "@ts/data";
 import SecurityService from "@lib/security_service";
 import DataBase from "@lib/db";
-import { DeleteUserCodes, UpdateUserCodes, UserRoles } from "@ts/enums";
+import { CreateUserCodes, DeleteUserCodes, UpdateUserCodes, UserRoles } from "@ts/enums";
 
 class UserService {
     public static async getUsersList(query: string, offset: number, limit: number): Promise<IUserData[]> {
@@ -98,20 +98,43 @@ class UserService {
         return users;
     }
 
-    public static async createUser(fullName: string, email: string, phoneNumber: string | null, avatar: Buffer | null, password: string): Promise<Account> {
-        let transaction: Transaction | null = null;
+    public static async createUser(fullName: string, email: string, phoneNumber: string, avatar: Buffer, password: string): Promise<CreateUserCodes | null> {
+        let resultCode: CreateUserCodes | null = null;
 
         try {
+            const sequelize = DataBase.getInstance().getConnection();
+            const transaction = await sequelize.transaction();
+
             if (!Account.sequelize) {
                 throw new DataContextException("Sequelize instance is not available");
             }
             const securityService = new SecurityService();
             const hashedPassword = securityService.hashPassword(password);
 
-            transaction = await Account.sequelize.transaction();
+            const dbAccount = await Account.findOne({
+                where: {
+                    email
+                }
+            });
+
+            if (dbAccount !== null) {
+                resultCode = CreateUserCodes.EMAIL_ALREADY_EXISTS;
+                return resultCode;
+            }
+
+            const dbRole = await Role.findOne({
+                where: {
+                    name: UserRoles.CUSTOMER
+                }
+            });
+
+            if (dbRole === null) {
+                resultCode = CreateUserCodes.CUSTOMER_ROLE_NOT_FOUND;
+                return resultCode;
+            }
 
             const profile = await Profile.create(
-                { full_name: fullName, phone_number: phoneNumber, avatar, id_account: null },
+                { full_name: fullName, phone_number: phoneNumber, avatar },
                 { transaction }
             );
 
@@ -120,27 +143,23 @@ class UserService {
                 { transaction }
             );
 
-            await profile.update({ id_account: account.id_account }, { transaction });
-
+            const role = dbRole.toJSON();
             await AccountsRoles.create(
-                { id_account: account.id_account, id_rol: 1 },
+                { id_account: account.id_account, id_rol: role.id_rol },
                 { transaction }
             );
 
             await transaction.commit();
-
-            return account;
         } catch (error: any) {
-            if (transaction) await transaction.rollback();
-
-            console.error("Error creating account:", error);
-
-            if (error.name === 'SequelizeUniqueConstraintError' || error.code === 'ER_DUP_ENTRY') {
-                throw new Error("Email already exists");
-            }
-
-            throw new DataContextException("Error while creating account: " + error.message);
+            const errorCodeMessage = error.code ? `ErrorCode: ${error.code}` : "";
+            throw new DataContextException(
+                error.message
+                ? `${error.message}. ${errorCodeMessage}`
+                : `It was not possible to register the information of the user. ${errorCodeMessage}`
+            );
         }
+
+        return resultCode;
     }
 
     public static async updateUser(idProfile: number, fullName: string, email: string, phoneNumber: string, avatar: Buffer, password: string): Promise<UpdateUserCodes | null> {
@@ -194,22 +213,15 @@ class UserService {
             const hashedPassword = securityService.hashPassword(password);
 
             await dbProfile.update(
-                {
-                    full_name: fullName, phone_number: phoneNumber, avatar
-                },
-                {
-                    transaction
-                }
+                { full_name: fullName, phone_number: phoneNumber, avatar },
+                { transaction }
             );
 
             await dbAccount.update(
-                {
-                    email, password: hashedPassword
-                },
-                {
-                    transaction
-                }
+                { email, password: hashedPassword },
+                { transaction }
             );
+            
             await transaction.commit();
         } catch (error: any) {
             const errorCodeMessage = error.code ? `ErrorCode: ${error.code}` : "";

@@ -3,7 +3,7 @@ type userBodyType = {
     fullName: string;
     email: string;
     phoneNumber?: string;
-    avatar?: Buffer;
+    avatar?: string;
     password: string;
 }
 
