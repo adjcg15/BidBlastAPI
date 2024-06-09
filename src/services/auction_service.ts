@@ -579,8 +579,6 @@ class AuctionService {
                     Offers,
                     HypermediaFiles
                 } = auction;
-                const closesAt = new Date(approval_date);
-                closesAt.setDate(approval_date.getDate() + days_available);
 
                 let minimumBid;
                 if(minimum_bid === null){
@@ -592,10 +590,15 @@ class AuctionService {
                 const auctionData: IAuctionData = {
                     id: id_auction,
                     title,
-                    closesAt,
                     minimumBid,
                     basePrice: base_price,
                     daysAvailable: days_available
+                }
+                
+                if (approval_date != null) {
+                    const closesAt = new Date(approval_date);
+                    closesAt.setDate(approval_date.getDate() + days_available);
+                    auctionData.closesAt = closesAt;
                 }
 
                 if(Array.isArray(Offers) && Offers.length > 0) {
@@ -655,6 +658,7 @@ class AuctionService {
             });
             
         } catch (error: any) {
+            console.log("Entre");
             const errorCodeMessage = error.code ? `ErrorCode: ${error.code}` : "";
             throw new DataContextException(
                 error.message
