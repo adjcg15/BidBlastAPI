@@ -22,7 +22,7 @@ UserRouter.get("/",
 
 UserRouter.post("/", 
     RateLimiter.limitPublicEndpointUse(),
-    checkSchema(UserRequestValidator.userSchema()),
+    checkSchema(UserRequestValidator.userRegistrationSchema()),
     RequestFormatValidator.validateRequestFormat,
     UserController.createUser
 );
@@ -38,7 +38,7 @@ UserRouter.delete("/:idProfile",
 UserRouter.put("/",
     AccessControl.checkTokenValidity,
     AccessControl.allowRoles([UserRoles.AUCTIONEER, UserRoles.CUSTOMER]),
-    checkSchema(UserRequestValidator.userSchema()),
+    checkSchema(UserRequestValidator.userUpdateSchema()),
     RequestFormatValidator.validateRequestFormat,
     UserController.updateUser
 );

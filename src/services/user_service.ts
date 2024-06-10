@@ -209,8 +209,14 @@ class UserService {
                 return resultCode;
             }
 
-            const securityService = new SecurityService();
-            const hashedPassword = securityService.hashPassword(password);
+            let hashedPassword: string = "";
+            if (password) {
+                const securityService = new SecurityService();
+                hashedPassword = securityService.hashPassword(password);
+            } else {
+                const profile = dbProfile.toJSON();
+                hashedPassword = profile.password;
+            }
 
             await dbProfile.update(
                 { full_name: fullName, phone_number: phoneNumber, avatar },
