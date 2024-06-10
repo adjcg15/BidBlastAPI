@@ -6,6 +6,52 @@ import { GetUsersQueryType, userBodyType } from "@ts/controllers";
 
 class UserController {
     public static async getUsersList(req: Request, res: Response, next: NextFunction): Promise<void>  {
+         /*
+            #swagger.auto = false
+
+            #swagger.path = '/api/users/'
+            #swagger.method = 'get'
+            #swagger.produces = ['application/json']
+            #swagger.consumes = ['application/json']
+            #swagger.tags = ['Users']
+            #swagger.summary = 'Recover all users'
+            #swagger.parameters['limit'] = {
+                in: 'query',
+                description: 'Limit of users to recover',
+                required: false,
+                type: 'integer',
+                example: '10'
+            }
+            #swagger.parameters['offset'] = {
+                in: 'query',
+                description: 'Number of users to skip',
+                required: false,
+                type: 'integer',
+                example: '15'
+            }
+            #swagger.parameters['query'] = {
+                in: 'query',
+                description: 'Search query to match user full name',
+                required: false,
+                type: 'string',
+                example: 'juan'
+            }
+            #swagger.security = [{
+                BearerAuth: []
+            }]
+            #swagger.responses[200] = {
+                description: 'List of users',
+                schema: { $ref: '#/definitions/UsersList' }
+            }
+            #swagger.responses[400] = {
+                description: 'Bad request',
+                schema:{ $ref: "#/definitions/BadRequestErrorWithApiError" }
+            }
+            #swagger.responses[500] = {
+                description: 'Server error',
+                schema: { $ref: '#/definitions/ServerError' }
+            }
+        */
         try {
             const { query, limit, offset } = req.query as GetUsersQueryType;
             const users = await UserService.getUsersList(query!, offset!, limit!);
@@ -17,62 +63,23 @@ class UserController {
 
     public static async createUser(req: Request, res: Response, next: NextFunction): Promise<void> {
         /*
-            #swagger.tags = ['Accounts']
-            #swagger.summary = 'Creates a new account'
+            #swagger.tags = ['Users']
+            #swagger.summary = 'Create a new user'
             #swagger.parameters['body'] = {
                 in: 'body',
                 required: true,
-                schema: { 
-                    type: 'object',
-                    required: ['fullName', 'email', 'phoneNumber', 'password'],
-                    properties: {
-                        fullName: { type: 'string' },
-                        email: { type: 'string' },
-                        phoneNumber: { type: 'string' },
-                        avatar: { type: 'string', format: 'byte' },
-                        password: { type: 'string' }
-                    }
-                }
+                schema: { $ref: '#/definitions/User' }
             }
             #swagger.responses[201] = {
-                description: 'Account created successfully',
-                schema: {
-                    message: 'Account created successfully',
-                    account: {
-                        type: 'object',
-                        properties: {
-                            id: { type: 'string' },
-                            fullName: { type: 'string' },
-                            email: { type: 'string' },
-                            phoneNumber: { type: 'string' },
-                            avatar: { type: 'string', format: 'byte' }
-                        }
-                    }
-                }
+                description: 'User created successfully'
             }
             #swagger.responses[400] = {
                 description: 'Bad request',
-                schema: {
-                    error: true,
-                    statusCode: 400,
-                    details: 'Bad request'
-                }
-            }
-            #swagger.responses[401] = {
-                description: 'Email already exists',
-                schema: {
-                    error: true,
-                    statusCode: 401,
-                    details: 'The email address is already in use. Please use a different email address.'
-                }
+                schema:{ $ref: "#/definitions/BadRequestErrorWithApiError" }
             }
             #swagger.responses[500] = {
                 description: 'Server error',
-                schema: {
-                    error: true,
-                    statusCode: 500,
-                    details: 'There was an unexpected error, please try again later'
-                }
+                schema: { $ref: '#/definitions/ServerError' }
             }
         */
         try {
@@ -105,6 +112,29 @@ class UserController {
     }
 
     public static async updateUser(req: Request, res: Response, next: NextFunction): Promise<void> {
+        /*
+            #swagger.tags = ['Users']
+            #swagger.summary = 'Update an user'
+            #swagger.security = [{
+                BearerAuth: []
+            }]
+            #swagger.parameters['body'] = {
+                in: 'body',
+                required: true,
+                schema: { $ref: '#/definitions/User' }
+            }
+            #swagger.responses[201] = {
+                description: 'User updated successfully'
+            }
+            #swagger.responses[400] = {
+                description: 'Bad request',
+                schema:{ $ref: "#/definitions/BadRequestErrorWithApiError" }
+            }
+            #swagger.responses[500] = {
+                description: 'Server error',
+                schema: { $ref: '#/definitions/ServerError' }
+            }
+        */
         try {
             const idProfile = req.user.id;
             const { fullName, email, phoneNumber, avatar, password } = req.body as userBodyType;
@@ -137,6 +167,36 @@ class UserController {
     }
 
     public static async deleteUser(req: Request, res: Response, next: NextFunction): Promise<void> {
+        /*
+            #swagger.tags = ['Users']
+            #swagger.summary = 'Delete an user'
+            #swagger.security = [{
+                BearerAuth: []
+            }]
+            #swagger.parameters['idProfile'] = {
+                in: 'path',
+                description: 'Id of the profile',
+                required: true,
+                type: 'integer',
+                example: '10'
+            }
+            #swagger.parameters['body'] = {
+                in: 'body',
+                required: true,
+                schema: { $ref: '#/definitions/User' }
+            }
+            #swagger.responses[201] = {
+                description: 'User deleted successfully'
+            }
+            #swagger.responses[400] = {
+                description: 'Bad request',
+                schema:{ $ref: "#/definitions/BadRequestErrorWithApiError" }
+            }
+            #swagger.responses[500] = {
+                description: 'Server error',
+                schema: { $ref: '#/definitions/ServerError' }
+            }
+        */
         const { idProfile } = req.params;
         
         try {

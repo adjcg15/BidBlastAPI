@@ -488,6 +488,38 @@ class AuctionController {
     }
 
     public static async blockUserInAnAuctionAndDeleteHisOffers(req: Request, res: Response, next: NextFunction): Promise<void> {
+        /*
+            #swagger.tags = ['Auctions']
+            #swagger.summary = 'Block an user in an auction'
+            #swagger.security = [{
+                BearerAuth: []
+            }]
+            #swagger.parameters['auid'] = {
+                in: 'path',
+                description: 'Id of the profile',
+                required: true,
+                type: 'integer',
+                example: '10'
+            }
+            #swagger.parameters['body'] = {
+                in: 'body',
+                required: true,
+                schema: { 
+                    idProfile: 17
+                }
+            }
+            #swagger.responses[201] = {
+                description: 'User blocked successfully'
+            }
+            #swagger.responses[400] = {
+                description: 'Bad request',
+                schema:{ $ref: "#/definitions/BadRequestErrorWithApiError" }
+            }
+            #swagger.responses[500] = {
+                description: 'Server error',
+                schema: { $ref: '#/definitions/ServerError' }
+            }
+        */
         try {
             const { auid } = req.params;
             const idAuction = parseInt(auid);

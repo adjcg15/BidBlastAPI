@@ -170,6 +170,26 @@ const doc = {
                 }
             }
         ],
+        UsersList: [
+            {
+                id: 34,
+                fullName: "Juan Pérez Aguirre",
+                email: "moderator@gmail.com",
+                phoneNumber: "2281645447",
+                avatar: "",
+                roles: [
+                    "MODERATOR"
+                ],
+                isRemovable: false
+            }
+        ],
+        User: {
+            fullName: "Rodrigo Aguilar López",
+            email: "rodrigo000092350@gmail.com",
+            phoneNumber: "2321983692",
+            avatar: "",
+            password: "PasswordSeguro19"
+        },
         AuctionCategory: {
             id: 126,
             title: "Videojuegos",
