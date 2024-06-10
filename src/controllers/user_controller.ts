@@ -180,11 +180,6 @@ class UserController {
                 type: 'integer',
                 example: '10'
             }
-            #swagger.parameters['body'] = {
-                in: 'body',
-                required: true,
-                schema: { $ref: '#/definitions/User' }
-            }
             #swagger.responses[201] = {
                 description: 'User deleted successfully'
             }
