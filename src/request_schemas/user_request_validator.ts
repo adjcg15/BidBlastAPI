@@ -1,7 +1,7 @@
 import { Schema } from "express-validator";
 
 class UserRequestValidator {
-    public static userSchema(): Schema {
+    public static userRegistrationSchema(): Schema {
         return {
             fullName: {
                 in: ["body"],
@@ -33,11 +33,69 @@ class UserRequestValidator {
             password: {
                 in: ["body"],
                 trim: true,
-                notEmpty: true,
-                errorMessage: "Password is required"
-            }
+                notEmpty: {
+                    errorMessage: "Password is required"
+                },
+                isLength: {
+                    options: { min: 8 },
+                    errorMessage: "Password must be at least 8 characters long"
+                },
+                matches: {
+                    options: /^(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).+$/,
+                    errorMessage: "Password must contain at least one uppercase letter, one number, and one special character"
+                }
+            }            
         };
     }
+
+    public static userUpdateSchema(): Schema {
+        return {
+            fullName: {
+                in: ["body"],
+                trim: true,
+                notEmpty: true,
+                errorMessage: "Full name is required"
+            },
+            email: {
+                in: ["body"],
+                trim: true,
+                isEmail: true,
+                errorMessage: "Invalid email address"
+            },
+            phoneNumber: {
+                in: ["body"],
+                optional: { options: { nullable: true } },
+                trim: true,
+                isNumeric: true,
+                isLength: {
+                    options: { min: 10, max: 10 },
+                    errorMessage: "Phone number must be 10 digits long"
+                }
+            },
+            avatar: {
+                in: ["body"],
+                optional: { options: { nullable: true } },
+                trim: true
+            },
+            password: {
+                in: ["body"],
+                optional: { options: { nullable: true } },
+                trim: true,
+                notEmpty: {
+                    errorMessage: "Password is required"
+                },
+                isLength: {
+                    options: { min: 8 },
+                    errorMessage: "Password must be at least 10 characters long"
+                },
+                matches: {
+                    options: /^(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).+$/,
+                    errorMessage: "Password must contain at least one uppercase letter, one number, and one special character"
+                }
+            } 
+        };
+    }
+
     public static userSalesAuctionsListSchema() : Schema{
         return {
             startDate: {

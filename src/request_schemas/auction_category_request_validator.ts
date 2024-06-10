@@ -36,16 +36,27 @@ class AuctionCategoriesRequestValidator {
                 notEmpty: true,
                 errorMessage: "Description is required"
             },
-            keywords:{
+            keywords: {
                 in: ["body"],
                 trim: true,
-                notEmpty: true,
-                errorMessage: "Keywords is required"
+                notEmpty: {
+                    errorMessage: "Keywords is required"
+                },
+                custom: {
+                    options: (value) => {
+                        const keywordsArray = value.split(',').map((keyword: string) => keyword.trim());
+                        const validKeywords = keywordsArray.filter((keyword: string) => keyword !== '');
+                        if (validKeywords.length < 3) {
+                            throw new Error("Keywords must have at least three words separated by commas");
+                        }
+                        return true;
+                    }
+                }
             }
         };
     }
 
-    public static auctionCategoryRegistrartionSchema(): Schema {
+    public static auctionCategoryRegistrationSchema(): Schema {
         return {
             title: {
                 in: ["body"],
@@ -59,11 +70,22 @@ class AuctionCategoriesRequestValidator {
                 notEmpty: true,
                 errorMessage: "Description is required"
             },
-            keywords:{
+            keywords: {
                 in: ["body"],
                 trim: true,
-                notEmpty: true,
-                errorMessage: "Keywords is required"
+                notEmpty: {
+                    errorMessage: "Keywords is required"
+                },
+                custom: {
+                    options: (value) => {
+                        const keywordsArray = value.split(',').map((keyword: string) => keyword.trim());
+                        const validKeywords = keywordsArray.filter((keyword: string) => keyword !== '');
+                        if (validKeywords.length < 3) {
+                            throw new Error("Keywords must have at least three words separated by commas");
+                        }
+                        return true;
+                    }
+                }
             }
         };
     }
