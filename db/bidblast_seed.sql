@@ -28,6 +28,9 @@ SET @auctioneer_role_id := LAST_INSERT_ID();
 INSERT INTO roles(name) VALUES ("MODERATOR");
 SET @moderator_role_id := LAST_INSERT_ID();
 
+INSERT INTO roles(name) VALUES ("ADMINISTRATOR");
+SET @admin_role_id := LAST_INSERT_ID();
+
 -- -----------------------------------------------------
 -- Fill table `bid_blast_database`.`profiles` and table table `bid_blast_database`.`accounts`
 -- -----------------------------------------------------
@@ -76,6 +79,24 @@ VALUES('customer3@gmail.com',
 	'$2b$10$cyP9ZIPiwVyT09zrDblZy.EEUQjIb8rdm6cPMPvBaJO4qXRcjHojm', @customer_three_profile_id);
 SET @customer_three_account_id := LAST_INSERT_ID();
 
+INSERT INTO profiles(full_name, phone_number, avatar)
+VALUES ('Karina Torres Gamboa', null, null);
+SET @customer_four_profile_id := LAST_INSERT_ID();
+
+INSERT INTO accounts(email, password, id_profile) 
+VALUES('customer4@gmail.com', 
+	'$2b$10$cyP9ZIPiwVyT09zrDblZy.EEUQjIb8rdm6cPMPvBaJO4qXRcjHojm', @customer_four_profile_id);
+SET @customer_four_account_id := LAST_INSERT_ID();
+
+INSERT INTO profiles(full_name, phone_number, avatar)
+VALUES ('Jouse Jaimes Cruz', null, null);
+SET @admin_profile_id := LAST_INSERT_ID();
+
+INSERT INTO accounts(email, password, id_profile) 
+VALUES('admin@gmail.com', 
+	'$2b$10$cyP9ZIPiwVyT09zrDblZy.EEUQjIb8rdm6cPMPvBaJO4qXRcjHojm', @admin_profile_id);
+SET @admin_account_id := LAST_INSERT_ID();
+
 -- -----------------------------------------------------
 -- Fill table `bid_blast_database`.`accounts_roles`
 -- -----------------------------------------------------
@@ -85,7 +106,9 @@ INSERT INTO accounts_roles(id_account, id_rol) VALUES
     (@moderator_account_id, @moderator_role_id),
     (@customer_one_account_id, @customer_role_id),
     (@customer_two_account_id, @customer_role_id),
-	(@customer_three_account_id, @customer_role_id);
+	(@customer_three_account_id, @customer_role_id),
+	(@customer_four_account_id, @customer_role_id),
+	(@admin_account_id, @admin_role_id);
     
 -- -----------------------------------------------------
 -- Fill table `bid_blast_database`.`auction_categories`
