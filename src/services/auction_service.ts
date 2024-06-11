@@ -751,7 +751,13 @@ class AuctionService {
                             }
                         },
                         attributes: ["id_hypermedia_file", "mime_type", "name", "content"]
-                    }
+                    },
+                    {
+                        model: Offer,
+                        order: [["creation_date", "DESC"]],
+                        separate: true,
+                        limit: 1
+                    },
                 ],
                 attributes: {
                     include: [
@@ -775,7 +781,8 @@ class AuctionService {
                     base_price,
                     minimum_bid,
                     ItemCondition: { name: itemConditionName },
-                    HypermediaFiles: auctionImages
+                    HypermediaFiles: auctionImages,
+                    Offers
                 } = dbAuction.toJSON();
                 const closesAt = new Date(approval_date);
                 closesAt.setDate(approval_date.getDate() + days_available);
@@ -820,6 +827,16 @@ class AuctionService {
                     itemCondition: itemConditionName,
                     mediaFiles: auctionMediaFiles
                 };
+
+                if(Array.isArray(Offers) && Offers.length > 0) {
+                    const { id_offer, amount, creation_date } = Offers[0];
+
+                    auction.lastOffer = {
+                        id: id_offer,
+                        amount: parseFloat(amount),
+                        creationDate: creation_date
+                    }
+                }
             }
         } catch(error: any) {
             const errorCodeMessage = error.code ? `ErrorCode: ${error.code}` : "";
