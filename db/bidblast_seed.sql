@@ -128,21 +128,21 @@ SET @new_article_condition_id := LAST_INSERT_ID();
 INSERT INTO auctions(description, base_price, minimum_bid, approval_date, title, 
 days_available, id_profile, id_item_condition, id_auction_category) VALUES
 ("Libro seminuevo primavera silenciosa. Me gustó mucho, pero me gustaría que alguien más lo aprovechara más que yo",
-	50, null, "2024-05-10 14:30:00", "Libro primavera silenciosa", 15, @auctioneer_profile_id,
+	50, null, "2024-06-10 14:35:00", "Libro primavera silenciosa", 15, @auctioneer_profile_id,
     @used_article_condition_id, @books_category_id);
 SET @book_auction_id := LAST_INSERT_ID(); 
 
 INSERT INTO auctions(description, base_price, minimum_bid, approval_date, title, 
 days_available, id_profile, id_item_condition, id_auction_category) VALUES
 ("Celular nuevo, no le gustó como regalo a mi padre y lo estoy revendiendo.",
-	15000, null, "2024-05-05 14:30:00", "Iphone 15", 7, @auctioneer_profile_id,
+	15000, null, "2024-06-10 14:30:00", "Iphone 15", 7, @auctioneer_profile_id,
     @new_article_condition_id, @electronics_category_id);
 SET @phone_auction_id := LAST_INSERT_ID(); 
 
 INSERT INTO auctions(description, base_price, minimum_bid, approval_date, title, 
 days_available, id_profile, id_item_condition, id_auction_category) VALUES
 ("Código totalmente legal. No lo utilicé porque ya no juego.",
-	15000, null, "2024-05-10 11:12:07", 
+	15000, null, "2024-06-05 11:12:07", 
     "Fortnite Marvel: Iron Man Zero War Rare Bundle Skin Outfit", 30, @auctioneer_profile_id,
     @new_article_condition_id, @videogames_category_id);
 SET @fortnite_auction_id := LAST_INSERT_ID(); 
@@ -150,7 +150,7 @@ SET @fortnite_auction_id := LAST_INSERT_ID();
 INSERT INTO auctions(description, base_price, minimum_bid, approval_date, title, 
 days_available, id_profile, id_item_condition, id_auction_category) VALUES
 ("Herramienta para coche marca Mikel, solo la usé dos veces.",
-	150, 10, "2024-05-17 13:44:08", 
+	150, 10, "2024-06-01 13:44:08", 
     "Mikel's CC-14P Llave de Cruz Plegable 14''", 30, @auctioneer_profile_id,
     @used_article_condition_id, @vehicles_category_id);
 SET @tool_auction_id := LAST_INSERT_ID(); 
@@ -158,7 +158,7 @@ SET @tool_auction_id := LAST_INSERT_ID();
 INSERT INTO auctions(description, base_price, minimum_bid, approval_date, title, 
 days_available, id_profile, id_item_condition, id_auction_category) VALUES
 ("Herramienta nueva para coche. Intenté usarla con mi coche pero no funcionó, por eso la estoy vendiendo",
-	1900, 5, "2024-05-17 13:55:08", 
+	1900, 5, "2024-06-09 13:55:08", 
     "MIKEL'S Soporte para Motor 500 kg", 25, @auctioneer_profile_id,
     @new_article_condition_id, @vehicles_category_id);
 SET @tool_two_auction_id := LAST_INSERT_ID(); 
