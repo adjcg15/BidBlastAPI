@@ -142,7 +142,7 @@ SET @phone_auction_id := LAST_INSERT_ID();
 INSERT INTO auctions(description, base_price, minimum_bid, approval_date, title, 
 days_available, id_profile, id_item_condition, id_auction_category) VALUES
 ("Código totalmente legal. No lo utilicé porque ya no juego.",
-	15000, null, "2024-06-05 11:12:07", 
+	450, null, "2024-06-05 11:12:07", 
     "Fortnite Marvel: Iron Man Zero War Rare Bundle Skin Outfit", 30, @auctioneer_profile_id,
     @new_article_condition_id, @videogames_category_id);
 SET @fortnite_auction_id := LAST_INSERT_ID(); 
