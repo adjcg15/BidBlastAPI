@@ -128,7 +128,7 @@ SET @new_article_condition_id := LAST_INSERT_ID();
 INSERT INTO auctions(description, base_price, minimum_bid, approval_date, title, 
 days_available, id_profile, id_item_condition, id_auction_category) VALUES
 ("Libro seminuevo primavera silenciosa. Me gustó mucho, pero me gustaría que alguien más lo aprovechara más que yo",
-	50, null, "2024-06-10 14:35:00", "Libro primavera silenciosa", 15, @auctioneer_profile_id,
+	50, 10, "2024-06-10 14:35:00", "Libro primavera silenciosa", 15, @auctioneer_profile_id,
     @used_article_condition_id, @books_category_id);
 SET @book_auction_id := LAST_INSERT_ID(); 
 
