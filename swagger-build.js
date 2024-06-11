@@ -86,7 +86,12 @@ const doc = {
             itemCondition: "Nuevo",
             mediaFiles: [
                 { $ref: "#/definitions/CompleteMediaFile" }
-            ]
+            ],
+            lastOffer: {
+                id: 23,
+                amount: 134.5,
+                creationDate: "2024-06-4T18:59:15.000Z"
+            },
         },
         AuctionSalesList: [
             {
