@@ -27,8 +27,14 @@ class AuctionCategoriesRequestValidator {
             title: {
                 in: ["body"],
                 trim: true,
-                notEmpty: true,
-                errorMessage: "Title is required"
+                notEmpty: {
+                    errorMessage: "Title is required"
+                },
+                isLength: {
+                    options: { max: 60 },
+                    errorMessage: "Title cannot be longer than 60 characters"
+                }
+
             },
             description: {
                 in: ["body"],
@@ -61,8 +67,14 @@ class AuctionCategoriesRequestValidator {
             title: {
                 in: ["body"],
                 trim: true,
-                notEmpty: true,
-                errorMessage: "Title is required"
+                notEmpty: {
+                    errorMessage: "Title is required"
+                },
+                isLength: {
+                    options: { max: 60 },
+                    errorMessage: "Title cannot be longer than 60 characters"
+                }
+
             },
             description: {
                 in: ["body"],
