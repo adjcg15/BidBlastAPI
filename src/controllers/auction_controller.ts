@@ -6,6 +6,7 @@ import { BlockUserCodes, GetOffersCodes, HttpStatusCodes, CreateAuctionCodes } f
 import { NextFunction, Request, Response } from "express";
 import AuctionService from "services/auction_service";
 import videoClient from 'grpcClient';
+import { validationResult } from "express-validator";
 
 class AuctionController {
     public static async searchAuction(req: Request, res: Response, next: NextFunction) {
@@ -148,6 +149,12 @@ class AuctionController {
         }
     }
     public static async createAuction(req: Request, res: Response, next: NextFunction): Promise<void> {
+        const errors = validationResult(req);
+        if (!errors.isEmpty()) {
+            res.status(HttpStatusCodes.BAD_REQUEST).json({ errors: errors.array() });
+            return;
+        }
+
         const auctionData = {
             title: req.body.title,
             description: req.body.description,
@@ -161,11 +168,11 @@ class AuctionController {
         const mediaFiles = req.body.mediaFiles;
         const userProfileId: number = req.user.id;
 
-        if (!auctionData || !mediaFiles) {
+        if (!auctionData || !mediaFiles || mediaFiles.length === 0) {
             res.status(HttpStatusCodes.BAD_REQUEST).json({
                 error: true,
                 code: [CreateAuctionCodes.INVALID_REQUEST_DATA],
-                message: "Invalid request data"
+                message: "Invalid request data: Media files are required"
             });
             return;
         }
@@ -174,13 +181,13 @@ class AuctionController {
             const auction = await AuctionService.createAuction(auctionData, mediaFiles, userProfileId);
 
             for (const file of mediaFiles) {
-                if (file.mimeType.startsWith('video/')) {
+                if (file.mimeType === 'video/x-msvideo') {
                     await AuctionController.uploadVideo(auction.id_auction, file.mimeType, file.content, file.name);
                 }
             }
 
             res.status(HttpStatusCodes.CREATED).send();
-        } catch (error: any) { 
+        } catch (error: any) {
             res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).json({
                 error: true,
                 statusCode: HttpStatusCodes.INTERNAL_SERVER_ERROR,
@@ -198,7 +205,7 @@ class AuctionController {
                     resolve(response);
                 }
             });
-    
+
             call.write({ auctionId, mimeType, content: Buffer.from(content, 'base64'), name });
             call.end();
         });

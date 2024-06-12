@@ -285,6 +285,16 @@ class AuctionService {
     
         return state.id_auction_state;
     }
+    public static async checkItemConditionExists(idItemCondition: number): Promise<boolean> {
+        try {
+            const itemCondition = await ItemCondition.findByPk(idItemCondition);
+            return itemCondition !== null;
+        } catch (error: any) {
+            console.error("Error checking item condition existence:", error);
+            throw new DataContextException("Error while checking item condition existence");
+        }
+    }
+    
     public static async createAuction(
         auctionData: any,
         mediaFiles: any[],
@@ -295,6 +305,10 @@ class AuctionService {
         try {
             if (!Auction.sequelize) {
                 throw new DataContextException("Sequelize instance is not available");
+            }
+            const itemConditionExists = await this.checkItemConditionExists(auctionData.idItemCondition);
+            if (!itemConditionExists) {
+                throw new DataContextException("Item condition does not exist");
             }
     
             transaction = await Auction.sequelize.transaction();
@@ -313,6 +327,7 @@ class AuctionService {
                 },
                 { transaction }
             );
+    
             for (const file of mediaFiles) {
                 await HypermediaFile.create(
                     {
@@ -324,8 +339,9 @@ class AuctionService {
                     { transaction }
                 );
             }
+    
             const proposalStateId = await this.getStateIdByName("PROPUESTA");
-
+    
             await AuctionStatesApplications.create(
                 {
                     id_auction: auction.id_auction,
@@ -341,11 +357,10 @@ class AuctionService {
         } catch (error: any) {
             if (transaction) await transaction.rollback();
     
-            console.error("Error creating auction");
+            console.error("Error creating auction:", error.message);
             throw new DataContextException("Error while creating auction");
         }
     }
-    
     public static async getCompletedAuctions(userId: number, query: string, offset: number, limit: number) {
         let auctions: IAuctionData[] = [];
         try {

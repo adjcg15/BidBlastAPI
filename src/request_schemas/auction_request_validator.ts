@@ -1,3 +1,4 @@
+import ItemCondition from "@models/ItemCondition";
 import { Schema } from "express-validator";
 
 class AuctionRequestValidator {
@@ -127,7 +128,16 @@ class AuctionRequestValidator {
                 isInt: {
                     errorMessage: "Item condition ID must be an integer"
                 },
-                toInt: true
+                toInt: true,
+                custom: {
+                    options: async (value: number) => {
+                        const itemCondition = await ItemCondition.findByPk(value);
+                        if (!itemCondition) {
+                            throw new Error("Invalid item condition ID");
+                        }
+                        return true;
+                    }
+                }
             },
             idAuctionCategory: {
                 in: ["body"],
@@ -140,7 +150,7 @@ class AuctionRequestValidator {
             mediaFiles: {
                 in: ["body"],
                 custom: {
-                    options: (value) => {
+                    options: (value: any[]) => {
                         if (value === null || !Array.isArray(value) || value.length === 0) {
                             throw new Error("Media files must be a non-empty array");
                         }
@@ -154,20 +164,30 @@ class AuctionRequestValidator {
                 isString: true,
                 notEmpty: {
                     errorMessage: "Each media file must have a mimeType"
+                },
+                custom: {
+                    options: (value: string) => {
+                        const allowedMimeTypes = ["video/x-msvideo", "image/png", "image/jpeg"];
+                        if (!allowedMimeTypes.includes(value)) {
+                            throw new Error("Invalid mime type, only AVI for videos, PNG and JPEG for images are allowed");
+                        }
+                        return true;
+                    }
                 }
             },
             "mediaFiles.*.content": {
                 in: ["body"],
                 isString: true,
                 custom: {
-                    options: (value) => {
+                    options: (value: string, { req }) => {
                         const buffer = Buffer.from(value, 'base64');
-                        if (buffer.length > 5 * 1024 * 1024) {
-                            throw new Error("Video exceeds the maximum allowed size of 5 MB");
+                        const file = req.body.mediaFiles.find((f: any) => f.content === value);
+                        if (buffer.length > 2 * 1024 * 1024) {
+                            throw new Error(`${file.mimeType.startsWith("video/") ? "Video" : "Image"} exceeds the maximum allowed size of 2 MB`);
                         }
                         return true;
                     },
-                    errorMessage: "Invalid video content"
+                    errorMessage: "Invalid file content, exceeds the maximum allowed size of 5 MB"
                 },
                 notEmpty: {
                     errorMessage: "Each media file must have content"
@@ -179,7 +199,7 @@ class AuctionRequestValidator {
                 optional: { options: { nullable: true } }
             }
         };
-    }        
+    }  
     public static auctionByIdSchema(): Schema {
         return {
             idAuction: {
