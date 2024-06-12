@@ -299,7 +299,6 @@ class AuctionService {
     
             transaction = await Auction.sequelize.transaction();
     
-            // Crear la subasta
             const auction = await Auction.create(
                 {
                     title: auctionData.title,
