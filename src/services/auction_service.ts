@@ -274,21 +274,32 @@ class AuctionService {
 
         return auctions;
     }
-
+    public static async getStateIdByName(name: string): Promise<number> {
+        const state = await AuctionState.findOne({
+            where: { name }
+        });
+    
+        if (!state) {
+            throw new DataContextException(`State with name ${name} not found`);
+        }
+    
+        return state.id_auction_state;
+    }
     public static async createAuction(
         auctionData: any,
         mediaFiles: any[],
         userProfileId: number
     ): Promise<Auction> {
         let transaction: Transaction | null = null;
-
+    
         try {
             if (!Auction.sequelize) {
                 throw new DataContextException("Sequelize instance is not available");
             }
-
+    
             transaction = await Auction.sequelize.transaction();
-
+    
+            // Crear la subasta
             const auction = await Auction.create(
                 {
                     title: auctionData.title,
@@ -303,7 +314,6 @@ class AuctionService {
                 },
                 { transaction }
             );
-
             for (const file of mediaFiles) {
                 await HypermediaFile.create(
                     {
@@ -315,17 +325,28 @@ class AuctionService {
                     { transaction }
                 );
             }
+            const proposalStateId = await this.getStateIdByName("PROPUESTA");
 
+            await AuctionStatesApplications.create(
+                {
+                    id_auction: auction.id_auction,
+                    id_auction_state: proposalStateId,
+                    application_date: new Date()
+                },
+                { transaction }
+            );
+    
             await transaction.commit();
-
+    
             return auction;
         } catch (error: any) {
             if (transaction) await transaction.rollback();
-
+    
             console.error("Error creating auction:", error);
             throw new DataContextException("Error while creating auction: " + error.message);
         }
     }
+    
     public static async getCompletedAuctions(userId: number, query: string, offset: number, limit: number) {
         let auctions: IAuctionData[] = [];
         try {
