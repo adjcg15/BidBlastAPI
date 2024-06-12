@@ -4,6 +4,7 @@ import AuctionCategoryController from "@controllers/auction_category_controller"
 import AuctionCategoriesRequestValidator from "@request_schemas/auction_category_request_validator";
 import RequestFormatValidator from "@middlewares/request_format_validator";
 import AccessControl from "@middlewares/access_control";
+import { UserRoles } from "@ts/enums";
 
 const AuctionCategoryRouter = Router();
 
@@ -21,6 +22,7 @@ AuctionCategoryRouter.get("/:catid",
 
 AuctionCategoryRouter.put("/:catid",
     AccessControl.checkTokenValidity,
+    AccessControl.allowRoles([UserRoles.MODERATOR]),
     checkSchema(AuctionCategoriesRequestValidator.auctionCategoryModificationSchema()),
     RequestFormatValidator.validateRequestFormat,
     AuctionCategoryController.updateAuctionCategory
@@ -28,6 +30,7 @@ AuctionCategoryRouter.put("/:catid",
 
 AuctionCategoryRouter.post("/",
     AccessControl.checkTokenValidity,
+    AccessControl.allowRoles([UserRoles.MODERATOR]),
     checkSchema(AuctionCategoriesRequestValidator.auctionCategoryRegistrationSchema()),
     RequestFormatValidator.validateRequestFormat,
     AuctionCategoryController.registerAuctionCategory

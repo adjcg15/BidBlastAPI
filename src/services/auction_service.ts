@@ -670,12 +670,16 @@ class AuctionService {
         return auctions;
     }
     
-    public static async getUserAuctionOffersByAuctionId(idAuction: number, offset: number, limit: number): Promise<IOfferData[] | GetOffersCodes> {
+    public static async getUserAuctionOffersByAuctionId(idProfile: number, idAuction: number, offset: number, limit: number): Promise<IOfferData[] | GetOffersCodes> {
         let offers: IOfferData[] = [];
         let resultCode: GetOffersCodes | null = null;
 
         try {
-            const dbAuction = await Auction.findByPk(idAuction);
+            const dbAuction = await Auction.findOne({
+                where: {
+                    id_auction: idAuction, id_profile: idProfile
+                }
+            });
 
             if (dbAuction === null) {
                 resultCode = GetOffersCodes.AUCTION_NOT_FOUND;
@@ -850,11 +854,26 @@ class AuctionService {
         return auction;
     }
 
-    public static async blockUserInAnAuctionAndDeleteHisOffers(idProfile: number, idAuction: number){
+    public static async blockUserInAnAuctionAndDeleteHisOffers(idAuctioneer: number, idProfile: number, idAuction: number){
         let resultCode: BlockUserCodes | null = null;
 
         try {
-            const dbAuction = await Auction.findByPk(idAuction);
+            const dbAuction = await Auction.findOne({
+                where: {
+                    id_auction: idAuction, id_profile: idAuctioneer
+                },
+                attributes: {
+                    include: [
+                        [
+                            literal(`(SELECT IF(S.name = "${AuctionStatus.PUBLISHED}", 1, 0) FROM auctions_states_applications AS 
+                            H INNER JOIN auction_states AS S ON H.id_auction_state = S.id_auction_state WHERE H.id_auction = 
+                            Auction.id_auction ORDER BY H.application_date DESC LIMIT 1)`),
+                            "is_public"
+                        ]
+                    ],
+                },
+                having:{ ["is_public"]: {[Op.eq]:1}}
+            });
             if (dbAuction === null) {
                 resultCode = BlockUserCodes.AUCTION_NOT_FOUND;
                 return resultCode;
@@ -878,7 +897,7 @@ class AuctionService {
 
             const dbOffer = await Offer.findOne({
                 where: {
-                    id_profile: idProfile
+                    id_profile: idProfile, id_auction: idAuction
                 }
             });
             if (dbOffer === null) {
