@@ -414,13 +414,14 @@ class AuctionController {
         try {
             const { offset, limit } = req.query as OffersAuctionQueryType;
             const { auid } = req.params;
+            const idProfile = req.user.id;
 
             const errorMessages = {
                 [GetOffersCodes.AUCTION_NOT_FOUND]: `The auction  with ID ${auid} was not found`,
             };
 
             let offersResult: IOfferData[] | GetOffersCodes = 
-                await AuctionService.getUserAuctionOffersByAuctionId(Number(auid), offset!, limit!);
+                await AuctionService.getUserAuctionOffersByAuctionId(idProfile, Number(auid), offset!, limit!);
             if (offersResult === GetOffersCodes.AUCTION_NOT_FOUND) {
                 const errorBody = {
                     error: true,
@@ -524,6 +525,7 @@ class AuctionController {
             const { auid } = req.params;
             const idAuction = parseInt(auid);
             const { idProfile } = req.body;
+            const idAuctioneer = req.user.id;
 
             const errorMessages = {
                 [BlockUserCodes.AUCTION_NOT_FOUND]: `The auction  with ID ${idAuction} was not found`,
@@ -533,7 +535,7 @@ class AuctionController {
             };
 
             let blockUserResult: BlockUserCodes | null = 
-                await AuctionService.blockUserInAnAuctionAndDeleteHisOffers(idProfile, idAuction);
+                await AuctionService.blockUserInAnAuctionAndDeleteHisOffers(idAuctioneer, idProfile, idAuction);
             if(blockUserResult !== null){
                 const errorBody = {
                     error: true,
