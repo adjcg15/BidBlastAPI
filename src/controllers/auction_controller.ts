@@ -184,7 +184,7 @@ class AuctionController {
             res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).json({
                 error: true,
                 statusCode: HttpStatusCodes.INTERNAL_SERVER_ERROR,
-                details: error.message || "It was not possible to process your request, please try it again later"
+                details: "It was not possible to process your request, please try it again later"
             });
         }
     }
