@@ -165,8 +165,6 @@ class AuctionRequestValidator {
             }
         };
     }
-    
-
     public static auctionByIdSchema(): Schema {
         return {
             idAuction: {

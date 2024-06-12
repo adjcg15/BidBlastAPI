@@ -127,5 +127,6 @@ export {
     ModifyAuctionCategoryCodes,
     CreateAuctionCategoryCodes,
     GetOffersCodes,
-    BlockUserCodes
+    BlockUserCodes,
+    CreateAuctionCodes
 };

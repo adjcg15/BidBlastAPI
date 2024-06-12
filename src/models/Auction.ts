@@ -29,11 +29,11 @@ Auction.init(
         },
         minimum_bid: {
             type: DataTypes.DECIMAL,
-            allowNull: false
+            allowNull: true
         },
         approval_date: {
             type: DataTypes.DATE,
-            allowNull: false
+            allowNull: true
         },
         title: {
             type: DataTypes.STRING(60),
