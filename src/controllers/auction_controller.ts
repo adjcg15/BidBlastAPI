@@ -170,9 +170,6 @@ class AuctionController {
             return;
         }
 
-        console.log("Received auction data:", auctionData);
-        console.log("Received media files:", mediaFiles);
-
         try {
             const auction = await AuctionService.createAuction(auctionData, mediaFiles, userProfileId);
 
@@ -183,8 +180,7 @@ class AuctionController {
             }
 
             res.status(HttpStatusCodes.CREATED).send();
-        } catch (error: any) {
-            console.error("Error creating auction:", error); 
+        } catch (error: any) { 
             res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).json({
                 error: true,
                 statusCode: HttpStatusCodes.INTERNAL_SERVER_ERROR,

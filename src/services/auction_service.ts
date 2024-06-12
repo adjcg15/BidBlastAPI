@@ -341,8 +341,8 @@ class AuctionService {
         } catch (error: any) {
             if (transaction) await transaction.rollback();
     
-            console.error("Error creating auction:", error);
-            throw new DataContextException("Error while creating auction: " + error.message);
+            console.error("Error creating auction");
+            throw new DataContextException("Error while creating auction");
         }
     }
     
@@ -1293,90 +1293,106 @@ class AuctionService {
 
         return resultCode;
     }
-    public static async publishedAuctions(): Promise<IAuctionData[]> {
-        let auctions: IAuctionData[] = [];
-    
+    public static async publishedAuctions(): Promise<IAuctionData[] | null> {
+        let auctions: IAuctionData[] | null = null;
         try {
             const dbAuctions = await Auction.findAll({
                 include: [
-                    { 
-                        model: Profile,
-                    },
-                    { 
-                        model: HypermediaFile,
-                        where: { 
-                            mime_type: {
-                                [Op.or]: [
-                                    { [Op.startsWith]: "image/" },
-                                    { [Op.startsWith]: "video/" }
-                                ]
-                            }
-                        },
-                        required: false
+                    {
+                        model: ItemCondition
                     },
                     {
-                        model: AuctionCategory,
-                        attributes: ["id_auction_category", "title"],
-                        required: false 
+                        model: HypermediaFile,
+                        where: {
+                            mime_type: {
+                                [Op.startsWith]: "image/"
+                            }
+                        },
+                        attributes: ["id_hypermedia_file", "mime_type", "name", "content"]
                     }
                 ],
-                order: [
-                    ["id_auction", "DESC"]
-                ]
+                attributes: {
+                    include: [
+                        [
+                            literal(`(SELECT IF(S.name = "${AuctionStatus.PUBLISHED}", 1, 0) FROM auctions_states_applications AS 
+                            H INNER JOIN auction_states AS S ON H.id_auction_state = S.id_auction_state WHERE H.id_auction = 
+                            Auction.id_auction ORDER BY H.application_date DESC LIMIT 1)`),
+                            "is_public"
+                        ]
+                    ],
+                },
+                having: { ["is_public"]: { [Op.eq]: 1 } },
             });
     
-            auctions = dbAuctions.map(auction => {
-                const {
-                    id_auction,
-                    title,
-                    description,
-                    base_price,
-                    minimum_bid,
-                    days_available,
-                    AuctionCategory,
-                    Profile: auctioneer,
-                    HypermediaFiles,
-                    item_condition,
-                    auction_state
-                } = auction.toJSON();
+            if (dbAuctions !== null && dbAuctions.length > 0) {
+                auctions = await Promise.all(dbAuctions.map(async dbAuction => {
+                    const {
+                        id_auction: idAuction,
+                        title,
+                        approval_date,
+                        days_available,
+                        description,
+                        base_price,
+                        minimum_bid,
+                        ItemCondition: { name: itemConditionName },
+                        HypermediaFiles: auctionImages
+                    } = dbAuction.toJSON();
+                    const closesAt = new Date(approval_date);
+                    closesAt.setDate(approval_date.getDate() + days_available);
     
-                const auctionData: IAuctionData = {
-                    id: id_auction,
-                    title,
-                    description,
-                    basePrice: base_price,
-                    minimumBid: minimum_bid,
-                    daysAvailable: days_available,
-                    category: AuctionCategory ? { 
-                        id: AuctionCategory.id_auction_category, 
-                        title: AuctionCategory.title 
-                    } : undefined,
-                    auctioneer: auctioneer ? {
-                        id: auctioneer.id_profile,
-                        fullName: auctioneer.full_name,
-                        avatar: auctioneer.avatar ? ImageConverter.bufferToBase64(auctioneer.avatar) : undefined
-                    } : undefined,
-                    mediaFiles: Array.isArray(HypermediaFiles) ? HypermediaFiles.map(file => ({
-                        id: file.id_hypermedia_file,
-                        name: file.name,
-                        content: file.content ? ImageConverter.bufferToBase64(file.content) : ''
-                    })) : undefined,
-                    itemCondition: item_condition,
-                    auctionState: auction_state
-                };
+                    const dbAuctionVideos = await HypermediaFile.findAll({
+                        where: {
+                            [Op.and]: {
+                                mime_type: {
+                                    [Op.startsWith]: "video/"
+                                },
+                                id_auction: idAuction
+                            }
+                        },
+                        attributes: ["id_hypermedia_file", "mime_type", "name"]
+                    });
+                    const auctionVideos = dbAuctionVideos.map(video => video.toJSON());
     
-                return auctionData;
-            });
+                    const auctionMediaFiles = [...auctionImages, ...auctionVideos]
+                        .sort((file1, file2) => file1.id_hypermedia_file - file2.id_hypermedia_file)
+                        .map(({ id_hypermedia_file, mime_type, name, content }) => {
+                            const fileData = {
+                                id: id_hypermedia_file,
+                                mimeType: mime_type,
+                                name,
+                                content: ""
+                            } as IHypermediaFileData;
+    
+                            if (mime_type.startsWith("image")) {
+                                fileData.content = ImageConverter.bufferToBase64(content);
+                            }
+    
+                            return fileData;
+                        });
+    
+                    return {
+                        id: idAuction,
+                        title,
+                        closesAt,
+                        description,
+                        basePrice: Number(base_price) || 0,
+                        minimumBid: Number(minimum_bid) || 0,
+                        itemCondition: itemConditionName,
+                        mediaFiles: auctionMediaFiles
+                    };
+                }));
+            }
         } catch (error: any) {
             const errorCodeMessage = error.code ? `ErrorCode: ${error.code}` : "";
             throw new DataContextException(
                 error.message
                     ? `${error.message}. ${errorCodeMessage}`
-                    : `It was not possible to recover the auctions. ${errorCodeMessage}`
+                    : `It was not possible to recover the published auctions. ${errorCodeMessage}`
             );
         }
+    
         return auctions;
-    }      
+    }    
 }
 
 export default AuctionService;
