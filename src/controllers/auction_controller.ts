@@ -5,6 +5,7 @@ import { IOfferData } from "@ts/data";
 import { BlockUserCodes, GetOffersCodes, HttpStatusCodes, CreateAuctionCodes } from "@ts/enums";
 import { NextFunction, Request, Response } from "express";
 import AuctionService from "services/auction_service";
+import videoClient from 'grpcClient';
 
 class AuctionController {
     public static async searchAuction(req: Request, res: Response, next: NextFunction) {
@@ -159,7 +160,7 @@ class AuctionController {
         };
         const mediaFiles = req.body.mediaFiles;
         const userProfileId: number = req.user.id;
-    
+
         if (!auctionData || !mediaFiles) {
             res.status(HttpStatusCodes.BAD_REQUEST).json({
                 error: true,
@@ -168,18 +169,44 @@ class AuctionController {
             });
             return;
         }
-    
+
         console.log("Received auction data:", auctionData);
         console.log("Received media files:", mediaFiles);
-    
+
         try {
-            await AuctionService.createAuction(auctionData, mediaFiles, userProfileId);
-            res.status(HttpStatusCodes.CREATED).send(); 
+            const auction = await AuctionService.createAuction(auctionData, mediaFiles, userProfileId);
+
+            for (const file of mediaFiles) {
+                if (file.mimeType.startsWith('video/')) {
+                    await AuctionController.uploadVideoViaGrpc(auction.id_auction, file.mimeType, file.content, file.name);
+                }
+            }
+
+            res.status(HttpStatusCodes.CREATED).send();
         } catch (error: any) {
-            next(error);
+            console.error("Error creating auction:", error); 
+            res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).json({
+                error: true,
+                statusCode: HttpStatusCodes.INTERNAL_SERVER_ERROR,
+                details: error.message || "It was not possible to process your request, please try it again later"
+            });
         }
     }
+
+    private static uploadVideoViaGrpc(auctionId: number, mimeType: string, content: string, name: string): Promise<any> {
+        return new Promise((resolve, reject) => {
+            const call = videoClient.uploadVideo((error: any, response: any) => {
+                if (error) {
+                    reject(error);
+                } else {
+                    resolve(response);
+                }
+            });
     
+            call.write({ auctionId, mimeType, content: Buffer.from(content, 'base64'), name });
+            call.end();
+        });
+    }
     public static async searchCompletedAuction(req: Request, res: Response, next: NextFunction) {
         /*
             #swagger.auto = false
@@ -488,3 +515,7 @@ class AuctionController {
 }
 
 export default AuctionController;
+
+function uploadVideoViaGrpc(id_auction: number, mimeType: any, content: any) {
+    throw new Error("Function not implemented.");
+}

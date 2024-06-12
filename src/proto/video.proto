@@ -1,0 +1,26 @@
+syntax = "proto3";
+
+message VideoRequest {
+    int32 videoId = 1;
+}
+
+message VideoChunkResponse {
+    bytes data = 1;
+}
+
+message VideoUploadRequest {
+    int32 auctionId = 1;
+    string mimeType = 2;
+    bytes content = 3;
+    string name = 4; 
+}
+
+message VideoUploadResponse {
+    string message = 1;
+    int32 videoId = 2;
+}
+
+service VideoService {
+    rpc streamVideo(VideoRequest) returns (stream VideoChunkResponse) {}
+    rpc uploadVideo (stream VideoUploadRequest) returns (VideoUploadResponse);
+}
