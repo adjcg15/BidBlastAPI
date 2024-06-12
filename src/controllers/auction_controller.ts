@@ -178,7 +178,7 @@ class AuctionController {
 
             for (const file of mediaFiles) {
                 if (file.mimeType.startsWith('video/')) {
-                    await AuctionController.uploadVideoViaGrpc(auction.id_auction, file.mimeType, file.content, file.name);
+                    await AuctionController.uploadVideo(auction.id_auction, file.mimeType, file.content, file.name);
                 }
             }
 
@@ -193,7 +193,7 @@ class AuctionController {
         }
     }
 
-    private static uploadVideoViaGrpc(auctionId: number, mimeType: string, content: string, name: string): Promise<any> {
+    private static uploadVideo(auctionId: number, mimeType: string, content: string, name: string): Promise<any> {
         return new Promise((resolve, reject) => {
             const call = videoClient.uploadVideo((error: any, response: any) => {
                 if (error) {
@@ -509,6 +509,35 @@ class AuctionController {
 
             res.status(HttpStatusCodes.CREATED).json();
         } catch (error: any) {
+            next(error);
+        }
+    }
+    public static async getPublishedAuctions(req: Request, res: Response, next: NextFunction) {
+        /*  
+            #swagger.auto = false
+    
+            #swagger.path = '/api/auctions'
+            #swagger.method = 'get'
+            #swagger.produces = ['application/json']
+            #swagger.consumes = ['application/json']
+            #swagger.tags = ['Auctions']
+            #swagger.summary = 'Recovers all published auctions'
+            #swagger.security = [{
+                BearerAuth: []
+            }]
+            #swagger.responses[200] = {
+                description: 'List of auctions',
+                schema: { $ref: '#/definitions/AuctionsList' }
+            }
+            #swagger.responses[500] = {
+                description: 'Server error',
+                schema: { $ref: '#/definitions/ServerError' }
+            }
+        */
+        try {
+            const response = await AuctionService.publishedAuctions();
+            res.status(HttpStatusCodes.OK).json(response);
+        } catch(error: any) {
             next(error);
         }
     }

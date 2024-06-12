@@ -16,6 +16,12 @@ AuctionRouter.get("/",
     DefaultValuesInjector.setSearchAuctionDefaultParams,
     AuctionController.searchAuction
 );
+AuctionRouter.get("/published",
+    AccessControl.checkTokenValidity,
+    checkSchema(AuctionRequestValidator.auctionsListSchema()),
+    RequestFormatValidator.validateRequestFormat,
+    AuctionController.getPublishedAuctions
+);
 
 AuctionRouter.get("/:idAuction",
     AccessControl.checkTokenValidity,

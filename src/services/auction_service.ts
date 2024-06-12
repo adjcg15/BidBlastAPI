@@ -1293,6 +1293,90 @@ class AuctionService {
 
         return resultCode;
     }
+    public static async publishedAuctions(): Promise<IAuctionData[]> {
+        let auctions: IAuctionData[] = [];
+    
+        try {
+            const dbAuctions = await Auction.findAll({
+                include: [
+                    { 
+                        model: Profile,
+                    },
+                    { 
+                        model: HypermediaFile,
+                        where: { 
+                            mime_type: {
+                                [Op.or]: [
+                                    { [Op.startsWith]: "image/" },
+                                    { [Op.startsWith]: "video/" }
+                                ]
+                            }
+                        },
+                        required: false
+                    },
+                    {
+                        model: AuctionCategory,
+                        attributes: ["id_auction_category", "title"],
+                        required: false 
+                    }
+                ],
+                order: [
+                    ["id_auction", "DESC"]
+                ]
+            });
+    
+            auctions = dbAuctions.map(auction => {
+                const {
+                    id_auction,
+                    title,
+                    description,
+                    base_price,
+                    minimum_bid,
+                    days_available,
+                    AuctionCategory,
+                    Profile: auctioneer,
+                    HypermediaFiles,
+                    item_condition,
+                    auction_state
+                } = auction.toJSON();
+    
+                const auctionData: IAuctionData = {
+                    id: id_auction,
+                    title,
+                    description,
+                    basePrice: base_price,
+                    minimumBid: minimum_bid,
+                    daysAvailable: days_available,
+                    category: AuctionCategory ? { 
+                        id: AuctionCategory.id_auction_category, 
+                        title: AuctionCategory.title 
+                    } : undefined,
+                    auctioneer: auctioneer ? {
+                        id: auctioneer.id_profile,
+                        fullName: auctioneer.full_name,
+                        avatar: auctioneer.avatar ? ImageConverter.bufferToBase64(auctioneer.avatar) : undefined
+                    } : undefined,
+                    mediaFiles: Array.isArray(HypermediaFiles) ? HypermediaFiles.map(file => ({
+                        id: file.id_hypermedia_file,
+                        name: file.name,
+                        content: file.content ? ImageConverter.bufferToBase64(file.content) : ''
+                    })) : undefined,
+                    itemCondition: item_condition,
+                    auctionState: auction_state
+                };
+    
+                return auctionData;
+            });
+        } catch (error: any) {
+            const errorCodeMessage = error.code ? `ErrorCode: ${error.code}` : "";
+            throw new DataContextException(
+                error.message
+                    ? `${error.message}. ${errorCodeMessage}`
+                    : `It was not possible to recover the auctions. ${errorCodeMessage}`
+            );
+        }
+        return auctions;
+    }      
 }
 
 export default AuctionService;
