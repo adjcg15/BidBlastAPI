@@ -139,10 +139,15 @@ class AuctionRequestValidator {
             },
             mediaFiles: {
                 in: ["body"],
-                isArray: {
-                    errorMessage: "Media files must be an array"
-                },
-                optional: { options: { nullable: true } }
+                custom: {
+                    options: (value) => {
+                        if (value === null || !Array.isArray(value) || value.length === 0) {
+                            throw new Error("Media files must be a non-empty array");
+                        }
+                        return true;
+                    },
+                    errorMessage: "At least one media file is required"
+                }
             },
             "mediaFiles.*.mimeType": {
                 in: ["body"],
@@ -154,6 +159,16 @@ class AuctionRequestValidator {
             "mediaFiles.*.content": {
                 in: ["body"],
                 isString: true,
+                custom: {
+                    options: (value) => {
+                        const buffer = Buffer.from(value, 'base64');
+                        if (buffer.length > 5 * 1024 * 1024) {
+                            throw new Error("Video exceeds the maximum allowed size of 5 MB");
+                        }
+                        return true;
+                    },
+                    errorMessage: "Invalid video content"
+                },
                 notEmpty: {
                     errorMessage: "Each media file must have content"
                 }
@@ -164,7 +179,7 @@ class AuctionRequestValidator {
                 optional: { options: { nullable: true } }
             }
         };
-    }
+    }        
     public static auctionByIdSchema(): Schema {
         return {
             idAuction: {
