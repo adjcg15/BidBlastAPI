@@ -6,14 +6,27 @@ class UserRequestValidator {
             fullName: {
                 in: ["body"],
                 trim: true,
-                notEmpty: true,
-                errorMessage: "Full name is required"
+                notEmpty: {
+                    errorMessage: "fullName is required"
+                },
+                isLength: {
+                    options: { max: 255 },
+                    errorMessage: "Title cannot be longer than 255 characters"
+                }
+
             },
             email: {
                 in: ["body"],
                 trim: true,
                 isEmail: true,
-                errorMessage: "Invalid email address"
+                notEmpty: {
+                    errorMessage: "Email is required"
+                },
+                isLength: {
+                    options: { max: 60 },
+                    errorMessage: "Email cannot be longer than 60 characters"
+                }
+
             },
             phoneNumber: {
                 in: ["body"],
@@ -53,14 +66,25 @@ class UserRequestValidator {
             fullName: {
                 in: ["body"],
                 trim: true,
-                notEmpty: true,
-                errorMessage: "Full name is required"
+                notEmpty: {
+                    errorMessage: "fullName is required"
+                },
+                isLength: {
+                    options: { max: 255 },
+                    errorMessage: "Title cannot be longer than 255 characters"
+                }
             },
             email: {
                 in: ["body"],
                 trim: true,
                 isEmail: true,
-                errorMessage: "Invalid email address"
+                notEmpty: {
+                    errorMessage: "Email is required"
+                },
+                isLength: {
+                    options: { max: 60 },
+                    errorMessage: "Email cannot be longer than 60 characters"
+                }
             },
             phoneNumber: {
                 in: ["body"],

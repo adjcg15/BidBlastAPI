@@ -94,7 +94,7 @@ enum ModifyAuctionCategoryCodes {
 }
 
 enum CreateAuctionCategoryCodes {
-    TITLE_ALREADY_EXISTS = EndpointContexts.MODIFY_CATEGORY_BY_ID + "-400001"
+    TITLE_ALREADY_EXISTS = EndpointContexts.CREATE_CATEGORY + "-400001"
 }
 
 enum GetOffersCodes {

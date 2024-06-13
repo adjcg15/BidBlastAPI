@@ -70,11 +70,11 @@ class AuctionCategoryController{
                     }
                 }
             }
-            #swagger.responses[200] = {
+            #swagger.responses[201] = {
                 description: 'Auction category is registered',
                 schema: {
                     error: false,
-                    statusCode: 200,
+                    statusCode: 201,
                     details: 'Auction category is registered'
                 }
             }
@@ -141,11 +141,11 @@ class AuctionCategoryController{
                     }
                 }
             }
-            #swagger.responses[200] = {
+            #swagger.responses[204] = {
                 description: 'Auction category is updated',
                 schema: {
                     error: false,
-                    statusCode: 200,
+                    statusCode: 204,
                     details: 'Auction category is updated'
                 }
             }
@@ -187,7 +187,7 @@ class AuctionCategoryController{
                 return;
             }
     
-            res.status(HttpStatusCodes.CREATED).send();
+            res.status(HttpStatusCodes.NO_CONTENT).send();
         } catch (error: any) {
             next(error);
         }

@@ -123,7 +123,7 @@ class UserController {
                 required: true,
                 schema: { $ref: '#/definitions/User' }
             }
-            #swagger.responses[201] = {
+            #swagger.responses[204] = {
                 description: 'User updated successfully'
             }
             #swagger.responses[400] = {
@@ -160,7 +160,7 @@ class UserController {
                 return;
             }
     
-            res.status(HttpStatusCodes.CREATED).json();
+            res.status(HttpStatusCodes.NO_CONTENT).json();
         } catch (error: any) {
             next(error);
         }
@@ -180,7 +180,7 @@ class UserController {
                 type: 'integer',
                 example: '10'
             }
-            #swagger.responses[201] = {
+            #swagger.responses[204] = {
                 description: 'User deleted successfully'
             }
             #swagger.responses[400] = {
@@ -213,7 +213,7 @@ class UserController {
                 return;
             }
     
-            res.status(HttpStatusCodes.CREATED).json();
+            res.status(HttpStatusCodes.NO_CONTENT).json();
         } catch (error: any) {
             next(error);
         }

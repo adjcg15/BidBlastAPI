@@ -706,12 +706,16 @@ class AuctionService {
         return auctions;
     }
     
-    public static async getUserAuctionOffersByAuctionId(idAuction: number, offset: number, limit: number): Promise<IOfferData[] | GetOffersCodes> {
+    public static async getUserAuctionOffersByAuctionId(idProfile: number, idAuction: number, offset: number, limit: number): Promise<IOfferData[] | GetOffersCodes> {
         let offers: IOfferData[] = [];
         let resultCode: GetOffersCodes | null = null;
 
         try {
-            const dbAuction = await Auction.findByPk(idAuction);
+            const dbAuction = await Auction.findOne({
+                where: {
+                    id_auction: idAuction, id_profile: idProfile
+                }
+            });
 
             if (dbAuction === null) {
                 resultCode = GetOffersCodes.AUCTION_NOT_FOUND;
@@ -787,7 +791,13 @@ class AuctionService {
                             }
                         },
                         attributes: ["id_hypermedia_file", "mime_type", "name", "content"]
-                    }
+                    },
+                    {
+                        model: Offer,
+                        order: [["creation_date", "DESC"]],
+                        separate: true,
+                        limit: 1
+                    },
                 ],
                 attributes: {
                     include: [
@@ -811,7 +821,8 @@ class AuctionService {
                     base_price,
                     minimum_bid,
                     ItemCondition: { name: itemConditionName },
-                    HypermediaFiles: auctionImages
+                    HypermediaFiles: auctionImages,
+                    Offers
                 } = dbAuction.toJSON();
                 const closesAt = new Date(approval_date);
                 closesAt.setDate(approval_date.getDate() + days_available);
@@ -856,6 +867,16 @@ class AuctionService {
                     itemCondition: itemConditionName,
                     mediaFiles: auctionMediaFiles
                 };
+
+                if(Array.isArray(Offers) && Offers.length > 0) {
+                    const { id_offer, amount, creation_date } = Offers[0];
+
+                    auction.lastOffer = {
+                        id: id_offer,
+                        amount: parseFloat(amount),
+                        creationDate: creation_date
+                    }
+                }
             }
         } catch(error: any) {
             const errorCodeMessage = error.code ? `ErrorCode: ${error.code}` : "";
@@ -869,11 +890,26 @@ class AuctionService {
         return auction;
     }
 
-    public static async blockUserInAnAuctionAndDeleteHisOffers(idProfile: number, idAuction: number){
+    public static async blockUserInAnAuctionAndDeleteHisOffers(idAuctioneer: number, idProfile: number, idAuction: number){
         let resultCode: BlockUserCodes | null = null;
 
         try {
-            const dbAuction = await Auction.findByPk(idAuction);
+            const dbAuction = await Auction.findOne({
+                where: {
+                    id_auction: idAuction, id_profile: idAuctioneer
+                },
+                attributes: {
+                    include: [
+                        [
+                            literal(`(SELECT IF(S.name = "${AuctionStatus.PUBLISHED}", 1, 0) FROM auctions_states_applications AS 
+                            H INNER JOIN auction_states AS S ON H.id_auction_state = S.id_auction_state WHERE H.id_auction = 
+                            Auction.id_auction ORDER BY H.application_date DESC LIMIT 1)`),
+                            "is_public"
+                        ]
+                    ],
+                },
+                having:{ ["is_public"]: {[Op.eq]:1}}
+            });
             if (dbAuction === null) {
                 resultCode = BlockUserCodes.AUCTION_NOT_FOUND;
                 return resultCode;
@@ -897,7 +933,7 @@ class AuctionService {
 
             const dbOffer = await Offer.findOne({
                 where: {
-                    id_profile: idProfile
+                    id_profile: idProfile, id_auction: idAuction
                 }
             });
             if (dbOffer === null) {

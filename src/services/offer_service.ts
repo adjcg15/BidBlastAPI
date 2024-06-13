@@ -108,7 +108,7 @@ class OfferService {
                 return resultCode;
             }
 
-            if(auctionMinimumBid >= (offerAmount - lastOfferAmount)) {
+            if(auctionMinimumBid > (offerAmount - lastOfferAmount)) {
                 resultCode = CreateOfferCodes.MINIMUM_BID_NOT_FULFILLED;
                 return resultCode;
             }
