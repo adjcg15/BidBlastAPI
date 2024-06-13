@@ -264,6 +264,7 @@ class AuctionRequestValidator {
             }
         }
     }
+    
 }
 
 export default AuctionRequestValidator;

@@ -148,49 +148,46 @@ class AuctionController {
         }
     }
     public static async createAuction(req: Request, res: Response, next: NextFunction): Promise<void> {
-        /* 
+        /*
+        #swagger.auto = false
+
+        #swagger.path = '/auctions'
+        #swagger.method = 'post'
+        #swagger.produces = ['application/json']
+        #swagger.consumes = ['application/json']
         #swagger.tags = ['Auctions']
         #swagger.summary = 'Create a new auction'
-        #swagger.parameters['body'] = {
-            in: 'body',
+        #swagger.security = [{
+            BearerAuth: []
+        }]
+        #swagger.requestBody = {
             required: true,
-            schema: {
-                type: 'object',
-                properties: {
-                    title: { type: 'string', maxLength: 60, example: 'Antique Vase' },
-                    description: { type: 'string', maxLength: 255, example: 'A beautiful antique vase from the 19th century.' },
-                    basePrice: { type: 'number', minimum: 0, example: 100.0 },
-                    minimumBid: { type: 'number', minimum: 0, example: 10.0 },
-                    approvalDate: { type: 'string', format: 'date-time', example: '2023-06-01T00:00:00Z' },
-                    daysAvailable: { type: 'integer', minimum: 1, example: 7 },
-                    idItemCondition: { type: 'integer', example: 1 },
-                    idAuctionCategory: { type: 'integer', example: 2 },
-                    mediaFiles: {
-                        type: 'array',
-                        items: {
-                            type: 'object',
-                            properties: {
-                                mimeType: { type: 'string', example: 'image/jpeg' },
-                                name: { type: 'string', example: 'image1.jpg' },
-                                content: { type: 'string', format: 'base64', example: 'base64encodedstring...' }
-                            },
-                            required: ['mimeType', 'content']
-                        }
+            content: {
+                'application/json': {
+                    schema: {
+                        $ref: '#/components/schemas/CreateAuctionRequest'
                     }
-                },
-                required: ['title', 'description', 'basePrice', 'daysAvailable', 'idItemCondition', 'mediaFiles']
+                }
             }
         }
         #swagger.responses[201] = {
-            description: 'Auction created successfully'
+            description: 'Auction successfully created'
         }
         #swagger.responses[400] = {
-            description: 'Bad request',
-            schema: { $ref: "#/definitions/BadRequestErrorWithApiError" }
+            description: 'Invalid request data',
+            content: {
+                'application/json': {
+                    schema: { $ref: "#/components/schemas/ValidationError" }
+                }
+            }
         }
         #swagger.responses[500] = {
-            description: 'Server error',
-            schema: { $ref: '#/definitions/ServerError' }
+            description: 'Internal server error',
+            content: {
+                'application/json': {
+                    schema: { $ref: '#/components/schemas/ServerError' }
+                }
+            }
         }
     */
         const errors = validationResult(req);
@@ -238,7 +235,8 @@ class AuctionController {
                 details: "It was not possible to process your request, please try it again later"
             });
         }
-    }    
+    }
+    
     public static async searchCompletedAuction(req: Request, res: Response, next: NextFunction) {
         /*
             #swagger.auto = false
@@ -585,6 +583,14 @@ class AuctionController {
             const response = await AuctionService.publishedAuctions();
             res.status(HttpStatusCodes.OK).json(response);
         } catch (error: any) {
+            next(error);
+        }
+    }
+    public static async getAuctionStates(req: Request, res: Response, next: NextFunction): Promise<void> {
+        try {
+            const auctionStates = await AuctionService.getAuctionStates();
+            res.status(HttpStatusCodes.OK).json(auctionStates);
+        } catch (error) {
             next(error);
         }
     }
