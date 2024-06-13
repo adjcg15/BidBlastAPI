@@ -167,9 +167,9 @@ class AuctionRequestValidator {
                 },
                 custom: {
                     options: (value: string) => {
-                        const allowedMimeTypes = ["video/x-msvideo", "image/png", "image/jpeg"];
+                        const allowedMimeTypes = ["image/png", "image/jpeg"];
                         if (!allowedMimeTypes.includes(value)) {
-                            throw new Error("Invalid mime type, only AVI for videos, PNG and JPEG for images are allowed");
+                            throw new Error("Invalid mime type, only PNG and JPEG for images are allowed");
                         }
                         return true;
                     }
@@ -183,11 +183,11 @@ class AuctionRequestValidator {
                         const buffer = Buffer.from(value, 'base64');
                         const file = req.body.mediaFiles.find((f: any) => f.content === value);
                         if (buffer.length > 2 * 1024 * 1024) {
-                            throw new Error(`${file.mimeType.startsWith("video/") ? "Video" : "Image"} exceeds the maximum allowed size of 2 MB`);
+                            throw new Error(`Image exceeds the maximum allowed size of 2 MB`);
                         }
                         return true;
                     },
-                    errorMessage: "Invalid file content, exceeds the maximum allowed size of 5 MB"
+                    errorMessage: "Invalid file content, exceeds the maximum allowed size of 2 MB"
                 },
                 notEmpty: {
                     errorMessage: "Each media file must have content"
@@ -199,7 +199,7 @@ class AuctionRequestValidator {
                 optional: { options: { nullable: true } }
             }
         };
-    }  
+    }    
     public static auctionByIdSchema(): Schema {
         return {
             idAuction: {

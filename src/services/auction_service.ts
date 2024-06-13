@@ -294,7 +294,6 @@ class AuctionService {
             throw new DataContextException("Error while checking item condition existence");
         }
     }
-    
     public static async createAuction(
         auctionData: any,
         mediaFiles: any[],
@@ -329,15 +328,17 @@ class AuctionService {
             );
     
             for (const file of mediaFiles) {
-                await HypermediaFile.create(
-                    {
-                        mime_type: file.mimeType,
-                        name: file.name,
-                        content: ImageConverter.bufferToBase64(file.content),
-                        id_auction: auction.id_auction
-                    },
-                    { transaction }
-                );
+                if (file.mimeType.startsWith('image/')) {
+                    await HypermediaFile.create(
+                        {
+                            mime_type: file.mimeType,
+                            name: file.name,
+                            content: file.content, 
+                            id_auction: auction.id_auction
+                        },
+                        { transaction }
+                    );
+                }
             }
     
             const proposalStateId = await this.getStateIdByName("PROPUESTA");
@@ -1311,6 +1312,8 @@ class AuctionService {
     public static async publishedAuctions(): Promise<IAuctionData[] | null> {
         let auctions: IAuctionData[] | null = null;
         try {
+            console.log("Iniciando la consulta de subastas propuestas");
+            
             const dbAuctions = await Auction.findAll({
                 include: [
                     {
@@ -1329,14 +1332,14 @@ class AuctionService {
                 attributes: {
                     include: [
                         [
-                            literal(`(SELECT IF(S.name = "${AuctionStatus.PUBLISHED}", 1, 0) FROM auctions_states_applications AS 
+                            literal(`(SELECT IF(S.name = "${AuctionStatus.PROPOSED}", 1, 0) FROM auctions_states_applications AS 
                             H INNER JOIN auction_states AS S ON H.id_auction_state = S.id_auction_state WHERE H.id_auction = 
                             Auction.id_auction ORDER BY H.application_date DESC LIMIT 1)`),
-                            "is_public"
+                            "is_proposed"
                         ]
                     ],
                 },
-                having: { ["is_public"]: { [Op.eq]: 1 } },
+                having: { ["is_proposed"]: { [Op.eq]: 1 } },
             });
     
             if (dbAuctions !== null && dbAuctions.length > 0) {
@@ -1352,8 +1355,12 @@ class AuctionService {
                         ItemCondition: { name: itemConditionName },
                         HypermediaFiles: auctionImages
                     } = dbAuction.toJSON();
-                    const closesAt = new Date(approval_date);
-                    closesAt.setDate(approval_date.getDate() + days_available);
+    
+                    let closesAt: Date | undefined = undefined;
+                    if (approval_date) {
+                        closesAt = new Date(approval_date);
+                        closesAt.setDate(approval_date.getDate() + days_available);
+                    }
     
                     const dbAuctionVideos = await HypermediaFile.findAll({
                         where: {
@@ -1389,6 +1396,7 @@ class AuctionService {
                         id: idAuction,
                         title,
                         closesAt,
+                        days_available,
                         description,
                         basePrice: Number(base_price) || 0,
                         minimumBid: Number(minimum_bid) || 0,
@@ -1396,18 +1404,21 @@ class AuctionService {
                         mediaFiles: auctionMediaFiles
                     };
                 }));
+            } else {
+                console.log("No se encontraron subastas propuestas");
             }
         } catch (error: any) {
+            console.error("Error en publishedAuctions: ", error);
             const errorCodeMessage = error.code ? `ErrorCode: ${error.code}` : "";
             throw new DataContextException(
                 error.message
                     ? `${error.message}. ${errorCodeMessage}`
-                    : `It was not possible to recover the published auctions. ${errorCodeMessage}`
+                    : `It was not possible to recover the proposed auctions. ${errorCodeMessage}`
             );
         }
     
         return auctions;
-    }    
+    }       
 }
 
 export default AuctionService;

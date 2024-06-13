@@ -5,7 +5,6 @@ import { IOfferData } from "@ts/data";
 import { BlockUserCodes, GetOffersCodes, HttpStatusCodes, CreateAuctionCodes } from "@ts/enums";
 import { NextFunction, Request, Response } from "express";
 import AuctionService from "services/auction_service";
-import videoClient from 'grpcClient';
 import { validationResult } from "express-validator";
 
 class AuctionController {
@@ -149,12 +148,57 @@ class AuctionController {
         }
     }
     public static async createAuction(req: Request, res: Response, next: NextFunction): Promise<void> {
+        /* 
+        #swagger.tags = ['Auctions']
+        #swagger.summary = 'Create a new auction'
+        #swagger.parameters['body'] = {
+            in: 'body',
+            required: true,
+            schema: {
+                type: 'object',
+                properties: {
+                    title: { type: 'string', maxLength: 60, example: 'Antique Vase' },
+                    description: { type: 'string', maxLength: 255, example: 'A beautiful antique vase from the 19th century.' },
+                    basePrice: { type: 'number', minimum: 0, example: 100.0 },
+                    minimumBid: { type: 'number', minimum: 0, example: 10.0 },
+                    approvalDate: { type: 'string', format: 'date-time', example: '2023-06-01T00:00:00Z' },
+                    daysAvailable: { type: 'integer', minimum: 1, example: 7 },
+                    idItemCondition: { type: 'integer', example: 1 },
+                    idAuctionCategory: { type: 'integer', example: 2 },
+                    mediaFiles: {
+                        type: 'array',
+                        items: {
+                            type: 'object',
+                            properties: {
+                                mimeType: { type: 'string', example: 'image/jpeg' },
+                                name: { type: 'string', example: 'image1.jpg' },
+                                content: { type: 'string', format: 'base64', example: 'base64encodedstring...' }
+                            },
+                            required: ['mimeType', 'content']
+                        }
+                    }
+                },
+                required: ['title', 'description', 'basePrice', 'daysAvailable', 'idItemCondition', 'mediaFiles']
+            }
+        }
+        #swagger.responses[201] = {
+            description: 'Auction created successfully'
+        }
+        #swagger.responses[400] = {
+            description: 'Bad request',
+            schema: { $ref: "#/definitions/BadRequestErrorWithApiError" }
+        }
+        #swagger.responses[500] = {
+            description: 'Server error',
+            schema: { $ref: '#/definitions/ServerError' }
+        }
+    */
         const errors = validationResult(req);
         if (!errors.isEmpty()) {
             res.status(HttpStatusCodes.BAD_REQUEST).json({ errors: errors.array() });
             return;
         }
-
+    
         const auctionData = {
             title: req.body.title,
             description: req.body.description,
@@ -165,9 +209,15 @@ class AuctionController {
             idItemCondition: req.body.idItemCondition,
             idAuctionCategory: req.body.idAuctionCategory
         };
-        const mediaFiles = req.body.mediaFiles;
+    
+        const mediaFiles = req.body.mediaFiles.map((file: any) => ({
+            mimeType: file.mimeType,
+            name: file.name,
+            content: Buffer.from(file.content, 'base64')
+        }));
+    
         const userProfileId: number = req.user.id;
-
+    
         if (!auctionData || !mediaFiles || mediaFiles.length === 0) {
             res.status(HttpStatusCodes.BAD_REQUEST).json({
                 error: true,
@@ -176,16 +226,10 @@ class AuctionController {
             });
             return;
         }
-
+    
         try {
             const auction = await AuctionService.createAuction(auctionData, mediaFiles, userProfileId);
-
-            for (const file of mediaFiles) {
-                if (file.mimeType === 'video/x-msvideo') {
-                    await AuctionController.uploadVideo(auction.id_auction, file.mimeType, file.content, file.name);
-                }
-            }
-
+    
             res.status(HttpStatusCodes.CREATED).send();
         } catch (error: any) {
             res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).json({
@@ -194,22 +238,7 @@ class AuctionController {
                 details: "It was not possible to process your request, please try it again later"
             });
         }
-    }
-
-    private static uploadVideo(auctionId: number, mimeType: string, content: string, name: string): Promise<any> {
-        return new Promise((resolve, reject) => {
-            const call = videoClient.uploadVideo((error: any, response: any) => {
-                if (error) {
-                    reject(error);
-                } else {
-                    resolve(response);
-                }
-            });
-
-            call.write({ auctionId, mimeType, content: Buffer.from(content, 'base64'), name });
-            call.end();
-        });
-    }
+    }    
     public static async searchCompletedAuction(req: Request, res: Response, next: NextFunction) {
         /*
             #swagger.auto = false
@@ -516,9 +545,9 @@ class AuctionController {
         }
     }
     public static async getPublishedAuctions(req: Request, res: Response, next: NextFunction) {
-        /*  
+            /*  
             #swagger.auto = false
-    
+
             #swagger.path = '/api/auctions'
             #swagger.method = 'get'
             #swagger.produces = ['application/json']
@@ -529,8 +558,21 @@ class AuctionController {
                 BearerAuth: []
             }]
             #swagger.responses[200] = {
-                description: 'List of auctions',
-                schema: { $ref: '#/definitions/AuctionsList' }
+                description: 'List of published auctions',
+                schema: {
+                    type: 'array',
+                    items: {
+                        $ref: '#/definitions/Auction'
+                    }
+                }
+            }
+            #swagger.responses[400] = {
+                description: 'Bad request',
+                schema: { $ref: '#/definitions/BadRequestErrorWithApiError' }
+            }
+            #swagger.responses[401] = {
+                description: 'Unauthorized',
+                schema: { $ref: '#/definitions/UnauthorizedError' }
             }
             #swagger.responses[500] = {
                 description: 'Server error',
@@ -540,7 +582,7 @@ class AuctionController {
         try {
             const response = await AuctionService.publishedAuctions();
             res.status(HttpStatusCodes.OK).json(response);
-        } catch(error: any) {
+        } catch (error: any) {
             next(error);
         }
     }
