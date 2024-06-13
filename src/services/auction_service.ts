@@ -619,7 +619,7 @@ class AuctionService {
                             id: Profile.id_profile,
                             fullName: Profile.full_name,
                             phoneNumber,
-                            avatar: Profile.avatar,
+                            avatar: ImageConverter.bufferToBase64(Profile.avatar),
                             email: Profile.Account.email
                         }
                     }
