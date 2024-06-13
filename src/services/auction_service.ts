@@ -1450,6 +1450,60 @@ class AuctionService {
         return auctions;
     }
     public static async getAuctionStates(): Promise<any[]> {
+        /*  
+    #swagger.auto = false
+
+    #swagger.path = '/auctions/states'
+    #swagger.method = 'get'
+    #swagger.produces = ['application/json']
+    #swagger.consumes = ['application/json']
+    #swagger.tags = ['Auctions']
+    #swagger.summary = 'Fetches all available auction states'
+    #swagger.responses[200] = {
+        description: 'List of auction states',
+        schema: {
+            type: 'array',
+            items: {
+                type: 'object',
+                properties: {
+                    id_item_condition: {
+                        type: 'integer',
+                        description: 'The ID of the auction state',
+                        example: 1
+                    },
+                    name: {
+                        type: 'string',
+                        description: 'The name of the auction state',
+                        example: 'Nuevo'
+                    }
+                }
+            }
+        }
+    }
+    #swagger.responses[500] = {
+        description: 'Internal server error',
+        schema: {
+            type: 'object',
+            properties: {
+                error: {
+                    type: 'boolean',
+                    description: 'Indicates if there was an error',
+                    example: true
+                },
+                statusCode: {
+                    type: 'integer',
+                    description: 'The status code of the error',
+                    example: 500
+                },
+                message: {
+                    type: 'string',
+                    description: 'A detailed error message',
+                    example: 'It was not possible to process your request, please try it again later'
+                }
+            }
+        }
+    }
+    */
         try {
             const itemCondition = await ItemCondition.findAll({
                 attributes: ['id_item_condition', 'name']
