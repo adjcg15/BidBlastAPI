@@ -95,7 +95,7 @@ CREATE TABLE IF NOT EXISTS `bid_blast_database`.`auctions` (
   `days_available` SMALLINT NOT NULL,
   `id_profile` INT NOT NULL,
   `id_item_condition` INT NOT NULL,
-  `id_auction_category` INT NOT NULL,
+  `id_auction_category` INT NULL,
   PRIMARY KEY (`id_auction`),
   INDEX `fk_auctions_profiles_idx` (`id_profile` ASC) VISIBLE,
   INDEX `fk_auctions_item_conditions_idx` (`id_item_condition` ASC) VISIBLE,

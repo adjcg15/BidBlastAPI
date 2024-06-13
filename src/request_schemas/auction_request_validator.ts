@@ -1,3 +1,4 @@
+import ItemCondition from "@models/ItemCondition";
 import { Schema } from "express-validator";
 
 class AuctionRequestValidator {
@@ -127,7 +128,16 @@ class AuctionRequestValidator {
                 isInt: {
                     errorMessage: "Item condition ID must be an integer"
                 },
-                toInt: true
+                toInt: true,
+                custom: {
+                    options: async (value: number) => {
+                        const itemCondition = await ItemCondition.findByPk(value);
+                        if (!itemCondition) {
+                            throw new Error("Invalid item condition ID");
+                        }
+                        return true;
+                    }
+                }
             },
             idAuctionCategory: {
                 in: ["body"],
@@ -139,21 +149,46 @@ class AuctionRequestValidator {
             },
             mediaFiles: {
                 in: ["body"],
-                isArray: {
-                    errorMessage: "Media files must be an array"
-                },
-                optional: { options: { nullable: true } }
+                custom: {
+                    options: (value: any[]) => {
+                        if (value === null || !Array.isArray(value) || value.length === 0) {
+                            throw new Error("Media files must be a non-empty array");
+                        }
+                        return true;
+                    },
+                    errorMessage: "At least one media file is required"
+                }
             },
             "mediaFiles.*.mimeType": {
                 in: ["body"],
                 isString: true,
                 notEmpty: {
                     errorMessage: "Each media file must have a mimeType"
+                },
+                custom: {
+                    options: (value: string) => {
+                        const allowedMimeTypes = ["image/png", "image/jpeg"];
+                        if (!allowedMimeTypes.includes(value)) {
+                            throw new Error("Invalid mime type, only PNG and JPEG for images are allowed");
+                        }
+                        return true;
+                    }
                 }
             },
             "mediaFiles.*.content": {
                 in: ["body"],
                 isString: true,
+                custom: {
+                    options: (value: string, { req }) => {
+                        const buffer = Buffer.from(value, 'base64');
+                        const file = req.body.mediaFiles.find((f: any) => f.content === value);
+                        if (buffer.length > 2 * 1024 * 1024) {
+                            throw new Error(`Image exceeds the maximum allowed size of 2 MB`);
+                        }
+                        return true;
+                    },
+                    errorMessage: "Invalid file content, exceeds the maximum allowed size of 2 MB"
+                },
                 notEmpty: {
                     errorMessage: "Each media file must have content"
                 }
@@ -164,8 +199,7 @@ class AuctionRequestValidator {
                 optional: { options: { nullable: true } }
             }
         };
-    }
-
+    }    
     public static auctionByIdSchema(): Schema {
         return {
             idAuction: {
@@ -230,6 +264,7 @@ class AuctionRequestValidator {
             }
         }
     }
+    
 }
 
 export default AuctionRequestValidator;

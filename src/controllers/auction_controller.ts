@@ -2,9 +2,10 @@ import { DataContextException } from "@exceptions/services";
 import Logger from "@lib/logger";
 import { OffersAuctionQueryType, SearchActionQueryType } from "@ts/controllers";
 import { IOfferData } from "@ts/data";
-import { BlockUserCodes, GetOffersCodes, HttpStatusCodes } from "@ts/enums";
+import { BlockUserCodes, GetOffersCodes, HttpStatusCodes, CreateAuctionCodes } from "@ts/enums";
 import { NextFunction, Request, Response } from "express";
 import AuctionService from "services/auction_service";
+import { validationResult } from "express-validator";
 
 class AuctionController {
     public static async searchAuction(req: Request, res: Response, next: NextFunction) {
@@ -146,10 +147,9 @@ class AuctionController {
             next(error);
         }
     }
-
     public static async createAuction(req: Request, res: Response, next: NextFunction): Promise<void> {
         /*
-            #swagger.tags = ['Auctions']
+        #swagger.tags = ['Auctions']
             #swagger.summary = 'Creates a new auction'
             #swagger.parameters['body'] = {
                 in: 'body',
@@ -201,20 +201,26 @@ class AuctionController {
                 schema: {
                     message: 'Auction created successfully',
                     auction: { $ref: '#/definitions/Auction' }
-                }
+                    }
             }
             #swagger.responses[400] = {
                 description: 'Invalid request data',
                 schema: {
                     error: true,
                     message: 'Invalid request data'
-                }
+                    }
             }
             #swagger.responses[500] = {
                 description: 'Server error',
                 schema: { $ref: '#/definitions/ServerError' }
             }
         */
+        const errors = validationResult(req);
+        if (!errors.isEmpty()) {
+            res.status(HttpStatusCodes.BAD_REQUEST).json({ errors: errors.array() });
+            return;
+        }
+    
         const auctionData = {
             title: req.body.title,
             description: req.body.description,
@@ -225,27 +231,37 @@ class AuctionController {
             idItemCondition: req.body.idItemCondition,
             idAuctionCategory: req.body.idAuctionCategory
         };
-        const mediaFiles = req.body.mediaFiles;
+    
+        const mediaFiles = req.body.mediaFiles.map((file: any) => ({
+            mimeType: file.mimeType,
+            name: file.name,
+            content: Buffer.from(file.content, 'base64')
+        }));
+    
         const userProfileId: number = req.user.id;
     
-        if (!auctionData || !mediaFiles) {
+        if (!auctionData || !mediaFiles || mediaFiles.length === 0) {
             res.status(HttpStatusCodes.BAD_REQUEST).json({
                 error: true,
-                message: "Invalid request data"
+                code: [CreateAuctionCodes.INVALID_REQUEST_DATA],
+                message: "Invalid request data: Media files are required"
             });
             return;
         }
     
-        console.log("Received auction data:", auctionData);
-        console.log("Received media files:", mediaFiles);
-    
         try {
             const auction = await AuctionService.createAuction(auctionData, mediaFiles, userProfileId);
-            res.status(HttpStatusCodes.CREATED).json({ message: "Auction created successfully", auction });
+    
+            res.status(HttpStatusCodes.CREATED).send();
         } catch (error: any) {
-            next(error);
+            res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).json({
+                error: true,
+                statusCode: HttpStatusCodes.INTERNAL_SERVER_ERROR,
+                details: "It was not possible to process your request, please try it again later"
+            });
         }
-    }    
+    }
+    
     public static async searchCompletedAuction(req: Request, res: Response, next: NextFunction) {
         /*
             #swagger.auto = false
@@ -553,6 +569,60 @@ class AuctionController {
             next(error);
         }
     }
+    public static async getPublishedAuctions(req: Request, res: Response, next: NextFunction) {
+            /*  
+            #swagger.auto = false
+
+            #swagger.path = '/api/auctions'
+            #swagger.method = 'get'
+            #swagger.produces = ['application/json']
+            #swagger.consumes = ['application/json']
+            #swagger.tags = ['Auctions']
+            #swagger.summary = 'Recovers all published auctions'
+            #swagger.security = [{
+                BearerAuth: []
+            }]
+            #swagger.responses[200] = {
+                description: 'List of published auctions',
+                schema: {
+                    type: 'array',
+                    items: {
+                        $ref: '#/definitions/Auction'
+                    }
+                }
+            }
+            #swagger.responses[400] = {
+                description: 'Bad request',
+                schema: { $ref: '#/definitions/BadRequestErrorWithApiError' }
+            }
+            #swagger.responses[401] = {
+                description: 'Unauthorized',
+                schema: { $ref: '#/definitions/UnauthorizedError' }
+            }
+            #swagger.responses[500] = {
+                description: 'Server error',
+                schema: { $ref: '#/definitions/ServerError' }
+            }
+        */
+        try {
+            const response = await AuctionService.publishedAuctions();
+            res.status(HttpStatusCodes.OK).json(response);
+        } catch (error: any) {
+            next(error);
+        }
+    }
+    public static async getAuctionStates(req: Request, res: Response, next: NextFunction): Promise<void> {
+        try {
+            const auctionStates = await AuctionService.getAuctionStates();
+            res.status(HttpStatusCodes.OK).json(auctionStates);
+        } catch (error) {
+            next(error);
+        }
+    }
 }
 
 export default AuctionController;
+
+function uploadVideoViaGrpc(id_auction: number, mimeType: any, content: any) {
+    throw new Error("Function not implemented.");
+}
