@@ -357,11 +357,9 @@ class AuctionService {
             return auction;
         } catch (error: any) {
             if (transaction) await transaction.rollback();
-    
-            console.error("Error creating auction:", error.message);
             throw new DataContextException("Error while creating auction");
         }
-    }
+    }    
     public static async getCompletedAuctions(userId: number, query: string, offset: number, limit: number) {
         let auctions: IAuctionData[] = [];
         try {
@@ -1348,8 +1346,6 @@ class AuctionService {
     public static async publishedAuctions(): Promise<IAuctionData[] | null> {
         let auctions: IAuctionData[] | null = null;
         try {
-            console.log("Iniciando la consulta de subastas propuestas");
-            
             const dbAuctions = await Auction.findAll({
                 include: [
                     {
@@ -1441,10 +1437,8 @@ class AuctionService {
                     };
                 }));
             } else {
-                console.log("No se encontraron subastas propuestas");
             }
         } catch (error: any) {
-            console.error("Error en publishedAuctions: ", error);
             const errorCodeMessage = error.code ? `ErrorCode: ${error.code}` : "";
             throw new DataContextException(
                 error.message
@@ -1454,7 +1448,23 @@ class AuctionService {
         }
     
         return auctions;
-    }       
+    }
+    public static async getAuctionStates(): Promise<any[]> {
+        try {
+            const itemCondition = await ItemCondition.findAll({
+                attributes: ['id_item_condition', 'name']
+            });
+
+            return itemCondition.map(state => state.toJSON());
+        } catch (error: any) {
+            const errorCodeMessage = error.code ? `ErrorCode: ${error.code}` : "";
+            throw new Error(
+                error.message
+                    ? `${error.message}. ${errorCodeMessage}`
+                    : `It was not possible to recover the auction states. ${errorCodeMessage}`
+            );
+        }
+    }    
 }
 
 export default AuctionService;
