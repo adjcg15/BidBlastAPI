@@ -274,21 +274,44 @@ class AuctionService {
 
         return auctions;
     }
-
+    public static async getStateIdByName(name: string): Promise<number> {
+        const state = await AuctionState.findOne({
+            where: { name }
+        });
+    
+        if (!state) {
+            throw new DataContextException(`State with name ${name} not found`);
+        }
+    
+        return state.id_auction_state;
+    }
+    public static async checkItemConditionExists(idItemCondition: number): Promise<boolean> {
+        try {
+            const itemCondition = await ItemCondition.findByPk(idItemCondition);
+            return itemCondition !== null;
+        } catch (error: any) {
+            console.error("Error checking item condition existence:", error);
+            throw new DataContextException("Error while checking item condition existence");
+        }
+    }
     public static async createAuction(
         auctionData: any,
         mediaFiles: any[],
         userProfileId: number
     ): Promise<Auction> {
         let transaction: Transaction | null = null;
-
+    
         try {
             if (!Auction.sequelize) {
                 throw new DataContextException("Sequelize instance is not available");
             }
-
+            const itemConditionExists = await this.checkItemConditionExists(auctionData.idItemCondition);
+            if (!itemConditionExists) {
+                throw new DataContextException("Item condition does not exist");
+            }
+    
             transaction = await Auction.sequelize.transaction();
-
+    
             const auction = await Auction.create(
                 {
                     title: auctionData.title,
@@ -303,29 +326,40 @@ class AuctionService {
                 },
                 { transaction }
             );
-
+    
             for (const file of mediaFiles) {
-                await HypermediaFile.create(
-                    {
-                        mime_type: file.mimeType,
-                        name: file.name,
-                        content: ImageConverter.bufferToBase64(file.content),
-                        id_auction: auction.id_auction
-                    },
-                    { transaction }
-                );
+                if (file.mimeType.startsWith('image/')) {
+                    await HypermediaFile.create(
+                        {
+                            mime_type: file.mimeType,
+                            name: file.name,
+                            content: file.content, 
+                            id_auction: auction.id_auction
+                        },
+                        { transaction }
+                    );
+                }
             }
-
+    
+            const proposalStateId = await this.getStateIdByName("PROPUESTA");
+    
+            await AuctionStatesApplications.create(
+                {
+                    id_auction: auction.id_auction,
+                    id_auction_state: proposalStateId,
+                    application_date: new Date()
+                },
+                { transaction }
+            );
+    
             await transaction.commit();
-
+    
             return auction;
         } catch (error: any) {
             if (transaction) await transaction.rollback();
-
-            console.error("Error creating auction:", error);
-            throw new DataContextException("Error while creating auction: " + error.message);
+            throw new DataContextException("Error while creating auction");
         }
-    }
+    }    
     public static async getCompletedAuctions(userId: number, query: string, offset: number, limit: number) {
         let auctions: IAuctionData[] = [];
         try {
@@ -1309,6 +1343,128 @@ class AuctionService {
 
         return resultCode;
     }
+    public static async publishedAuctions(): Promise<IAuctionData[] | null> {
+        let auctions: IAuctionData[] | null = null;
+        try {
+            const dbAuctions = await Auction.findAll({
+                include: [
+                    {
+                        model: ItemCondition
+                    },
+                    {
+                        model: HypermediaFile,
+                        where: {
+                            mime_type: {
+                                [Op.startsWith]: "image/"
+                            }
+                        },
+                        attributes: ["id_hypermedia_file", "mime_type", "name", "content"]
+                    }
+                ],
+                attributes: {
+                    include: [
+                        [
+                            literal(`(SELECT IF(S.name = "${AuctionStatus.PROPOSED}", 1, 0) FROM auctions_states_applications AS 
+                            H INNER JOIN auction_states AS S ON H.id_auction_state = S.id_auction_state WHERE H.id_auction = 
+                            Auction.id_auction ORDER BY H.application_date DESC LIMIT 1)`),
+                            "is_proposed"
+                        ]
+                    ],
+                },
+                having: { ["is_proposed"]: { [Op.eq]: 1 } },
+            });
+    
+            if (dbAuctions !== null && dbAuctions.length > 0) {
+                auctions = await Promise.all(dbAuctions.map(async dbAuction => {
+                    const {
+                        id_auction: idAuction,
+                        title,
+                        approval_date,
+                        days_available,
+                        description,
+                        base_price,
+                        minimum_bid,
+                        ItemCondition: { name: itemConditionName },
+                        HypermediaFiles: auctionImages
+                    } = dbAuction.toJSON();
+    
+                    let closesAt: Date | undefined = undefined;
+                    if (approval_date) {
+                        closesAt = new Date(approval_date);
+                        closesAt.setDate(approval_date.getDate() + days_available);
+                    }
+    
+                    const dbAuctionVideos = await HypermediaFile.findAll({
+                        where: {
+                            [Op.and]: {
+                                mime_type: {
+                                    [Op.startsWith]: "video/"
+                                },
+                                id_auction: idAuction
+                            }
+                        },
+                        attributes: ["id_hypermedia_file", "mime_type", "name"]
+                    });
+                    const auctionVideos = dbAuctionVideos.map(video => video.toJSON());
+    
+                    const auctionMediaFiles = [...auctionImages, ...auctionVideos]
+                        .sort((file1, file2) => file1.id_hypermedia_file - file2.id_hypermedia_file)
+                        .map(({ id_hypermedia_file, mime_type, name, content }) => {
+                            const fileData = {
+                                id: id_hypermedia_file,
+                                mimeType: mime_type,
+                                name,
+                                content: ""
+                            } as IHypermediaFileData;
+    
+                            if (mime_type.startsWith("image")) {
+                                fileData.content = ImageConverter.bufferToBase64(content);
+                            }
+    
+                            return fileData;
+                        });
+    
+                    return {
+                        id: idAuction,
+                        title,
+                        closesAt,
+                        days_available,
+                        description,
+                        basePrice: Number(base_price) || 0,
+                        minimumBid: Number(minimum_bid) || 0,
+                        itemCondition: itemConditionName,
+                        mediaFiles: auctionMediaFiles
+                    };
+                }));
+            } else {
+            }
+        } catch (error: any) {
+            const errorCodeMessage = error.code ? `ErrorCode: ${error.code}` : "";
+            throw new DataContextException(
+                error.message
+                    ? `${error.message}. ${errorCodeMessage}`
+                    : `It was not possible to recover the proposed auctions. ${errorCodeMessage}`
+            );
+        }
+    
+        return auctions;
+    }
+    public static async getAuctionStates(): Promise<any[]> {
+        try {
+            const itemCondition = await ItemCondition.findAll({
+                attributes: ['id_item_condition', 'name']
+            });
+
+            return itemCondition.map(state => state.toJSON());
+        } catch (error: any) {
+            const errorCodeMessage = error.code ? `ErrorCode: ${error.code}` : "";
+            throw new Error(
+                error.message
+                    ? `${error.message}. ${errorCodeMessage}`
+                    : `It was not possible to recover the auction states. ${errorCodeMessage}`
+            );
+        }
+    }    
 }
 
 export default AuctionService;

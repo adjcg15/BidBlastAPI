@@ -108,6 +108,11 @@ enum BlockUserCodes {
     USER_ALREADY_BLOCKED = EndpointContexts.CREATE_BLOCK_USER + "-400003",
     USER_BID_ON_AUCTION_NOT_FOUND = EndpointContexts.CREATE_BLOCK_USER + "-400004"
 }
+enum CreateAuctionCodes {
+    INVALID_REQUEST_DATA = EndpointContexts.CREATE_AUCTION + "400001",
+    AUCTION_CREATION_ERROR = EndpointContexts.CREATE_AUCTION + "500001",
+    INVALID_ITEM_CONDITION = EndpointContexts.CREATE_AUCTION + "-400002"
+}
 
 export {
     HttpStatusCodes,
@@ -123,5 +128,6 @@ export {
     ModifyAuctionCategoryCodes,
     CreateAuctionCategoryCodes,
     GetOffersCodes,
-    BlockUserCodes
+    BlockUserCodes,
+    CreateAuctionCodes
 };

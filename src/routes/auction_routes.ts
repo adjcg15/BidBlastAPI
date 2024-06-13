@@ -16,6 +16,16 @@ AuctionRouter.get("/",
     DefaultValuesInjector.setSearchAuctionDefaultParams,
     AuctionController.searchAuction
 );
+AuctionRouter.get("/published",
+    AccessControl.checkTokenValidity,
+    checkSchema(AuctionRequestValidator.auctionsListSchema()),
+    RequestFormatValidator.validateRequestFormat,
+    AuctionController.getPublishedAuctions
+);
+AuctionRouter.get("/states",
+    AccessControl.checkTokenValidity,
+    AuctionController.getAuctionStates
+);
 
 AuctionRouter.get("/:idAuction",
     AccessControl.checkTokenValidity,
@@ -26,7 +36,7 @@ AuctionRouter.get("/:idAuction",
 
 AuctionRouter.post("/",
     AccessControl.checkTokenValidity,
-    AccessControl.allowRoles([UserRoles.AUCTIONEER, UserRoles.CUSTOMER]),
+    AccessControl.allowRoles([UserRoles.CUSTOMER, UserRoles.AUCTIONEER]),
     checkSchema(AuctionRequestValidator.createAuctionSchema()), 
     RequestFormatValidator.validateRequestFormat, 
     AuctionController.createAuction

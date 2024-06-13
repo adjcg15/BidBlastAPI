@@ -58,14 +58,14 @@ function configureModel() {
     AuctionCategory.hasMany(Auction, {
         foreignKey: {
             name: "id_auction_category",
-            allowNull: false
+            allowNull: true
         },
         onDelete: "CASCADE"
     });
     Auction.belongsTo(AuctionCategory, {
         foreignKey: {
             name: "id_auction_category",
-            allowNull: false
+            allowNull: true
         },
         onDelete: "CASCADE"
     });
