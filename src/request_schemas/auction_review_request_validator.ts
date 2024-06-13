@@ -34,6 +34,9 @@ class AuctionReviewRequestValidator {
             },
             comments: {
                 in: ["body"],
+                notEmpty: {
+                    errorMessage: "The body attribute 'comments' must be non-empty value"
+                },
                 isString: {
                     errorMessage: "The body attribute 'comments' must be a string value"
                 },
