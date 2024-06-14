@@ -252,7 +252,10 @@ class AuctionController {
         try {
             const auction = await AuctionService.createAuction(auctionData, mediaFiles, userProfileId);
     
-            res.status(HttpStatusCodes.CREATED).send();
+            res.status(HttpStatusCodes.CREATED).json({
+                message: "Auction created successfully",
+                auctionId: auction.id_auction
+            });
         } catch (error: any) {
             res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).json({
                 error: true,
@@ -260,7 +263,7 @@ class AuctionController {
                 details: "It was not possible to process your request, please try it again later"
             });
         }
-    }
+    }    
     
     public static async searchCompletedAuction(req: Request, res: Response, next: NextFunction) {
         /*

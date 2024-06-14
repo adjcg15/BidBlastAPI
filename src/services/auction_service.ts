@@ -333,7 +333,7 @@ class AuctionService {
                         {
                             mime_type: file.mimeType,
                             name: file.name,
-                            content: file.content, 
+                            content: file.content,
                             id_auction: auction.id_auction
                         },
                         { transaction }
