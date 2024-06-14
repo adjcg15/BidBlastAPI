@@ -217,6 +217,7 @@ class AuctionController {
         */
         const errors = validationResult(req);
         if (!errors.isEmpty()) {
+            console.log("Entre");
             res.status(HttpStatusCodes.BAD_REQUEST).json({ errors: errors.array() });
             return;
         }
@@ -251,8 +252,8 @@ class AuctionController {
     
         try {
             const auction = await AuctionService.createAuction(auctionData, mediaFiles, userProfileId);
-    
-            res.status(HttpStatusCodes.CREATED).send();
+            
+            res.status(HttpStatusCodes.CREATED).json(auction);
         } catch (error: any) {
             res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).json({
                 error: true,
