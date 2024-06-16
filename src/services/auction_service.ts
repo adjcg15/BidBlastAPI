@@ -222,7 +222,10 @@ class AuctionService {
                         ]
                     ],
                 },
-                having:{ ["is_sold"]: {[Op.eq]:1}}
+                having:{ ["is_sold"]: {[Op.eq]:1}},
+                order: [
+                    [AuctionStatesApplications, "application_date", "DESC"]
+                ]
             });
 
             const auctionsInformation = dbAuctions.map(auction => auction.toJSON());
