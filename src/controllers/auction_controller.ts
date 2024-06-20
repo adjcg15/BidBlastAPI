@@ -217,6 +217,7 @@ class AuctionController {
         */
         const errors = validationResult(req);
         if (!errors.isEmpty()) {
+            console.error("Validation errors: ", errors.array());
             res.status(HttpStatusCodes.BAD_REQUEST).json({ errors: errors.array() });
             return;
         }
@@ -241,6 +242,7 @@ class AuctionController {
         const userProfileId: number = req.user.id;
     
         if (!auctionData || !mediaFiles || mediaFiles.length === 0) {
+            console.error("Invalid request data: Media files are required");
             res.status(HttpStatusCodes.BAD_REQUEST).json({
                 error: true,
                 code: [CreateAuctionCodes.INVALID_REQUEST_DATA],
@@ -250,6 +252,9 @@ class AuctionController {
         }
     
         try {
+            console.log("Creating auction with data: ", auctionData);
+            console.log("Media files: ", mediaFiles);
+    
             const auction = await AuctionService.createAuction(auctionData, mediaFiles, userProfileId);
     
             res.status(HttpStatusCodes.CREATED).json({
@@ -257,6 +262,7 @@ class AuctionController {
                 auctionId: auction.id_auction
             });
         } catch (error: any) {
+            console.error("Error while creating auction: ", error);
             res.status(HttpStatusCodes.INTERNAL_SERVER_ERROR).json({
                 error: true,
                 statusCode: HttpStatusCodes.INTERNAL_SERVER_ERROR,
@@ -264,7 +270,6 @@ class AuctionController {
             });
         }
     }    
-    
     public static async searchCompletedAuction(req: Request, res: Response, next: NextFunction) {
         /*
             #swagger.auto = false

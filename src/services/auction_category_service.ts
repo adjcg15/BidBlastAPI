@@ -1,7 +1,7 @@
 import { DataContextException } from "@exceptions/services";
 import { IAuctionCategory } from "@ts/data";
 import AuctionCategory from "@models/AuctionCategory";
-import { UniqueConstraintError, literal } from 'sequelize';
+import { UniqueConstraintError, literal, Op } from 'sequelize';
 import { CreateAuctionCategoryCodes, ModifyAuctionCategoryCodes } from "@ts/enums";
 
 class AuctionCategoryService{
@@ -149,6 +149,23 @@ class AuctionCategoryService{
         }
 
         return auctionCategories;
+    }
+    public static async getManyCategories(query: string, limit: number, offset: number) {
+        try {
+            const categories = await AuctionCategory.findAll({
+                where: {
+                    title: {
+                        [Op.substring]: query
+                    }
+                },
+                limit,
+                offset,
+                order: [["title", "ASC"]]
+            });
+            return categories;
+        } catch (error) {
+            throw new Error("Error fetching auction categories");
+        }
     }
 }
 

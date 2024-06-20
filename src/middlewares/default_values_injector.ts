@@ -94,6 +94,27 @@ class DefaultValuesInjector {
 
         next();
     }
+    public static setSearchCategoryDefaultParams(req: Request, res: Response, next: NextFunction) {
+        const DEFAULT_QUERY_SEARCH = "";
+        const DEFAULT_LIMIT = 10;
+        const DEFAULT_OFFSET = 0;
+
+        const query = req.query;
+
+        if (!query.query) {
+            query.query = DEFAULT_QUERY_SEARCH;
+        }
+
+        if (!query.limit) {
+            query.limit = DEFAULT_LIMIT.toString();
+        }
+
+        if (!query.offset) {
+            query.offset = DEFAULT_OFFSET.toString();
+        }
+
+        next();
+    }
 }
 
 export default DefaultValuesInjector;

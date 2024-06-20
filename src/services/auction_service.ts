@@ -1428,7 +1428,7 @@ class AuctionService {
                         id: idAuction,
                         title,
                         closesAt,
-                        days_available,
+                        daysAvailable: days_available,  
                         description,
                         basePrice: Number(base_price) || 0,
                         minimumBid: Number(minimum_bid) || 0,
@@ -1449,6 +1449,7 @@ class AuctionService {
     
         return auctions;
     }
+     
     public static async getAuctionStates(): Promise<any[]> {
         /*  
     #swagger.auto = false

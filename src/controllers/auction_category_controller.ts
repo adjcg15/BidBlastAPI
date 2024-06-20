@@ -216,6 +216,19 @@ class AuctionCategoryController{
             next(error);
         }
     }
+    public static async searchCategory(req: Request, res: Response, next: NextFunction) {
+        try {
+            const { query, limit, offset } = req.query;
+            const categories = await AuctionCategoryService.getManyCategories(
+                query as string,
+                parseInt(limit as string),
+                parseInt(offset as string)
+            );
+            res.status(200).json(categories);
+        } catch (error) {
+            next(error);
+        }
+    }
 }
 
 export default AuctionCategoryController;
