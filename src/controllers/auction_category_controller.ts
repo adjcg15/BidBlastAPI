@@ -176,14 +176,25 @@ class AuctionCategoryController{
             let modifyCategoryResult: ModifyAuctionCategoryCodes | null = 
                 await AuctionCategoryService.updateAuctionCategory(idCategory, title, description, keywords);
             if(modifyCategoryResult !== null) {
-                const errorBody = {
-                    error: true,
-                    statusCode: HttpStatusCodes.BAD_REQUEST,
-                    details: errorMessages[modifyCategoryResult],
-                    apiErrorCode: modifyCategoryResult
-                }
+                if (modifyCategoryResult === ModifyAuctionCategoryCodes.CATEGORY_NOT_FOUND) {
+                    const errorBody = {
+                        error: true,
+                        statusCode: HttpStatusCodes.NOT_FOUND,
+                        details: errorMessages[modifyCategoryResult],
+                        apiErrorCode: modifyCategoryResult
+                    }
+                
+                    res.status(errorBody.statusCode).json(errorBody);
+                } else {
+                    const errorBody = {
+                        error: true,
+                        statusCode: HttpStatusCodes.BAD_REQUEST,
+                        details: errorMessages[modifyCategoryResult],
+                        apiErrorCode: modifyCategoryResult
+                    }
     
-                res.status(errorBody.statusCode).json(errorBody);
+                    res.status(errorBody.statusCode).json(errorBody);
+                }
                 return;
             }
     

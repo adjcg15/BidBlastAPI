@@ -222,7 +222,10 @@ class AuctionService {
                         ]
                     ],
                 },
-                having:{ ["is_sold"]: {[Op.eq]:1}}
+                having:{ ["is_sold"]: {[Op.eq]:1}},
+                order: [
+                    [AuctionStatesApplications, "application_date", "DESC"]
+                ]
             });
 
             const auctionsInformation = dbAuctions.map(auction => auction.toJSON());
@@ -298,8 +301,9 @@ class AuctionService {
         auctionData: any,
         mediaFiles: any[],
         userProfileId: number
-    ): Promise<Auction> {
+    ): Promise<IAuctionData> {
         let transaction: Transaction | null = null;
+        let auction : IAuctionData | null;
     
         try {
             if (!Auction.sequelize) {
@@ -312,7 +316,7 @@ class AuctionService {
     
             transaction = await Auction.sequelize.transaction();
     
-            const auction = await Auction.create(
+            const dbAuction = await Auction.create(
                 {
                     title: auctionData.title,
                     description: auctionData.description,
@@ -333,8 +337,8 @@ class AuctionService {
                         {
                             mime_type: file.mimeType,
                             name: file.name,
-                            content: file.content,
-                            id_auction: auction.id_auction
+                            content: file.content, 
+                            id_auction: dbAuction.id_auction
                         },
                         { transaction }
                     );
@@ -345,7 +349,7 @@ class AuctionService {
     
             await AuctionStatesApplications.create(
                 {
-                    id_auction: auction.id_auction,
+                    id_auction: dbAuction.id_auction,
                     id_auction_state: proposalStateId,
                     application_date: new Date()
                 },
@@ -353,6 +357,11 @@ class AuctionService {
             );
     
             await transaction.commit();
+
+            auction = {
+                id: dbAuction.id_auction,
+                title: dbAuction.title
+            };
     
             return auction;
         } catch (error: any) {
