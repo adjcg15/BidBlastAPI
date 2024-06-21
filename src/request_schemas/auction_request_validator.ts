@@ -167,7 +167,7 @@ class AuctionRequestValidator {
                 },
                 custom: {
                     options: (value: string) => {
-                        const allowedMimeTypes = ["image/png", "image/jpeg"];
+                        const allowedMimeTypes = ["image/png", "image/jpg"];
                         if (!allowedMimeTypes.includes(value)) {
                             throw new Error("Invalid mime type, only PNG and JPEG for images are allowed");
                         }
